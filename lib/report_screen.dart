@@ -1,10 +1,13 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:file_picker/file_picker.dart';
 import 'app_state.dart';
 import 'export_service.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:math' as Math;
+import 'rtl_fix.dart';
 
 class ReportScreen extends StatefulWidget {
   @override
@@ -14,8 +17,6 @@ class ReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<ReportScreen> {
   DateTime _selectedDate = DateTime.now();
   late ExportService _exportService;
-  double _backupProgress = 0.0;
-  double _restoreProgress = 0.0;
 
   @override
   void initState() {
@@ -73,7 +74,7 @@ class _ReportScreenState extends State<ReportScreen> {
         _buildTotalRow(weekShifts, appState, localizations,
             _calculateWorkingDays(weekShifts)),
         _buildPercentageTotals(weekShifts, appState, localizations),
-        _buildExportButtons(appState, localizations, weekShifts),
+        _buildExportButtons(localizations, weekShifts),
       ],
     );
   }
@@ -102,7 +103,7 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         _buildTotalRow(monthShifts, appState, localizations, totalWorkingDays),
         _buildPercentageTotals(monthShifts, appState, localizations),
-        _buildExportButtons(appState, localizations, monthShifts),
+        _buildExportButtons(localizations, monthShifts),
       ],
     );
   }
@@ -156,43 +157,69 @@ class _ReportScreenState extends State<ReportScreen> {
         final shift = shifts[index];
         return ListTile(
           title: Text(_getLocalizedDayMonth(localizations, shift.date)),
-          subtitle: Text(
-              '${localizations.startTime}: ${_formatTime(shift.startTime)} - ${localizations.endTime}: ${_formatTime(shift.endTime)}'),
-          trailing: Text(
+          subtitle: Row(
+            children: [
+              Text('${localizations.startTime}: '),
+              RTLFix.number(_formatTime(shift.startTime)),
+              Text(' - ${localizations.endTime}: '),
+              RTLFix.number(_formatTime(shift.endTime)),
+            ],
+          ),
+          trailing: RTLFix.number(
               '${appState.getCurrencySymbol()}${shift.grossWage.toStringAsFixed(2)}'),
         );
       },
     );
   }
 
-  Widget _buildTotalRow(List<Shift> shifts, AppState appState,
-      AppLocalizations localizations, int totalWorkingDays) {
-    final totalHours =
-        shifts.fold<double>(0, (sum, shift) => sum + shift.totalHours);
-    final totalGrossWage =
-        shifts.fold<double>(0, (sum, shift) => sum + shift.grossWage);
-    final totalNetWage =
-        shifts.fold<double>(0, (sum, shift) => sum + shift.netWage);
+  Widget _buildTotalRow(List<Shift> shifts, AppState appState, AppLocalizations localizations, int totalWorkingDays) {
+  final totalHours = shifts.fold<double>(0, (sum, shift) => sum + shift.totalHours);
+  final totalGrossWage = shifts.fold<double>(0, (sum, shift) => sum + shift.grossWage);
+  final totalNetWage = shifts.fold<double>(0, (sum, shift) => sum + shift.netWage);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('${localizations.totalWorkingDays}: $totalWorkingDays'),
-          Text('${localizations.totalHours}: ${totalHours.toStringAsFixed(2)}'),
-          Text(
-              '${localizations.grossWage}: ${appState.getCurrencySymbol()}${totalGrossWage.toStringAsFixed(2)}'),
-          Text(
-              '${localizations.netWage}: ${appState.getCurrencySymbol()}${totalNetWage.toStringAsFixed(2)}'),
-        ],
-      ),
-    );
-  }
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text('${localizations.totalWorkingDays}: '),
+            RTLFix.number('$totalWorkingDays'),
+          ],
+        ),
+        Row(
+          children: [
+            Text('${localizations.totalHours}: '),
+            RTLFix.number(totalHours.toStringAsFixed(2)),
+          ],
+        ),
+        Row(
+          children: [
+            Text('${localizations.grossWage}: ${appState.getCurrencySymbol()}'),
+            RTLFix.number(totalGrossWage.toStringAsFixed(2)),
+          ],
+        ),
+        Row(
+          children: [
+            Text('${localizations.netWage}: ${appState.getCurrencySymbol()}'),
+            RTLFix.number(totalNetWage.toStringAsFixed(2)),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
-  Widget _buildPercentageTotals(
-      List<Shift> shifts, AppState appState, AppLocalizations localizations) {
+
+Widget _buildPercentageTotals(List<Shift> shifts, AppState appState, AppLocalizations localizations) {
     final percentageTotals = _calculatePercentageTotals(shifts);
+    final totalHoursFromShifts = shifts.fold<double>(0, (sum, shift) => sum + shift.totalHours);
+    final totalHoursFromBreakdown = percentageTotals.values.fold<double>(0, (sum, hours) => sum + hours);
+
+    final sortedEntries = percentageTotals.entries.toList()
+      ..sort((a, b) => int.parse(a.key.replaceAll('%', ''))
+          .compareTo(int.parse(b.key.replaceAll('%', ''))));
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -201,17 +228,48 @@ class _ReportScreenState extends State<ReportScreen> {
         children: [
           Text(localizations.wageBreakdown,
               style: TextStyle(fontWeight: FontWeight.bold)),
-          ...percentageTotals.entries.map((entry) {
-            return Text(
-                '${entry.key}: ${entry.value.toStringAsFixed(2)} ${localizations.hours}');
+          ...sortedEntries.map((entry) {
+            return Row(
+              children: [
+                Text('${entry.key}: '),
+                RTLFix.number(
+                    '${entry.value.toStringAsFixed(2)} ${localizations.hours}'),
+              ],
+            );
           }).toList(),
+          SizedBox(height: 8),
+          Text('Total hours from shifts: ${totalHoursFromShifts.toStringAsFixed(2)}'),
+          Text('Total hours from breakdown: ${totalHoursFromBreakdown.toStringAsFixed(2)}'),
+          if ((totalHoursFromShifts - totalHoursFromBreakdown).abs() > 0.01)
+            Text('Warning: Total hours mismatch', style: TextStyle(color: Colors.red)),
         ],
       ),
     );
   }
 
+  Map<String, double> _calculatePercentageTotals(List<Shift> shifts) {
+    Map<String, double> totals = {
+      '100%': 0,
+      '125%': 0,
+      '150%': 0,
+      '175%': 0,
+      '200%': 0,
+    };
+
+    for (var shift in shifts) {
+      shift.wagePercentages.forEach((percentage, hours) {
+        totals[percentage] = (totals[percentage] ?? 0) + hours;
+      });
+    }
+
+    // Remove percentages with 0 hours
+    totals.removeWhere((key, value) => value == 0);
+
+    return totals;
+  }
+
   Widget _buildExportButtons(
-      AppState appState, AppLocalizations localizations, List<Shift> shifts) {
+      AppLocalizations localizations, List<Shift> shifts) {
     return Column(
       children: [
         Row(
@@ -246,120 +304,71 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   void _exportReport(List<Shift> shifts, String format) async {
-    String filePath;
+    try {
+      String filePath;
 
-    if (format == 'csv') {
-      filePath = await _exportService.generateCSV(shifts);
-    } else {
-      filePath = await _exportService.generatePDF(shifts);
+      if (format == 'csv') {
+        filePath = await _exportService.generateCSV(shifts);
+      } else {
+        filePath = await _exportService.generatePDF(shifts);
+      }
+
+      await _exportService.shareFile(filePath, 'Shift Report');
+    } catch (e) {
+      print("Error exporting report: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Export failed: $e")),
+      );
     }
-
-    await _exportService.shareFile(filePath, 'Shift Report');
   }
 
   void _createBackup(AppLocalizations localizations) async {
-    setState(() {
-      _backupProgress = 0.0;
-    });
-
     try {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return StatefulBuilder(
-            builder: (context, setDialogState) {
-              return AlertDialog(
-                title: Text(localizations.creatingBackup),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    LinearProgressIndicator(value: _backupProgress),
-                    SizedBox(height: 16),
-                    Text('${(_backupProgress * 100).toInt()}%'),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      );
-
-      final backupPath = await _exportService.createBackup(
-        onProgress: (value) {
-          setState(() {
-            _backupProgress = value;
-          });
-        },
-      );
-
-      Navigator.of(context).pop(); // Close the progress dialog
-
+      final backupPath = await _exportService.createBackup();
       await _exportService.shareFile(backupPath, 'Shift View Backup');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(localizations.backupCreated)),
       );
     } catch (e) {
-      Navigator.of(context).pop(); // Close the progress dialog in case of error
+      print("Error creating backup: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.backupFailed)),
+        SnackBar(content: Text("${localizations.backupFailed}: $e")),
       );
     }
   }
 
   void _restoreBackup(AppLocalizations localizations) async {
-    setState(() {
-      _restoreProgress = 0.0;
-    });
-
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles();
       if (result != null) {
         String filePath = result.files.single.path!;
-
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return StatefulBuilder(
-              builder: (context, setDialogState) {
-                return AlertDialog(
-                  title: Text(localizations.restoringBackup),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      LinearProgressIndicator(value: _restoreProgress),
-                      SizedBox(height: 16),
-                      Text('${(_restoreProgress * 100).toInt()}%'),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        );
-
-        await _exportService.restoreBackup(
-          filePath,
-          onProgress: (value) {
-            setState(() {
-              _restoreProgress = value;
-            });
-          },
-        );
-
-        Navigator.of(context).pop(); // Close the progress dialog
-
+        await _exportService.restoreBackup(filePath);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(localizations.backupRestored)),
         );
       }
     } catch (e) {
-      Navigator.of(context).pop(); // Close the progress dialog in case of error
+      print("Error restoring backup: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(localizations.restoreFailed)),
       );
     }
+  }
+
+  bool _isWeekend(AppState appState, DateTime date) {
+    if (appState.startOnSunday) {
+      return date.weekday == DateTime.saturday;
+    } else {
+      return date.weekday == DateTime.saturday ||
+          date.weekday == DateTime.sunday;
+    }
+  }
+
+  bool _isFestiveDay(AppState appState, DateTime date) {
+    return appState.festiveDays.any((festiveDay) =>
+        festiveDay.year == date.year &&
+        festiveDay.month == date.month &&
+        festiveDay.day == date.day);
   }
 
   String _formatTime(TimeOfDay time) {
@@ -453,16 +462,5 @@ class _ReportScreenState extends State<ReportScreen> {
             DateTime(shift.date.year, shift.date.month, shift.date.day))
         .toSet();
     return workingDays.length;
-  }
-
-  Map<String, double> _calculatePercentageTotals(List<Shift> shifts) {
-    Map<String, double> totals = {};
-
-    for (var shift in shifts) {
-      shift.wagePercentages.forEach((key, value) {
-        totals[key] = (totals[key] ?? 0) + value;
-    }
-
-    return totals;
   }
 }

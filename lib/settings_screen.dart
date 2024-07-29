@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
 import 'overtime_rules_screen.dart';
+import 'rtl_fix.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -19,14 +20,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     final appState = Provider.of<AppState>(context, listen: false);
-    _hourlyWageController =
-        TextEditingController(text: appState.hourlyWage.toString());
-    _taxDeductionController =
-        TextEditingController(text: appState.taxDeduction.toString());
-    _baseHoursWeekdayController =
-        TextEditingController(text: appState.baseHoursWeekday.toString());
-    _baseHoursSpecialDayController =
-        TextEditingController(text: appState.baseHoursSpecialDay.toString());
+    _hourlyWageController = TextEditingController(text: appState.hourlyWage.toString());
+    _taxDeductionController = TextEditingController(text: appState.taxDeduction.toString());
+    _baseHoursWeekdayController = TextEditingController(text: appState.baseHoursWeekday.toString());
+    _baseHoursSpecialDayController = TextEditingController(text: appState.baseHoursSpecialDay.toString());
   }
 
   @override
@@ -50,30 +47,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: EdgeInsets.all(16.0),
         children: [
-          TextFormField(
+          _buildNumberInput(
             controller: _hourlyWageController,
-            decoration: InputDecoration(labelText: localizations.hourlyWage),
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            label: localizations.hourlyWage,
+            prefixText: appState.getCurrencySymbol(),
           ),
           SizedBox(height: 16),
-          TextFormField(
+          _buildNumberInput(
             controller: _taxDeductionController,
-            decoration: InputDecoration(labelText: localizations.taxDeduction),
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            label: localizations.taxDeduction,
+            suffixText: '%',
           ),
           SizedBox(height: 16),
-          TextFormField(
+          _buildNumberInput(
             controller: _baseHoursWeekdayController,
-            decoration:
-                InputDecoration(labelText: localizations.baseHoursWeekday),
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            label: localizations.baseHoursWeekday,
           ),
           SizedBox(height: 16),
-          TextFormField(
+          _buildNumberInput(
             controller: _baseHoursSpecialDayController,
-            decoration:
-                InputDecoration(labelText: localizations.baseHoursSpecialDay),
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            label: localizations.baseHoursSpecialDay,
           ),
           SizedBox(height: 16),
           SwitchListTile(
@@ -108,18 +101,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             decoration: InputDecoration(labelText: localizations.country),
             value: appState.countryCode,
             items: [
-              DropdownMenuItem(
-                  child: Text(localizations.countryUS), value: 'US'),
-              DropdownMenuItem(
-                  child: Text(localizations.countryGB), value: 'GB'),
-              DropdownMenuItem(
-                  child: Text(localizations.countryEU), value: 'EU'),
-              DropdownMenuItem(
-                  child: Text(localizations.countryJP), value: 'JP'),
-              DropdownMenuItem(
-                  child: Text(localizations.countryIL), value: 'IL'),
-              DropdownMenuItem(
-                  child: Text(localizations.countryRU), value: 'RU'),
+              DropdownMenuItem(child: Text(localizations.countryUS), value: 'US'),
+              DropdownMenuItem(child: Text(localizations.countryGB), value: 'GB'),
+              DropdownMenuItem(child: Text(localizations.countryEU), value: 'EU'),
+              DropdownMenuItem(child: Text(localizations.countryJP), value: 'JP'),
+              DropdownMenuItem(child: Text(localizations.countryIL), value: 'IL'),
+              DropdownMenuItem(child: Text(localizations.countryRU), value: 'RU'),
             ],
             onChanged: (value) {
               if (value != null) {
@@ -155,6 +142,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildNumberInput({
+    required TextEditingController controller,
+    required String label,
+    String? prefixText,
+    String? suffixText,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixText: prefixText,
+        suffixText: suffixText,
+      ),
+      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.left,
     );
   }
 }

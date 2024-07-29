@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'settings_screen.dart';
@@ -64,6 +65,13 @@ class MainScreen extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (context) => OvertimeRulesScreen())),
             ),
+            SizedBox(height: 16),
+            _buildButton(
+              context,
+              localizations.addToHomeScreen,
+              Icons.add_to_home_screen,
+              () => _showAddToHomeScreenDialog(context),
+            ),
           ],
         ),
       ),
@@ -96,6 +104,35 @@ class MainScreen extends StatelessWidget {
           Icon(Icons.arrow_forward_ios, size: 18.0),
         ],
       ),
+    );
+  }
+
+  void _showAddToHomeScreenDialog(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(localizations.addToHomeScreenTitle),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(localizations.addToHomeScreeniOS),
+                SizedBox(height: 16),
+                Text(localizations.addToHomeScreenAndroid),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(localizations.ok),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

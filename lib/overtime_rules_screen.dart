@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -99,7 +100,7 @@ class OvertimeRulesScreen extends StatelessWidget {
                   child: Text(localizations.save),
                   onPressed: () {
                     final rule = OvertimeRule(
-                      id: existingRule?.id ?? DateTime.now().toString(),
+                      id: existingRule?.id ?? DateTime.now().toIso8601String(),
                       hoursThreshold: hoursThreshold,
                       rate: rate,
                       isForSpecialDays: isForSpecialDays,

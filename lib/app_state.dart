@@ -3,22 +3,69 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class AppState extends ChangeNotifier {
-  String userName = '';
   List<Shift> shifts = [];
-
-  double hourlyWage = 0;
-  double taxDeduction = 0;
-  bool startOnSunday = true;
-  Locale _locale = Locale('en', '');
-  String _countryCode = 'US'; // Default to US
   List<OvertimeRule> overtimeRules = [];
   List<DateTime> festiveDays = [];
 
-  double baseHoursWeekday = 8.0;
-  double baseHoursSpecialDay = 8.0;
+  double _hourlyWage = 0;
+  double _taxDeduction = 0;
+  bool _startOnSunday = true;
+  Locale _locale = Locale('en', '');
+  String _countryCode = 'US';
+  double _baseHoursWeekday = 8.0;
+  double _baseHoursSpecialDay = 8.0;
 
+  // Getters
+  double get hourlyWage => _hourlyWage;
+  double get taxDeduction => _taxDeduction;
+  bool get startOnSunday => _startOnSunday;
   Locale get locale => _locale;
   String get countryCode => _countryCode;
+  double get baseHoursWeekday => _baseHoursWeekday;
+  double get baseHoursSpecialDay => _baseHoursSpecialDay;
+
+  // Setters
+  set hourlyWage(double value) {
+    _hourlyWage = value;
+    notifyListeners();
+    saveSettings();
+  }
+
+  set taxDeduction(double value) {
+    _taxDeduction = value.clamp(0.0, 100.0);
+    notifyListeners();
+    saveSettings();
+  }
+
+  set startOnSunday(bool value) {
+    _startOnSunday = value;
+    notifyListeners();
+    saveSettings();
+  }
+
+  void setLocale(Locale newLocale) {
+    _locale = newLocale;
+    notifyListeners();
+    saveSettings();
+  }
+
+  void setCountry(String newCountryCode) {
+    _countryCode = newCountryCode;
+    notifyListeners();
+    saveSettings();
+  }
+
+  set baseHoursWeekday(double value) {
+    _baseHoursWeekday = value;
+    notifyListeners();
+    saveSettings();
+  }
+
+  set baseHoursSpecialDay(double value) {
+    _baseHoursSpecialDay = value;
+    notifyListeners();
+    saveSettings();
+  }
 
   AppState() {
     loadSettings();
@@ -29,25 +76,25 @@ class AppState extends ChangeNotifier {
 
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    hourlyWage = prefs.getDouble('hourlyWage') ?? 0;
-    taxDeduction = prefs.getDouble('taxDeduction') ?? 0;
-    startOnSunday = prefs.getBool('startOnSunday') ?? true;
+    _hourlyWage = prefs.getDouble('hourlyWage') ?? 0;
+    _taxDeduction = prefs.getDouble('taxDeduction') ?? 0;
+    _startOnSunday = prefs.getBool('startOnSunday') ?? true;
     _locale = Locale(prefs.getString('languageCode') ?? 'en', '');
     _countryCode = prefs.getString('countryCode') ?? 'US';
-    baseHoursWeekday = prefs.getDouble('baseHoursWeekday') ?? 8.0;
-    baseHoursSpecialDay = prefs.getDouble('baseHoursSpecialDay') ?? 8.0;
+    _baseHoursWeekday = prefs.getDouble('baseHoursWeekday') ?? 8.0;
+    _baseHoursSpecialDay = prefs.getDouble('baseHoursSpecialDay') ?? 8.0;
     notifyListeners();
   }
 
   Future<void> saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('hourlyWage', hourlyWage);
-    await prefs.setDouble('taxDeduction', taxDeduction);
-    await prefs.setBool('startOnSunday', startOnSunday);
+    await prefs.setDouble('hourlyWage', _hourlyWage);
+    await prefs.setDouble('taxDeduction', _taxDeduction);
+    await prefs.setBool('startOnSunday', _startOnSunday);
     await prefs.setString('languageCode', _locale.languageCode);
     await prefs.setString('countryCode', _countryCode);
-    await prefs.setDouble('baseHoursWeekday', baseHoursWeekday);
-    await prefs.setDouble('baseHoursSpecialDay', baseHoursSpecialDay);
+    await prefs.setDouble('baseHoursWeekday', _baseHoursWeekday);
+    await prefs.setDouble('baseHoursSpecialDay', _baseHoursSpecialDay);
   }
 
   Future<void> loadShifts() async {
@@ -100,34 +147,21 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  Future<void> updateBaseHours(
+      {required double weekday, required double specialDay}) async {
+    baseHoursWeekday = weekday;
+    baseHoursSpecialDay = specialDay;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('baseHoursWeekday', weekday);
+    await prefs.setDouble('baseHoursSpecialDay', specialDay);
+    notifyListeners();
+  }
+
   Future<void> saveFestiveDays() async {
     final prefs = await SharedPreferences.getInstance();
     final festiveDaysJson =
         json.encode(festiveDays.map((date) => date.toIso8601String()).toList());
     await prefs.setString('festiveDays', festiveDaysJson);
-  }
-
-  void setUserName(String name) {
-    userName = name;
-    notifyListeners();
-  }
-
-  void addShift(Shift shift) {
-    shifts.add(shift);
-    saveShifts();
-    notifyListeners();
-  }
-
-  void updateShift(int index, Shift updatedShift) {
-    shifts[index] = updatedShift;
-    saveShifts();
-    notifyListeners();
-  }
-
-  void deleteShift(int index) {
-    shifts.removeAt(index);
-    saveShifts();
-    notifyListeners();
   }
 
   void addOvertimeRule(OvertimeRule rule) {
@@ -137,15 +171,19 @@ class AppState extends ChangeNotifier {
   }
 
   void updateOvertimeRule(int index, OvertimeRule updatedRule) {
-    overtimeRules[index] = updatedRule;
-    saveOvertimeRules();
-    notifyListeners();
+    if (index >= 0 && index < overtimeRules.length) {
+      overtimeRules[index] = updatedRule;
+      saveOvertimeRules();
+      notifyListeners();
+    }
   }
 
   void deleteOvertimeRule(int index) {
-    overtimeRules.removeAt(index);
-    saveOvertimeRules();
-    notifyListeners();
+    if (index >= 0 && index < overtimeRules.length) {
+      overtimeRules.removeAt(index);
+      saveOvertimeRules();
+      notifyListeners();
+    }
   }
 
   void addFestiveDay(DateTime date) {
@@ -161,40 +199,49 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setLocale(Locale newLocale) async {
-    if (_locale != newLocale) {
-      _locale = newLocale;
-      await saveSettings();
+  void addShift(Shift shift) {
+    shifts.add(shift);
+    saveShifts();
+    notifyListeners();
+  }
+
+  void updateShift(int index, Shift updatedShift) {
+    if (index >= 0 && index < shifts.length) {
+      shifts[index] = updatedShift;
+      saveShifts();
+      notifyListeners();
+    }
+  }
+
+  void deleteShift(int index) {
+    if (index >= 0 && index < shifts.length) {
+      shifts.removeAt(index);
+      saveShifts();
       notifyListeners();
     }
   }
 
   void updateSettings({
-    required double hourlyWage,
-    required double taxDeduction,
-    required bool startOnSunday,
+    double? hourlyWage,
+    double? taxDeduction,
+    bool? startOnSunday,
+    String? languageCode,
+    String? countryCode,
+    double? baseHoursWeekday,
+    double? baseHoursSpecialDay,
   }) {
-    this.hourlyWage = hourlyWage;
-    this.taxDeduction = taxDeduction;
-    this.startOnSunday = startOnSunday;
-    saveSettings();
-    notifyListeners();
-  }
+    if (hourlyWage != null) _hourlyWage = hourlyWage;
+    if (taxDeduction != null) _taxDeduction = taxDeduction.clamp(0.0, 100.0);
+    if (startOnSunday != null) _startOnSunday = startOnSunday;
+    if (languageCode != null) _locale = Locale(languageCode, '');
+    if (countryCode != null) _countryCode = countryCode;
+    if (baseHoursWeekday != null) _baseHoursWeekday = baseHoursWeekday;
+    if (baseHoursSpecialDay != null) _baseHoursSpecialDay = baseHoursSpecialDay;
 
-  void updateBaseHours({required double weekday, required double specialDay}) {
-    baseHoursWeekday = weekday;
-    baseHoursSpecialDay = specialDay;
-    saveSettings();
     notifyListeners();
+    saveSettings();
   }
-
-  void setCountry(String countryCode) {
-    if (_countryCode != countryCode) {
-      _countryCode = countryCode;
-      saveSettings();
-      notifyListeners();
-    }
-  }
+  // Add methods for overtime rules and festive days management here
 
   String getCurrencySymbol() {
     switch (_countryCode) {
@@ -211,7 +258,7 @@ class AppState extends ChangeNotifier {
       case 'RU':
         return '₽';
       default:
-        return '\$'; // Default to USD if unknown
+        return '\$';
     }
   }
 }
@@ -298,5 +345,10 @@ class OvertimeRule {
       rate: json['rate'],
       isForSpecialDays: json['isForSpecialDays'],
     );
+  }
+
+  @override
+  String toString() {
+    return 'OvertimeRule(id: $id, hoursThreshold: $hoursThreshold, rate: $rate, isForSpecialDays: $isForSpecialDays)';
   }
 }
