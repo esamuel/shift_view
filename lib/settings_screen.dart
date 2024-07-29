@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'app_state.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'app_state.dart';
+import 'overtime_rules_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -9,126 +10,150 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final _formKey = GlobalKey<FormState>();
-  late double _hourlyWage;
-  late double _taxDeduction;
-  late bool _startOnSunday;
-  late String _selectedLanguage;
+  late TextEditingController _hourlyWageController;
+  late TextEditingController _taxDeductionController;
+  late TextEditingController _baseHoursWeekdayController;
+  late TextEditingController _baseHoursSpecialDayController;
 
   @override
   void initState() {
     super.initState();
     final appState = Provider.of<AppState>(context, listen: false);
-    _hourlyWage = appState.hourlyWage;
-    _taxDeduction = appState.taxDeduction;
-    _startOnSunday = appState.startOnSunday;
-    _selectedLanguage = appState.locale.languageCode;
+    _hourlyWageController =
+        TextEditingController(text: appState.hourlyWage.toString());
+    _taxDeductionController =
+        TextEditingController(text: appState.taxDeduction.toString());
+    _baseHoursWeekdayController =
+        TextEditingController(text: appState.baseHoursWeekday.toString());
+    _baseHoursSpecialDayController =
+        TextEditingController(text: appState.baseHoursSpecialDay.toString());
   }
 
-  void _saveSettings() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      final appState = Provider.of<AppState>(context, listen: false);
-      appState.updateSettings(
-        hourlyWage: _hourlyWage,
-        taxDeduction: _taxDeduction,
-        startOnSunday: _startOnSunday,
-      );
-      appState.setLocale(Locale(_selectedLanguage, ''));
-      Navigator.pop(context);
-    }
+  @override
+  void dispose() {
+    _hourlyWageController.dispose();
+    _taxDeductionController.dispose();
+    _baseHoursWeekdayController.dispose();
+    _baseHoursSpecialDayController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(localizations.settingsTitle),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.all(16.0),
-          children: [
-            TextFormField(
-              initialValue: _hourlyWage.toString(),
-              decoration: InputDecoration(
-                labelText: localizations.hourlyWage,
-                prefixIcon: Icon(Icons.attach_money),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return localizations.pleaseEnterYourHourlyWage;
-                }
-                if (double.tryParse(value) == null) {
-                  return localizations.pleaseEnterAValidNumber;
-                }
-                return null;
-              },
-              onSaved: (value) => _hourlyWage = double.parse(value!),
-            ),
-            SizedBox(height: 16),
-            TextFormField(
-              initialValue: _taxDeduction.toString(),
-              decoration: InputDecoration(
-                labelText: localizations.taxDeduction,
-                prefixIcon: Icon(Icons.percent),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return localizations.pleaseEnterTaxDeductionPercentage;
-                }
-                final number = double.tryParse(value);
-                if (number == null || number < 0 || number > 100) {
-                  return localizations.pleaseEnterAValidPercentage;
-                }
-                return null;
-              },
-              onSaved: (value) => _taxDeduction = double.parse(value!),
-            ),
-            SizedBox(height: 16),
-            SwitchListTile(
-              title: Text(localizations.startWorkWeekOnSunday),
-              value: _startOnSunday,
-              onChanged: (value) {
-                setState(() {
-                  _startOnSunday = value;
-                });
-              },
-            ),
-            SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: _selectedLanguage,
-              decoration: InputDecoration(
-                labelText: localizations.language,
-                prefixIcon: Icon(Icons.language),
-              ),
-              items: [
-                DropdownMenuItem(value: 'en', child: Text('English')),
-                DropdownMenuItem(value: 'he', child: Text('עברית')),
-                DropdownMenuItem(value: 'es', child: Text('Español')),
-                DropdownMenuItem(value: 'de', child: Text('Deutsch')),
-                DropdownMenuItem(value: 'ru', child: Text('Русский')),
-                DropdownMenuItem(value: 'fr', child: Text('Français')),
-              ],
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    _selectedLanguage = newValue;
-                  });
-                }
-              },
-            ),
-            SizedBox(height: 32),
-            ElevatedButton(
-              child: Text(localizations.saveSettings),
-              onPressed: _saveSettings,
-            ),
-          ],
-        ),
+      body: ListView(
+        padding: EdgeInsets.all(16.0),
+        children: [
+          TextFormField(
+            controller: _hourlyWageController,
+            decoration: InputDecoration(labelText: localizations.hourlyWage),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: _taxDeductionController,
+            decoration: InputDecoration(labelText: localizations.taxDeduction),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: _baseHoursWeekdayController,
+            decoration:
+                InputDecoration(labelText: localizations.baseHoursWeekday),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+          ),
+          SizedBox(height: 16),
+          TextFormField(
+            controller: _baseHoursSpecialDayController,
+            decoration:
+                InputDecoration(labelText: localizations.baseHoursSpecialDay),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+          ),
+          SizedBox(height: 16),
+          SwitchListTile(
+            title: Text(localizations.startWorkWeekOnSunday),
+            value: appState.startOnSunday,
+            onChanged: (value) {
+              setState(() {
+                appState.startOnSunday = value;
+              });
+            },
+          ),
+          SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            decoration: InputDecoration(labelText: localizations.language),
+            value: appState.locale.languageCode,
+            items: [
+              DropdownMenuItem(child: Text('English'), value: 'en'),
+              DropdownMenuItem(child: Text('Español'), value: 'es'),
+              DropdownMenuItem(child: Text('Français'), value: 'fr'),
+              DropdownMenuItem(child: Text('Deutsch'), value: 'de'),
+              DropdownMenuItem(child: Text('עברית'), value: 'he'),
+              DropdownMenuItem(child: Text('Русский'), value: 'ru'),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                appState.setLocale(Locale(value));
+              }
+            },
+          ),
+          SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            decoration: InputDecoration(labelText: localizations.country),
+            value: appState.countryCode,
+            items: [
+              DropdownMenuItem(
+                  child: Text(localizations.countryUS), value: 'US'),
+              DropdownMenuItem(
+                  child: Text(localizations.countryGB), value: 'GB'),
+              DropdownMenuItem(
+                  child: Text(localizations.countryEU), value: 'EU'),
+              DropdownMenuItem(
+                  child: Text(localizations.countryJP), value: 'JP'),
+              DropdownMenuItem(
+                  child: Text(localizations.countryIL), value: 'IL'),
+              DropdownMenuItem(
+                  child: Text(localizations.countryRU), value: 'RU'),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                appState.setCountry(value);
+              }
+            },
+          ),
+          SizedBox(height: 16),
+          ElevatedButton(
+            child: Text(localizations.manageOvertimeRules),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => OvertimeRulesScreen()),
+              );
+            },
+          ),
+          SizedBox(height: 32),
+          ElevatedButton(
+            child: Text(localizations.saveSettings),
+            onPressed: () {
+              appState.updateSettings(
+                hourlyWage: double.parse(_hourlyWageController.text),
+                taxDeduction: double.parse(_taxDeductionController.text),
+                startOnSunday: appState.startOnSunday,
+              );
+              appState.updateBaseHours(
+                weekday: double.parse(_baseHoursWeekdayController.text),
+                specialDay: double.parse(_baseHoursSpecialDayController.text),
+              );
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }

@@ -10,12 +10,21 @@ class AppState extends ChangeNotifier {
   double taxDeduction = 0;
   bool startOnSunday = true;
   Locale _locale = Locale('en', '');
+  String _countryCode = 'US'; // Default to US
+  List<OvertimeRule> overtimeRules = [];
+  List<DateTime> festiveDays = [];
+
+  double baseHoursWeekday = 8.0;
+  double baseHoursSpecialDay = 8.0;
 
   Locale get locale => _locale;
+  String get countryCode => _countryCode;
 
   AppState() {
     loadSettings();
     loadShifts();
+    loadOvertimeRules();
+    loadFestiveDays();
   }
 
   Future<void> loadSettings() async {
@@ -24,6 +33,9 @@ class AppState extends ChangeNotifier {
     taxDeduction = prefs.getDouble('taxDeduction') ?? 0;
     startOnSunday = prefs.getBool('startOnSunday') ?? true;
     _locale = Locale(prefs.getString('languageCode') ?? 'en', '');
+    _countryCode = prefs.getString('countryCode') ?? 'US';
+    baseHoursWeekday = prefs.getDouble('baseHoursWeekday') ?? 8.0;
+    baseHoursSpecialDay = prefs.getDouble('baseHoursSpecialDay') ?? 8.0;
     notifyListeners();
   }
 
@@ -33,6 +45,9 @@ class AppState extends ChangeNotifier {
     await prefs.setDouble('taxDeduction', taxDeduction);
     await prefs.setBool('startOnSunday', startOnSunday);
     await prefs.setString('languageCode', _locale.languageCode);
+    await prefs.setString('countryCode', _countryCode);
+    await prefs.setDouble('baseHoursWeekday', baseHoursWeekday);
+    await prefs.setDouble('baseHoursSpecialDay', baseHoursSpecialDay);
   }
 
   Future<void> loadShifts() async {
@@ -51,6 +66,45 @@ class AppState extends ChangeNotifier {
     final shiftsJson =
         json.encode(shifts.map((shift) => shift.toJson()).toList());
     await prefs.setString('shifts', shiftsJson);
+  }
+
+  Future<void> loadOvertimeRules() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rulesJson = prefs.getString('overtimeRules');
+    if (rulesJson != null) {
+      final rulesData = json.decode(rulesJson) as List;
+      overtimeRules = rulesData
+          .map((ruleData) =>
+              OvertimeRule.fromJson(ruleData as Map<String, dynamic>))
+          .toList();
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveOvertimeRules() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rulesJson =
+        json.encode(overtimeRules.map((rule) => rule.toJson()).toList());
+    await prefs.setString('overtimeRules', rulesJson);
+  }
+
+  Future<void> loadFestiveDays() async {
+    final prefs = await SharedPreferences.getInstance();
+    final festiveDaysJson = prefs.getString('festiveDays');
+    if (festiveDaysJson != null) {
+      final festiveDaysData = json.decode(festiveDaysJson) as List;
+      festiveDays = festiveDaysData
+          .map((dateString) => DateTime.parse(dateString as String))
+          .toList();
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveFestiveDays() async {
+    final prefs = await SharedPreferences.getInstance();
+    final festiveDaysJson =
+        json.encode(festiveDays.map((date) => date.toIso8601String()).toList());
+    await prefs.setString('festiveDays', festiveDaysJson);
   }
 
   void setUserName(String name) {
@@ -76,6 +130,37 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addOvertimeRule(OvertimeRule rule) {
+    overtimeRules.add(rule);
+    saveOvertimeRules();
+    notifyListeners();
+  }
+
+  void updateOvertimeRule(int index, OvertimeRule updatedRule) {
+    overtimeRules[index] = updatedRule;
+    saveOvertimeRules();
+    notifyListeners();
+  }
+
+  void deleteOvertimeRule(int index) {
+    overtimeRules.removeAt(index);
+    saveOvertimeRules();
+    notifyListeners();
+  }
+
+  void addFestiveDay(DateTime date) {
+    festiveDays.add(date);
+    saveFestiveDays();
+    notifyListeners();
+  }
+
+  void removeFestiveDay(DateTime date) {
+    festiveDays.removeWhere((d) =>
+        d.year == date.year && d.month == date.month && d.day == date.day);
+    saveFestiveDays();
+    notifyListeners();
+  }
+
   Future<void> setLocale(Locale newLocale) async {
     if (_locale != newLocale) {
       _locale = newLocale;
@@ -94,6 +179,40 @@ class AppState extends ChangeNotifier {
     this.startOnSunday = startOnSunday;
     saveSettings();
     notifyListeners();
+  }
+
+  void updateBaseHours({required double weekday, required double specialDay}) {
+    baseHoursWeekday = weekday;
+    baseHoursSpecialDay = specialDay;
+    saveSettings();
+    notifyListeners();
+  }
+
+  void setCountry(String countryCode) {
+    if (_countryCode != countryCode) {
+      _countryCode = countryCode;
+      saveSettings();
+      notifyListeners();
+    }
+  }
+
+  String getCurrencySymbol() {
+    switch (_countryCode) {
+      case 'US':
+        return '\$';
+      case 'GB':
+        return '£';
+      case 'EU':
+        return '€';
+      case 'JP':
+        return '¥';
+      case 'IL':
+        return '₪';
+      case 'RU':
+        return '₽';
+      default:
+        return '\$'; // Default to USD if unknown
+    }
   }
 }
 
@@ -131,7 +250,7 @@ class Shift {
     };
   }
 
-  static Shift fromJson(Map<String, dynamic> json) {
+  factory Shift.fromJson(Map<String, dynamic> json) {
     final startTimeParts = json['startTime'].split(':');
     final endTimeParts = json['endTime'].split(':');
     return Shift(
@@ -146,6 +265,38 @@ class Shift {
       grossWage: json['grossWage'],
       netWage: json['netWage'],
       wagePercentages: Map<String, double>.from(json['wagePercentages']),
+    );
+  }
+}
+
+class OvertimeRule {
+  final String id;
+  final double hoursThreshold;
+  final double rate;
+  final bool isForSpecialDays;
+
+  OvertimeRule({
+    required this.id,
+    required this.hoursThreshold,
+    required this.rate,
+    required this.isForSpecialDays,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'hoursThreshold': hoursThreshold,
+      'rate': rate,
+      'isForSpecialDays': isForSpecialDays,
+    };
+  }
+
+  factory OvertimeRule.fromJson(Map<String, dynamic> json) {
+    return OvertimeRule(
+      id: json['id'],
+      hoursThreshold: json['hoursThreshold'],
+      rate: json['rate'],
+      isForSpecialDays: json['isForSpecialDays'],
     );
   }
 }

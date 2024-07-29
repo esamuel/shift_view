@@ -12,106 +12,177 @@ class ShiftManagerScreen extends StatefulWidget {
 
 class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   DateTime _selectedDate = DateTime.now();
-  TimeOfDay _startTime = TimeOfDay(hour: 9, minute: 0);
+  TimeOfDay _startTime = TimeOfDay(hour: 8, minute: 0);
   TimeOfDay _endTime = TimeOfDay(hour: 17, minute: 0);
+  bool _showAllShifts = false;
+
+  String _getLocalizedDayMonth(BuildContext context, DateTime date) {
+    final localizations = AppLocalizations.of(context)!;
+    final dayNames = [
+      localizations.sunday,
+      localizations.monday,
+      localizations.tuesday,
+      localizations.wednesday,
+      localizations.thursday,
+      localizations.friday,
+      localizations.saturday,
+    ];
+    final monthNames = [
+      localizations.january,
+      localizations.february,
+      localizations.march,
+      localizations.april,
+      localizations.may,
+      localizations.june,
+      localizations.july,
+      localizations.august,
+      localizations.september,
+      localizations.october,
+      localizations.november,
+      localizations.december,
+    ];
+    return '${dayNames[date.weekday % 7]}, ${monthNames[date.month - 1]} ${date.day}, ${date.year}';
+  }
+
+  List<Shift> _getCurrentMonthShifts(List<Shift> allShifts) {
+    final now = DateTime.now();
+    return allShifts
+        .where((shift) =>
+            shift.date.year == now.year && shift.date.month == now.month)
+        .toList();
+  }
+
+  String _formatTime(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
+  }
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
+    final appState = Provider.of<AppState>(context);
+    final currencySymbol = appState.getCurrencySymbol();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(localizations.shiftManagerTitle),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(localizations.addNewShift,
-                style: Theme.of(context).textTheme.titleLarge),
-            SizedBox(height: 16),
-            _buildButton(
-              context,
-              '${localizations.selectDate}: ${DateFormat('dd-MM-yyyy').format(_selectedDate)}',
-              () => _selectDate(context),
-            ),
-            SizedBox(height: 16),
-            Row(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: _buildButton(
-                    context,
-                    '${localizations.startTime}: ${_startTime.format(context)}',
-                    () => _selectTime(context, true),
-                  ),
+                Text(localizations.addNewShift,
+                    style: Theme.of(context).textTheme.titleLarge),
+                SizedBox(height: 16),
+                _buildButton(
+                  context,
+                  '${localizations.selectDate}: ${DateFormat('dd-MM-yyyy').format(_selectedDate)}',
+                  () => _selectDate(context),
                 ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: _buildButton(
-                    context,
-                    '${localizations.endTime}: ${_endTime.format(context)}',
-                    () => _selectTime(context, false),
-                  ),
+                SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildButton(
+                        context,
+                        '${localizations.startTime}: ${_formatTime(_startTime)}',
+                        () => _selectTime(context, true),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: _buildButton(
+                        context,
+                        '${localizations.endTime}: ${_formatTime(_endTime)}',
+                        () => _selectTime(context, false),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+                _buildButton(context, localizations.addShift, _addShift),
+                SizedBox(height: 32),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(localizations.existingShifts,
+                        style: Theme.of(context).textTheme.titleLarge),
+                    Switch(
+                      value: _showAllShifts,
+                      onChanged: (value) {
+                        setState(() {
+                          _showAllShifts = value;
+                        });
+                      },
+                      activeColor: colorScheme.primary,
+                    ),
+                  ],
+                ),
+                Text(
+                  _showAllShifts
+                      ? localizations.showingAllShifts
+                      : localizations.showingCurrentMonthShifts,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                Consumer<AppState>(
+                  builder: (context, appState, child) {
+                    List<Shift> shiftsToShow = _showAllShifts
+                        ? appState.shifts
+                        : _getCurrentMonthShifts(appState.shifts);
+                    shiftsToShow.sort((a, b) => b.date.compareTo(a.date));
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: shiftsToShow.length,
+                      itemBuilder: (context, index) {
+                        final shift = shiftsToShow[index];
+                        return ListTile(
+                          title:
+                              Text(_getLocalizedDayMonth(context, shift.date)),
+                          subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    '${localizations.startTime}: ${_formatTime(shift.startTime)} - ${localizations.endTime}: ${_formatTime(shift.endTime)}'),
+                                Text(
+                                    '${localizations.totalHours}: ${shift.totalHours.toStringAsFixed(2)}'),
+                                Text(
+                                    '${localizations.grossWage}: $currencySymbol${shift.grossWage.toStringAsFixed(2)}'),
+                                Text(
+                                    '${localizations.netWage}: $currencySymbol${shift.netWage.toStringAsFixed(2)}'),
+                              ]),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit,
+                                    color: colorScheme.primary),
+                                onPressed: () =>
+                                    _editShift(context, appState, shift),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete,
+                                    color: colorScheme.error),
+                                onPressed: () => _confirmDeleteShift(
+                                    context, appState, shift),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            _buildButton(context, localizations.addShift, _addShift),
-            SizedBox(height: 32),
-            Text(localizations.existingShifts,
-                style: Theme.of(context).textTheme.titleLarge),
-            Expanded(
-              child: Consumer<AppState>(
-                builder: (context, appState, child) {
-                  List<Shift> sortedShifts = List.from(appState.shifts)
-                    ..sort((a, b) => a.date.compareTo(b.date));
-                  return ListView.builder(
-                    itemCount: sortedShifts.length,
-                    itemBuilder: (context, index) {
-                      final shift = sortedShifts[index];
-                      return ListTile(
-                        title:
-                            Text(DateFormat('dd-MM-yyyy').format(shift.date)),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                '${localizations.startTime}: ${shift.startTime.format(context)} - ${localizations.endTime}: ${shift.endTime.format(context)}'),
-                            Text(
-                                '${localizations.totalHours}: ${shift.totalHours.toStringAsFixed(2)}'),
-                            Text(
-                                '${localizations.grossWage}: \$${shift.grossWage.toStringAsFixed(2)}'),
-                            Text(
-                                '${localizations.netWage}: \$${shift.netWage.toStringAsFixed(2)}'),
-                          ],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon:
-                                  Icon(Icons.edit, color: colorScheme.primary),
-                              onPressed: () => _editShift(context, appState,
-                                  appState.shifts.indexOf(shift), shift),
-                            ),
-                            IconButton(
-                              icon:
-                                  Icon(Icons.delete, color: colorScheme.error),
-                              onPressed: () => _confirmDeleteShift(context,
-                                  appState, appState.shifts.indexOf(shift)),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -209,8 +280,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
     );
   }
 
-  void _editShift(
-      BuildContext context, AppState appState, int index, Shift shift) async {
+  void _editShift(BuildContext context, AppState appState, Shift shift) async {
     final localizations = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     DateTime editDate = shift.date;
@@ -250,7 +320,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                       Expanded(
                         child: _buildButton(
                           context,
-                          '${localizations.startTime}: ${editStartTime.format(context)}',
+                          '${localizations.startTime}: ${_formatTime(editStartTime)}',
                           () async {
                             final TimeOfDay? picked = await showTimePicker(
                               context: context,
@@ -268,7 +338,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                       Expanded(
                         child: _buildButton(
                           context,
-                          '${localizations.endTime}: ${editEndTime.format(context)}',
+                          '${localizations.endTime}: ${_formatTime(editEndTime)}',
                           () async {
                             final TimeOfDay? picked = await showTimePicker(
                               context: context,
@@ -310,11 +380,13 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                       endTime: editEndTime,
                       totalHours: totalHours,
                       grossWage: grossWage,
-                      netWage: netWage,
+                      netWage:
+                          _calculateNetWage(grossWage, appState.taxDeduction),
                       wagePercentages: _calculateWagePercentages(
                           appState, editDate, editStartTime, editEndTime),
                     );
-                    appState.updateShift(index, updatedShift);
+                    appState.updateShift(
+                        appState.shifts.indexOf(shift), updatedShift);
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
@@ -350,36 +422,39 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       TimeOfDay startTime, TimeOfDay endTime) {
     final totalHours = _calculateTotalHours(date, startTime, endTime);
     final hourlyWage = appState.hourlyWage;
+    final isWeekend = _isWeekend(appState, date);
+    final isFestiveDay = _isFestiveDay(appState, date);
+    final isSpecialDay = isWeekend || isFestiveDay;
 
     double wage = 0;
     double remainingHours = totalHours;
-    DateTime currentDateTime = DateTime(
-        date.year, date.month, date.day, startTime.hour, startTime.minute);
 
-    while (remainingHours > 0) {
-      bool isWeekend = _isWeekend(appState, currentDateTime);
-      double hoursToday = Math.min(remainingHours,
-          24 - currentDateTime.hour - currentDateTime.minute / 60);
+    // Determine base hours and base rate
+    final baseHours =
+        isSpecialDay ? appState.baseHoursSpecialDay : appState.baseHoursWeekday;
+    final baseRate = isSpecialDay ? 1.5 : 1.0;
 
-      if (isWeekend) {
-        // Weekend rates
-        wage += _calculateOvertimeWage(hourlyWage, hoursToday, 8, 1.5);
-        double overtimeHours = Math.max(0, hoursToday - 8);
-        wage += _calculateOvertimeWage(hourlyWage, overtimeHours, 2, 1.75);
-        wage += _calculateOvertimeWage(
-            hourlyWage, Math.max(0, overtimeHours - 2), double.infinity, 2.0);
-      } else {
-        // Weekday rates
-        wage += _calculateOvertimeWage(hourlyWage, hoursToday, 8, 1.0);
-        double overtimeHours = Math.max(0, hoursToday - 8);
-        wage += _calculateOvertimeWage(hourlyWage, overtimeHours, 2, 1.25);
-        wage += _calculateOvertimeWage(
-            hourlyWage, Math.max(0, overtimeHours - 2), double.infinity, 1.5);
+    // Apply base rate to base hours
+    if (remainingHours > 0) {
+      final hoursAtBaseRate = Math.min(remainingHours, baseHours);
+      wage += hoursAtBaseRate * hourlyWage * baseRate;
+      remainingHours -= hoursAtBaseRate;
+    }
+
+    // Sort overtime rules by hours threshold in ascending order
+    final applicableRules = appState.overtimeRules
+        .where((rule) => rule.isForSpecialDays == isSpecialDay)
+        .toList()
+      ..sort((a, b) => a.hoursThreshold.compareTo(b.hoursThreshold));
+
+    // Apply overtime rules
+    for (var rule in applicableRules) {
+      if (remainingHours > 0 && totalHours > rule.hoursThreshold) {
+        final overtimeHours =
+            Math.min(remainingHours, totalHours - rule.hoursThreshold);
+        wage += overtimeHours * hourlyWage * rule.rate;
+        remainingHours -= overtimeHours;
       }
-
-      remainingHours -= hoursToday;
-      currentDateTime = currentDateTime.add(Duration(
-          hours: hoursToday.floor(), minutes: ((hoursToday % 1) * 60).round()));
     }
 
     return wage;
@@ -388,50 +463,69 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   Map<String, double> _calculateWagePercentages(AppState appState,
       DateTime date, TimeOfDay startTime, TimeOfDay endTime) {
     final totalHours = _calculateTotalHours(date, startTime, endTime);
-    bool isWeekend = _isWeekend(appState, date);
+    final isSpecialDay =
+        _isWeekend(appState, date) || _isFestiveDay(appState, date);
 
-    Map<String, double> wagePercentages = {
-      '100%': 0,
-      '125%': 0,
-      '150%': 0,
-      '175%': 0,
-      '200%': 0,
-    };
+    Map<String, double> wagePercentages = {};
+    double remainingHours = totalHours;
 
-    if (isWeekend) {
-      // Weekend rates
-      wagePercentages['150%'] = Math.min(totalHours, 8);
-      wagePercentages['175%'] = Math.min(Math.max(totalHours - 8, 0), 2);
-      wagePercentages['200%'] = Math.max(totalHours - 10, 0);
-    } else {
-      // Weekday rates
-      wagePercentages['100%'] = Math.min(totalHours, 8);
-      wagePercentages['125%'] = Math.min(Math.max(totalHours - 8, 0), 2);
-      wagePercentages['150%'] = Math.max(totalHours - 10, 0);
+    // Determine base hours and base rate
+    final baseHours =
+        isSpecialDay ? appState.baseHoursSpecialDay : appState.baseHoursWeekday;
+    final baseRate = isSpecialDay ? 1.5 : 1.0;
+
+    // Apply base rate to base hours
+    if (remainingHours > 0) {
+      final hoursAtBaseRate = Math.min(remainingHours, baseHours);
+      wagePercentages['${(baseRate * 100).toInt()}%'] = hoursAtBaseRate;
+      remainingHours -= hoursAtBaseRate;
+    }
+
+    // Sort overtime rules by hours threshold in ascending order
+    final applicableRules = appState.overtimeRules
+        .where((rule) => rule.isForSpecialDays == isSpecialDay)
+        .toList()
+      ..sort((a, b) => a.hoursThreshold.compareTo(b.hoursThreshold));
+
+    // Apply overtime rules
+    for (var rule in applicableRules) {
+      if (remainingHours > 0 && totalHours > rule.hoursThreshold) {
+        final overtimeHours =
+            Math.min(remainingHours, totalHours - rule.hoursThreshold);
+        wagePercentages['${(rule.rate * 100).toInt()}%'] =
+            (wagePercentages['${(rule.rate * 100).toInt()}%'] ?? 0) +
+                overtimeHours;
+        remainingHours -= overtimeHours;
+      }
     }
 
     return wagePercentages;
-  }
-
-  double _calculateOvertimeWage(
-      double hourlyWage, double hours, double limit, double rate) {
-    final overtimeHours = Math.min(hours, limit);
-    return overtimeHours * hourlyWage * rate;
-  }
-
-  bool _isWeekend(AppState appState, DateTime date) {
-    if (appState.startOnSunday) {
-      return date.weekday == DateTime.saturday;
-    } else {
-      return date.weekday == DateTime.sunday;
-    }
   }
 
   double _calculateNetWage(double grossWage, double taxDeduction) {
     return grossWage * (1 - taxDeduction / 100);
   }
 
-  void _confirmDeleteShift(BuildContext context, AppState appState, int index) {
+  bool _isWeekend(AppState appState, DateTime date) {
+    if (appState.startOnSunday) {
+      // If the work week starts on Sunday, only Saturday is considered a weekend
+      return date.weekday == DateTime.saturday;
+    } else {
+      // If the work week starts on Monday, both Saturday and Sunday are weekends
+      return date.weekday == DateTime.saturday ||
+          date.weekday == DateTime.sunday;
+    }
+  }
+
+  bool _isFestiveDay(AppState appState, DateTime date) {
+    return appState.festiveDays.any((festiveDay) =>
+        festiveDay.year == date.year &&
+        festiveDay.month == date.month &&
+        festiveDay.day == date.day);
+  }
+
+  void _confirmDeleteShift(
+      BuildContext context, AppState appState, Shift shift) {
     final localizations = AppLocalizations.of(context)!;
     showDialog(
       context: context,
@@ -449,7 +543,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
             TextButton(
               child: Text(localizations.delete),
               onPressed: () {
-                _deleteShift(appState, index);
+                _deleteShift(appState, shift);
                 Navigator.of(context).pop();
               },
             ),
@@ -459,11 +553,12 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
     );
   }
 
-  void _deleteShift(AppState appState, int index) {
-    appState.deleteShift(index);
+  void _deleteShift(AppState appState, Shift shift) {
+    appState.deleteShift(appState.shifts.indexOf(shift));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content: Text(AppLocalizations.of(context)!.deleteShiftConfirmation)),
+        content: Text(AppLocalizations.of(context)!.creatingBackup),
+      ),
     );
   }
 }

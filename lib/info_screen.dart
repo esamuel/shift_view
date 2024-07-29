@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'app_state.dart';
 
 class InfoScreen extends StatelessWidget {
+  const InfoScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final appState = Provider.of<AppState>(context);
+    final currencySymbol = appState.getCurrencySymbol();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(localizations.infoTitle),
@@ -12,25 +19,49 @@ class InfoScreen extends StatelessWidget {
       body: ListView(
         padding: EdgeInsets.all(16.0),
         children: [
+          _buildSection(localizations.appGuideIntroduction,
+              localizations.appGuideIntroductionContent),
+          _buildSection(localizations.appGuideGettingStarted,
+              '${localizations.appGuideSettingUp}\n\n${localizations.appGuideNavigatingApp}'),
           _buildSection(
-            localizations.aboutThisApp,
-            localizations.aboutThisAppContent,
-          ),
+              localizations.appGuideSettings,
+              '${localizations.appGuideHourlyWage}\n\n'
+              '${localizations.appGuideTaxDeduction}\n\n'
+              '${localizations.appGuideWorkWeekStart}\n\n'
+              '${localizations.appGuideLanguage}\n\n'
+              '${localizations.appGuideCurrency}'),
           _buildSection(
-            localizations.keyFeatures,
-            localizations.keyFeaturesContent,
-          ),
+              localizations.appGuideManagingShifts,
+              '${localizations.appGuideAddingShift}\n\n'
+              '${localizations.appGuideEditingShift}\n\n'
+              '${localizations.appGuideDeletingShift}'),
           _buildSection(
-            localizations.howToUse,
-            localizations.howToUseContent,
-          ),
+              localizations.appGuideOvertimeRules,
+              '${localizations.appGuideCreatingOvertimeRule}\n\n'
+              '${localizations.appGuideEditingOvertimeRule}\n\n'
+              '${localizations.appGuideDeletingOvertimeRule}'),
           _buildSection(
-            localizations.shiftInformation,
-            localizations.shiftInformationContent,
-          ),
+              localizations.appGuideReports,
+              '${localizations.appGuideWeeklyReport}\n\n'
+              '${localizations.appGuideMonthlyReport}\n\n'
+              '${localizations.appGuideExportingReports}'),
           _buildSection(
-            localizations.privacy,
-            localizations.privacyContent,
+              localizations.appGuideCalculations,
+              '${localizations.appGuideWageCalculation}\n\n'
+              '${localizations.appGuideOvertimeCalculation}\n\n'
+              '${localizations.appGuideTaxEstimation}'),
+          _buildSection(localizations.appGuideTipsAndTricks,
+              localizations.appGuideTipsAndTricksContent),
+          _buildSection(localizations.appGuideTroubleshooting,
+              localizations.appGuideTroubleshootingContent),
+          _buildSection(localizations.appGuidePrivacyAndDataSecurity,
+              localizations.appGuidePrivacyAndDataSecurityContent),
+          Padding(
+            padding: EdgeInsets.only(top: 16.0),
+            child: Text(
+              localizations.appGuideFooter,
+              style: TextStyle(fontStyle: FontStyle.italic),
+            ),
           ),
         ],
       ),

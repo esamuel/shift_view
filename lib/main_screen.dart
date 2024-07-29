@@ -4,6 +4,7 @@ import 'settings_screen.dart';
 import 'shift_manager_screen.dart';
 import 'report_screen.dart';
 import 'info_screen.dart';
+import 'overtime_rules_screen.dart';
 
 class MainScreen extends StatelessWidget {
   @override
@@ -18,10 +19,7 @@ class MainScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 16.0,
-          crossAxisSpacing: 16.0,
+        child: ListView(
           children: <Widget>[
             _buildButton(
               context,
@@ -30,6 +28,7 @@ class MainScreen extends StatelessWidget {
               () => Navigator.push(context,
                   MaterialPageRoute(builder: (context) => SettingsScreen())),
             ),
+            SizedBox(height: 16),
             _buildButton(
               context,
               localizations.shiftManagerTitle,
@@ -39,6 +38,7 @@ class MainScreen extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (context) => ShiftManagerScreen())),
             ),
+            SizedBox(height: 16),
             _buildButton(
               context,
               localizations.reportsTitle,
@@ -46,12 +46,23 @@ class MainScreen extends StatelessWidget {
               () => Navigator.push(context,
                   MaterialPageRoute(builder: (context) => ReportScreen())),
             ),
+            SizedBox(height: 16),
             _buildButton(
               context,
               localizations.infoButtonTitle,
               Icons.info,
               () => Navigator.push(context,
                   MaterialPageRoute(builder: (context) => InfoScreen())),
+            ),
+            SizedBox(height: 16),
+            _buildButton(
+              context,
+              localizations.overtimeRulesTitle,
+              Icons.access_time,
+              () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => OvertimeRulesScreen())),
             ),
           ],
         ),
@@ -66,22 +77,23 @@ class MainScreen extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
       ),
       onPressed: onPressed,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
         children: <Widget>[
-          Icon(icon, size: 48.0),
-          SizedBox(height: 8.0),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16.0),
+          Icon(icon, size: 24.0),
+          SizedBox(width: 16.0),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(fontSize: 18.0),
+            ),
           ),
+          Icon(Icons.arrow_forward_ios, size: 18.0),
         ],
       ),
     );

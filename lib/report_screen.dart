@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:file_picker/file_picker.dart';
 import 'app_state.dart';
+import 'export_service.dart';
 
 class ReportScreen extends StatefulWidget {
   @override
@@ -10,222 +12,457 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  bool _isMonthlyView = false;
+  DateTime _selectedDate = DateTime.now();
+  late ExportService _exportService;
+  double _backupProgress = 0.0;
+  double _restoreProgress = 0.0;
 
-  String _getCurrencySymbol(String locale) {
-    final format = NumberFormat.simpleCurrency(locale: locale);
-    return format.currencySymbol;
+  @override
+  void initState() {
+    super.initState();
+    final appState = Provider.of<AppState>(context, listen: false);
+    _exportService = ExportService(appState);
   }
 
   @override
   Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
     final localizations = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.reportsTitle),
+
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(localizations.reportsTitle),
+          bottom: TabBar(
+            tabs: [
+              Tab(text: localizations.weeklyView),
+              Tab(text: localizations.monthlyView),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            _buildWeeklyReport(appState, localizations),
+            _buildMonthlyReport(appState, localizations),
+          ],
+        ),
       ),
-      body: Column(
-        children: [
-          SwitchListTile(
-            title: Text(_isMonthlyView
-                ? localizations.monthlyView
-                : localizations.weeklyView),
-            value: _isMonthlyView,
-            onChanged: (bool value) {
+    );
+  }
+
+  Widget _buildWeeklyReport(AppState appState, AppLocalizations localizations) {
+    final weekStart = _getWeekStart(_selectedDate, appState.startOnSunday);
+    final weekEnd = weekStart.add(Duration(days: 6));
+    final weekShifts = appState.shifts
+        .where((shift) =>
+            shift.date.isAfter(weekStart.subtract(Duration(days: 1))) &&
+            shift.date.isBefore(weekEnd.add(Duration(days: 1))))
+        .toList();
+
+    return Column(
+      children: [
+        _buildDateSelector(localizations),
+        Text(
+          '${_getLocalizedDate(localizations, weekStart)} - ${_getLocalizedDate(localizations, weekEnd)}',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        Expanded(
+          child: _buildShiftsList(weekShifts, appState, localizations),
+        ),
+        _buildTotalRow(weekShifts, appState, localizations,
+            _calculateWorkingDays(weekShifts)),
+        _buildPercentageTotals(weekShifts, appState, localizations),
+        _buildExportButtons(appState, localizations, weekShifts),
+      ],
+    );
+  }
+
+  Widget _buildMonthlyReport(
+      AppState appState, AppLocalizations localizations) {
+    final monthStart = DateTime(_selectedDate.year, _selectedDate.month, 1);
+    final monthEnd = DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
+    final monthShifts = appState.shifts
+        .where((shift) =>
+            shift.date.isAfter(monthStart.subtract(Duration(days: 1))) &&
+            shift.date.isBefore(monthEnd.add(Duration(days: 1))))
+        .toList();
+
+    final totalWorkingDays = _calculateWorkingDays(monthShifts);
+
+    return Column(
+      children: [
+        _buildDateSelector(localizations),
+        Text(
+          _getLocalizedMonthYear(localizations, _selectedDate),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        Expanded(
+          child: _buildShiftsList(monthShifts, appState, localizations),
+        ),
+        _buildTotalRow(monthShifts, appState, localizations, totalWorkingDays),
+        _buildPercentageTotals(monthShifts, appState, localizations),
+        _buildExportButtons(appState, localizations, monthShifts),
+      ],
+    );
+  }
+
+  Widget _buildDateSelector(AppLocalizations localizations) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: Icon(Icons.chevron_left),
+          onPressed: () {
+            setState(() {
+              _selectedDate = _selectedDate.subtract(Duration(days: 7));
+            });
+          },
+        ),
+        TextButton(
+          child: Text(_getLocalizedMonthYear(localizations, _selectedDate)),
+          onPressed: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: _selectedDate,
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2101),
+            );
+            if (picked != null) {
               setState(() {
-                _isMonthlyView = value;
+                _selectedDate = picked;
               });
-            },
-          ),
-          Expanded(
-            child:
-                _isMonthlyView ? _buildMonthlyReport() : _buildWeeklyReport(),
-          ),
+            }
+          },
+        ),
+        IconButton(
+          icon: Icon(Icons.chevron_right),
+          onPressed: () {
+            setState(() {
+              _selectedDate = _selectedDate.add(Duration(days: 7));
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildShiftsList(
+      List<Shift> shifts, AppState appState, AppLocalizations localizations) {
+    shifts.sort((a, b) => a.date.compareTo(b.date));
+    return ListView.builder(
+      itemCount: shifts.length,
+      itemBuilder: (context, index) {
+        final shift = shifts[index];
+        return ListTile(
+          title: Text(_getLocalizedDayMonth(localizations, shift.date)),
+          subtitle: Text(
+              '${localizations.startTime}: ${_formatTime(shift.startTime)} - ${localizations.endTime}: ${_formatTime(shift.endTime)}'),
+          trailing: Text(
+              '${appState.getCurrencySymbol()}${shift.grossWage.toStringAsFixed(2)}'),
+        );
+      },
+    );
+  }
+
+  Widget _buildTotalRow(List<Shift> shifts, AppState appState,
+      AppLocalizations localizations, int totalWorkingDays) {
+    final totalHours =
+        shifts.fold<double>(0, (sum, shift) => sum + shift.totalHours);
+    final totalGrossWage =
+        shifts.fold<double>(0, (sum, shift) => sum + shift.grossWage);
+    final totalNetWage =
+        shifts.fold<double>(0, (sum, shift) => sum + shift.netWage);
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('${localizations.totalWorkingDays}: $totalWorkingDays'),
+          Text('${localizations.totalHours}: ${totalHours.toStringAsFixed(2)}'),
+          Text(
+              '${localizations.grossWage}: ${appState.getCurrencySymbol()}${totalGrossWage.toStringAsFixed(2)}'),
+          Text(
+              '${localizations.netWage}: ${appState.getCurrencySymbol()}${totalNetWage.toStringAsFixed(2)}'),
         ],
       ),
     );
   }
 
-  Widget _buildWeeklyReport() {
-    final localizations = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).toString();
-    final currencySymbol = _getCurrencySymbol(locale);
-    final numberFormat = NumberFormat.decimalPattern(locale);
+  Widget _buildPercentageTotals(
+      List<Shift> shifts, AppState appState, AppLocalizations localizations) {
+    final percentageTotals = _calculatePercentageTotals(shifts);
 
-    return Consumer<AppState>(
-      builder: (context, appState, child) {
-        var weeklyReports = _generateWeeklyReports(appState);
-        return ListView.builder(
-          itemCount: weeklyReports.length,
-          itemBuilder: (context, index) {
-            var report = weeklyReports[index];
-            return ListTile(
-              title: Text('${report['startDate']} to ${report['endDate']}'),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                      '${localizations.totalHours}: ${numberFormat.format(report['totalHours'])}'),
-                  Text(
-                      '${localizations.grossWage}: $currencySymbol${numberFormat.format(report['grossWage'])}'),
-                  Text(
-                      '${localizations.netWage}: $currencySymbol${numberFormat.format(report['netWage'])}'),
-                ],
-              ),
-            );
-          },
-        );
-      },
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(localizations.wageBreakdown,
+              style: TextStyle(fontWeight: FontWeight.bold)),
+          ...percentageTotals.entries.map((entry) {
+            return Text(
+                '${entry.key}: ${entry.value.toStringAsFixed(2)} ${localizations.hours}');
+          }).toList(),
+        ],
+      ),
     );
   }
 
-  Widget _buildMonthlyReport() {
-    final localizations = AppLocalizations.of(context)!;
-    final locale = Localizations.localeOf(context).toString();
-    final currencySymbol = _getCurrencySymbol(locale);
-    final numberFormat = NumberFormat.decimalPattern(locale);
-
-    return Consumer<AppState>(
-      builder: (context, appState, child) {
-        var monthlyReports = _generateMonthlyReports(appState);
-        return ListView.builder(
-          itemCount: monthlyReports.length,
-          itemBuilder: (context, index) {
-            var report = monthlyReports[index];
-            return ExpansionTile(
-              title: Text(report['month'],
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              children: [
-                ListTile(
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                          '${localizations.totalHours}: ${numberFormat.format(report['totalHours'])}'),
-                      Text(
-                          '${localizations.grossWage}: $currencySymbol${numberFormat.format(report['grossWage'])}'),
-                      Text(
-                          '${localizations.netWage}: $currencySymbol${numberFormat.format(report['netWage'])}'),
-                      SizedBox(height: 8),
-                      Text(localizations.wageBreakdown,
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(
-                          '${localizations.hoursAt100Percent}: ${numberFormat.format(report['wagePercentages']['100%'] ?? 0)}'),
-                      Text(
-                          '${localizations.hoursAt125Percent}: ${numberFormat.format(report['wagePercentages']['125%'] ?? 0)}'),
-                      Text(
-                          '${localizations.hoursAt150Percent}: ${numberFormat.format(report['wagePercentages']['150%'] ?? 0)}'),
-                      Text(
-                          '${localizations.hoursAt175Percent}: ${numberFormat.format(report['wagePercentages']['175%'] ?? 0)}'),
-                      Text(
-                          '${localizations.hoursAt200Percent}: ${numberFormat.format(report['wagePercentages']['200%'] ?? 0)}'),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+  Widget _buildExportButtons(
+      AppState appState, AppLocalizations localizations, List<Shift> shifts) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              child: Text(localizations.exportAsCsv),
+              onPressed: () => _exportReport(shifts, 'csv'),
+            ),
+            ElevatedButton(
+              child: Text(localizations.exportAsPdf),
+              onPressed: () => _exportReport(shifts, 'pdf'),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              child: Text(localizations.backup),
+              onPressed: () => _createBackup(localizations),
+            ),
+            ElevatedButton(
+              child: Text(localizations.restore),
+              onPressed: () => _restoreBackup(localizations),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
-  List<Map<String, dynamic>> _generateWeeklyReports(AppState appState) {
-    var shifts = appState.shifts;
-    shifts.sort((a, b) => a.date.compareTo(b.date));
+  void _exportReport(List<Shift> shifts, String format) async {
+    String filePath;
 
-    List<Map<String, dynamic>> weeklyReports = [];
-    if (shifts.isEmpty) return weeklyReports;
-
-    DateTime currentWeekStart =
-        _getWeekStart(shifts.first.date, appState.startOnSunday);
-    double totalHours = 0;
-    double grossWage = 0;
-    double netWage = 0;
-
-    for (var shift in shifts) {
-      if (shift.date.isAfter(currentWeekStart.add(Duration(days: 7)))) {
-        // Save the current week's report
-        weeklyReports.add({
-          'startDate': DateFormat('MMM dd').format(currentWeekStart),
-          'endDate': DateFormat('MMM dd')
-              .format(currentWeekStart.add(Duration(days: 6))),
-          'totalHours': totalHours,
-          'grossWage': grossWage,
-          'netWage': netWage,
-        });
-
-        // Start a new week
-        currentWeekStart = _getWeekStart(shift.date, appState.startOnSunday);
-        totalHours = 0;
-        grossWage = 0;
-        netWage = 0;
-      }
-
-      totalHours += shift.totalHours;
-      grossWage += shift.grossWage;
-      netWage += shift.netWage;
+    if (format == 'csv') {
+      filePath = await _exportService.generateCSV(shifts);
+    } else {
+      filePath = await _exportService.generatePDF(shifts);
     }
 
-    // Add the last week
-    weeklyReports.add({
-      'startDate': DateFormat('MMM dd').format(currentWeekStart),
-      'endDate':
-          DateFormat('MMM dd').format(currentWeekStart.add(Duration(days: 6))),
-      'totalHours': totalHours,
-      'grossWage': grossWage,
-      'netWage': netWage,
+    await _exportService.shareFile(filePath, 'Shift Report');
+  }
+
+  void _createBackup(AppLocalizations localizations) async {
+    setState(() {
+      _backupProgress = 0.0;
     });
 
-    return weeklyReports;
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setDialogState) {
+              return AlertDialog(
+                title: Text(localizations.creatingBackup),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LinearProgressIndicator(value: _backupProgress),
+                    SizedBox(height: 16),
+                    Text('${(_backupProgress * 100).toInt()}%'),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
+
+      final backupPath = await _exportService.createBackup(
+        onProgress: (value) {
+          setState(() {
+            _backupProgress = value;
+          });
+        },
+      );
+
+      Navigator.of(context).pop(); // Close the progress dialog
+
+      await _exportService.shareFile(backupPath, 'Shift View Backup');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.backupCreated)),
+      );
+    } catch (e) {
+      Navigator.of(context).pop(); // Close the progress dialog in case of error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.backupFailed)),
+      );
+    }
   }
 
-  List<Map<String, dynamic>> _generateMonthlyReports(AppState appState) {
-    var shifts = appState.shifts;
-    shifts.sort((a, b) => a.date.compareTo(b.date));
+  void _restoreBackup(AppLocalizations localizations) async {
+    setState(() {
+      _restoreProgress = 0.0;
+    });
 
-    Map<String, Map<String, dynamic>> monthlyReports = {};
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles();
+      if (result != null) {
+        String filePath = result.files.single.path!;
 
-    for (var shift in shifts) {
-      String monthKey = DateFormat('yyyy-MM').format(shift.date);
-      String monthName = DateFormat('MMMM yyyy').format(shift.date);
-
-      if (!monthlyReports.containsKey(monthKey)) {
-        monthlyReports[monthKey] = {
-          'month': monthName,
-          'totalHours': 0.0,
-          'grossWage': 0.0,
-          'netWage': 0.0,
-          'wagePercentages': {
-            '100%': 0.0,
-            '125%': 0.0,
-            '150%': 0.0,
-            '175%': 0.0,
-            '200%': 0.0,
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return StatefulBuilder(
+              builder: (context, setDialogState) {
+                return AlertDialog(
+                  title: Text(localizations.restoringBackup),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      LinearProgressIndicator(value: _restoreProgress),
+                      SizedBox(height: 16),
+                      Text('${(_restoreProgress * 100).toInt()}%'),
+                    ],
+                  ),
+                );
+              },
+            );
           },
-        };
-      }
+        );
 
-      monthlyReports[monthKey]!['totalHours'] += shift.totalHours;
-      monthlyReports[monthKey]!['grossWage'] += shift.grossWage;
-      monthlyReports[monthKey]!['netWage'] += shift.netWage;
+        await _exportService.restoreBackup(
+          filePath,
+          onProgress: (value) {
+            setState(() {
+              _restoreProgress = value;
+            });
+          },
+        );
 
-      for (var entry in shift.wagePercentages.entries) {
-        monthlyReports[monthKey]!['wagePercentages']![entry.key] =
-            (monthlyReports[monthKey]!['wagePercentages']![entry.key] ?? 0.0) +
-                entry.value;
+        Navigator.of(context).pop(); // Close the progress dialog
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(localizations.backupRestored)),
+        );
       }
+    } catch (e) {
+      Navigator.of(context).pop(); // Close the progress dialog in case of error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localizations.restoreFailed)),
+      );
     }
+  }
 
-    return monthlyReports.values.toList()
-      ..sort((a, b) => DateFormat('MMMM yyyy')
-          .parse(a['month'])
-          .compareTo(DateFormat('MMMM yyyy').parse(b['month'])));
+  String _formatTime(TimeOfDay time) {
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 
   DateTime _getWeekStart(DateTime date, bool startOnSunday) {
-    int daysToSubtract =
-        startOnSunday ? date.weekday % 7 : (date.weekday - 1) % 7;
-    return date.subtract(Duration(days: daysToSubtract));
+    int daysToSubtract;
+    if (startOnSunday) {
+      daysToSubtract = date.weekday % 7;
+    } else {
+      daysToSubtract = (date.weekday - 1) % 7;
+    }
+    return DateTime(date.year, date.month, date.day)
+        .subtract(Duration(days: daysToSubtract));
+  }
+
+  String _getLocalizedDate(AppLocalizations localizations, DateTime date) {
+    final month = _getLocalizedMonth(localizations, date.month);
+    return '$month ${date.day}, ${date.year}';
+  }
+
+  String _getLocalizedDayMonth(AppLocalizations localizations, DateTime date) {
+    final day = _getLocalizedDay(localizations, date.weekday);
+    final month = _getLocalizedMonth(localizations, date.month);
+    return '$day, $month ${date.day}';
+  }
+
+  String _getLocalizedMonthYear(AppLocalizations localizations, DateTime date) {
+    final month = _getLocalizedMonth(localizations, date.month);
+    return '$month ${date.year}';
+  }
+
+  String _getLocalizedDay(AppLocalizations localizations, int weekday) {
+    switch (weekday) {
+      case DateTime.monday:
+        return localizations.monday;
+      case DateTime.tuesday:
+        return localizations.tuesday;
+      case DateTime.wednesday:
+        return localizations.wednesday;
+      case DateTime.thursday:
+        return localizations.thursday;
+      case DateTime.friday:
+        return localizations.friday;
+      case DateTime.saturday:
+        return localizations.saturday;
+      case DateTime.sunday:
+        return localizations.sunday;
+      default:
+        return '';
+    }
+  }
+
+  String _getLocalizedMonth(AppLocalizations localizations, int month) {
+    switch (month) {
+      case 1:
+        return localizations.january;
+      case 2:
+        return localizations.february;
+      case 3:
+        return localizations.march;
+      case 4:
+        return localizations.april;
+      case 5:
+        return localizations.may;
+      case 6:
+        return localizations.june;
+      case 7:
+        return localizations.july;
+      case 8:
+        return localizations.august;
+      case 9:
+        return localizations.september;
+      case 10:
+        return localizations.october;
+      case 11:
+        return localizations.november;
+      case 12:
+        return localizations.december;
+      default:
+        return '';
+    }
+  }
+
+  int _calculateWorkingDays(List<Shift> shifts) {
+    final Set<DateTime> workingDays = shifts
+        .map((shift) =>
+            DateTime(shift.date.year, shift.date.month, shift.date.day))
+        .toSet();
+    return workingDays.length;
+  }
+
+  Map<String, double> _calculatePercentageTotals(List<Shift> shifts) {
+    Map<String, double> totals = {};
+
+    for (var shift in shifts) {
+      shift.wagePercentages.forEach((key, value) {
+        totals[key] = (totals[key] ?? 0) + value;
+    }
+
+    return totals;
   }
 }
