@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -6,7 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
 import 'export_service.dart';
 import 'package:file_picker/file_picker.dart';
-import 'dart:math' as Math;
+import 'dart:math' as math;
 import 'rtl_fix.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -172,50 +171,54 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  Widget _buildTotalRow(List<Shift> shifts, AppState appState, AppLocalizations localizations, int totalWorkingDays) {
-  final totalHours = shifts.fold<double>(0, (sum, shift) => sum + shift.totalHours);
-  final totalGrossWage = shifts.fold<double>(0, (sum, shift) => sum + shift.grossWage);
-  final totalNetWage = shifts.fold<double>(0, (sum, shift) => sum + shift.netWage);
+  Widget _buildTotalRow(List<Shift> shifts, AppState appState,
+      AppLocalizations localizations, int totalWorkingDays) {
+    final totalHours =
+        shifts.fold<double>(0, (sum, shift) => sum + shift.totalHours);
+    final totalGrossWage =
+        shifts.fold<double>(0, (sum, shift) => sum + shift.grossWage);
+    final totalNetWage =
+        shifts.fold<double>(0, (sum, shift) => sum + shift.netWage);
 
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text('${localizations.totalWorkingDays}: '),
-            RTLFix.number('$totalWorkingDays'),
-          ],
-        ),
-        Row(
-          children: [
-            Text('${localizations.totalHours}: '),
-            RTLFix.number(totalHours.toStringAsFixed(2)),
-          ],
-        ),
-        Row(
-          children: [
-            Text('${localizations.grossWage}: ${appState.getCurrencySymbol()}'),
-            RTLFix.number(totalGrossWage.toStringAsFixed(2)),
-          ],
-        ),
-        Row(
-          children: [
-            Text('${localizations.netWage}: ${appState.getCurrencySymbol()}'),
-            RTLFix.number(totalNetWage.toStringAsFixed(2)),
-          ],
-        ),
-      ],
-    ),
-  );
-}
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('${localizations.totalWorkingDays}: '),
+              RTLFix.number('$totalWorkingDays'),
+            ],
+          ),
+          Row(
+            children: [
+              Text('${localizations.totalHours}: '),
+              RTLFix.number(totalHours.toStringAsFixed(2)),
+            ],
+          ),
+          Row(
+            children: [
+              Text('${localizations.grossWage}: '),
+              RTLFix.number(
+                  '${appState.getCurrencySymbol()}${totalGrossWage.toStringAsFixed(2)}'),
+            ],
+          ),
+          Row(
+            children: [
+              Text('${localizations.netWage}: '),
+              RTLFix.number(
+                  '${appState.getCurrencySymbol()}${totalNetWage.toStringAsFixed(2)}'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-
-Widget _buildPercentageTotals(List<Shift> shifts, AppState appState, AppLocalizations localizations) {
-    final percentageTotals = _calculatePercentageTotals(shifts);
-    final totalHoursFromShifts = shifts.fold<double>(0, (sum, shift) => sum + shift.totalHours);
-    final totalHoursFromBreakdown = percentageTotals.values.fold<double>(0, (sum, hours) => sum + hours);
+  Widget _buildPercentageTotals(
+      List<Shift> shifts, AppState appState, AppLocalizations localizations) {
+    final percentageTotals = _calculatePercentageTotals(shifts, appState);
 
     final sortedEntries = percentageTotals.entries.toList()
       ..sort((a, b) => int.parse(a.key.replaceAll('%', ''))
@@ -237,35 +240,9 @@ Widget _buildPercentageTotals(List<Shift> shifts, AppState appState, AppLocaliza
               ],
             );
           }).toList(),
-          SizedBox(height: 8),
-          Text('Total hours from shifts: ${totalHoursFromShifts.toStringAsFixed(2)}'),
-          Text('Total hours from breakdown: ${totalHoursFromBreakdown.toStringAsFixed(2)}'),
-          if ((totalHoursFromShifts - totalHoursFromBreakdown).abs() > 0.01)
-            Text('Warning: Total hours mismatch', style: TextStyle(color: Colors.red)),
         ],
       ),
     );
-  }
-
-  Map<String, double> _calculatePercentageTotals(List<Shift> shifts) {
-    Map<String, double> totals = {
-      '100%': 0,
-      '125%': 0,
-      '150%': 0,
-      '175%': 0,
-      '200%': 0,
-    };
-
-    for (var shift in shifts) {
-      shift.wagePercentages.forEach((percentage, hours) {
-        totals[percentage] = (totals[percentage] ?? 0) + hours;
-      });
-    }
-
-    // Remove percentages with 0 hours
-    totals.removeWhere((key, value) => value == 0);
-
-    return totals;
   }
 
   Widget _buildExportButtons(
@@ -301,6 +278,56 @@ Widget _buildPercentageTotals(List<Shift> shifts, AppState appState, AppLocaliza
         ),
       ],
     );
+  }
+
+  Map<String, double> _calculatePercentageTotals(
+      List<Shift> shifts, AppState appState) {
+    Map<String, double> totals = {};
+
+    for (var shift in shifts) {
+      final isSpecialDay = _isWeekend(appState, shift.date) ||
+          _isFestiveDay(appState, shift.date);
+      double remainingHours = shift.totalHours;
+
+      final applicableRules = appState.overtimeRules
+          .where((rule) => rule.isForSpecialDays == isSpecialDay)
+          .toList()
+        ..sort((a, b) => a.hoursThreshold.compareTo(b.hoursThreshold));
+
+      double baseHours = isSpecialDay
+          ? appState.baseHoursSpecialDay
+          : appState.baseHoursWeekday;
+      double baseRate = isSpecialDay ? 1.5 : 1.0;
+
+      // Apply base rate
+      double hoursAtBaseRate = math.min(remainingHours, baseHours);
+      String baseKey = '${(baseRate * 100).toInt()}%';
+      totals[baseKey] = (totals[baseKey] ?? 0) + hoursAtBaseRate;
+      remainingHours -= hoursAtBaseRate;
+
+      // Apply overtime rules
+      for (int i = 0; i < applicableRules.length; i++) {
+        var rule = applicableRules[i];
+        double nextThreshold = i < applicableRules.length - 1
+            ? applicableRules[i + 1].hoursThreshold
+            : double.infinity;
+
+        if (shift.totalHours > rule.hoursThreshold) {
+          double hoursAtThisRate =
+              math.min(remainingHours, nextThreshold - rule.hoursThreshold);
+
+          if (hoursAtThisRate > 0) {
+            String key = '${(rule.rate * 100).toInt()}%';
+            totals[key] = (totals[key] ?? 0) + hoursAtThisRate;
+            remainingHours -= hoursAtThisRate;
+          }
+        }
+
+        if (remainingHours <= 0) break;
+      }
+    }
+
+    return totals;
   }
 
   void _exportReport(List<Shift> shifts, String format) async {

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -14,23 +13,55 @@ class OvertimeRulesScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(localizations.overtimeRulesTitle),
       ),
-      body: ListView.builder(
-        itemCount: appState.overtimeRules.length,
-        itemBuilder: (context, index) {
-          final rule = appState.overtimeRules[index];
-          return ListTile(
-            title: Text(
-                '${localizations.afterHours(rule.hoursThreshold.toString())} @ ${rule.rate}x'),
-            subtitle: Text(rule.isForSpecialDays
-                ? localizations.specialDays
-                : localizations.weekdays),
+      body: ListView(
+        children: [
+          ListTile(
+            title: Text(localizations.baseHoursWeekday),
+            subtitle:
+                Text('${appState.baseHoursWeekday} ${localizations.hours}'),
             trailing: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () => appState.deleteOvertimeRule(index),
+              icon: Icon(Icons.edit),
+              onPressed: () =>
+                  _editBaseHours(context, appState, isWeekday: true),
             ),
-            onTap: () => _editOvertimeRule(context, appState, index),
-          );
-        },
+          ),
+          ListTile(
+            title: Text(localizations.baseHoursSpecialDay),
+            subtitle:
+                Text('${appState.baseHoursSpecialDay} ${localizations.hours}'),
+            trailing: IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () =>
+                  _editBaseHours(context, appState, isWeekday: false),
+            ),
+          ),
+          Divider(),
+          ...appState.overtimeRules.asMap().entries.map((entry) {
+            final index = entry.key;
+            final rule = entry.value;
+            return ListTile(
+              title: Text(
+                  '${localizations.afterHours(rule.hoursThreshold.toString())} @ ${rule.rate}x'),
+              subtitle: Text(rule.isForSpecialDays
+                  ? localizations.specialDays
+                  : localizations.weekdays),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () =>
+                        _editOvertimeRule(context, appState, index),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () => appState.deleteOvertimeRule(index),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -116,6 +147,48 @@ class OvertimeRulesScreen extends StatelessWidget {
               ],
             );
           },
+        );
+      },
+    );
+  }
+
+  void _editBaseHours(BuildContext context, AppState appState,
+      {required bool isWeekday}) {
+    final localizations = AppLocalizations.of(context)!;
+    final currentValue =
+        isWeekday ? appState.baseHoursWeekday : appState.baseHoursSpecialDay;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        double newValue = currentValue;
+        return AlertDialog(
+          title: Text(isWeekday
+              ? localizations.baseHoursWeekday
+              : localizations.baseHoursSpecialDay),
+          content: TextFormField(
+            initialValue: currentValue.toString(),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            onChanged: (value) =>
+                newValue = double.tryParse(value) ?? currentValue,
+          ),
+          actions: [
+            TextButton(
+              child: Text(localizations.cancel),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text(localizations.save),
+              onPressed: () {
+                if (isWeekday) {
+                  appState.baseHoursWeekday = newValue;
+                } else {
+                  appState.baseHoursSpecialDay = newValue;
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
         );
       },
     );
