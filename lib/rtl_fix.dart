@@ -3,11 +3,10 @@
 import 'package:flutter/material.dart';
 
 class RTLFix {
-  static Widget number(String text) {
+  static Widget number(String text, {required TextStyle style}) {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Text(text),
     );
   }
 }
-

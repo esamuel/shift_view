@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
 import 'export_service.dart';
@@ -9,6 +8,8 @@ import 'dart:math' as math;
 import 'rtl_fix.dart';
 
 class ReportScreen extends StatefulWidget {
+  const ReportScreen({Key? key}) : super(key: key);
+
   @override
   _ReportScreenState createState() => _ReportScreenState();
 }
@@ -53,11 +54,11 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Widget _buildWeeklyReport(AppState appState, AppLocalizations localizations) {
     final weekStart = _getWeekStart(_selectedDate, appState.startOnSunday);
-    final weekEnd = weekStart.add(Duration(days: 6));
+    final weekEnd = weekStart.add(const Duration(days: 6));
     final weekShifts = appState.shifts
         .where((shift) =>
-            shift.date.isAfter(weekStart.subtract(Duration(days: 1))) &&
-            shift.date.isBefore(weekEnd.add(Duration(days: 1))))
+            shift.date.isAfter(weekStart.subtract(const Duration(days: 1))) &&
+            shift.date.isBefore(weekEnd.add(const Duration(days: 1))))
         .toList();
 
     return Column(
@@ -65,7 +66,7 @@ class _ReportScreenState extends State<ReportScreen> {
         _buildDateSelector(localizations),
         Text(
           '${_getLocalizedDate(localizations, weekStart)} - ${_getLocalizedDate(localizations, weekEnd)}',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         Expanded(
           child: _buildShiftsList(weekShifts, appState, localizations),
@@ -84,8 +85,8 @@ class _ReportScreenState extends State<ReportScreen> {
     final monthEnd = DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
     final monthShifts = appState.shifts
         .where((shift) =>
-            shift.date.isAfter(monthStart.subtract(Duration(days: 1))) &&
-            shift.date.isBefore(monthEnd.add(Duration(days: 1))))
+            shift.date.isAfter(monthStart.subtract(const Duration(days: 1))) &&
+            shift.date.isBefore(monthEnd.add(const Duration(days: 1))))
         .toList();
 
     final totalWorkingDays = _calculateWorkingDays(monthShifts);
@@ -95,7 +96,7 @@ class _ReportScreenState extends State<ReportScreen> {
         _buildDateSelector(localizations),
         Text(
           _getLocalizedMonthYear(localizations, _selectedDate),
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         Expanded(
           child: _buildShiftsList(monthShifts, appState, localizations),
@@ -112,10 +113,10 @@ class _ReportScreenState extends State<ReportScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-          icon: Icon(Icons.chevron_left),
+          icon: const Icon(Icons.chevron_left),
           onPressed: () {
             setState(() {
-              _selectedDate = _selectedDate.subtract(Duration(days: 7));
+              _selectedDate = _selectedDate.subtract(const Duration(days: 7));
             });
           },
         ),
@@ -136,10 +137,10 @@ class _ReportScreenState extends State<ReportScreen> {
           },
         ),
         IconButton(
-          icon: Icon(Icons.chevron_right),
+          icon: const Icon(Icons.chevron_right),
           onPressed: () {
             setState(() {
-              _selectedDate = _selectedDate.add(Duration(days: 7));
+              _selectedDate = _selectedDate.add(const Duration(days: 7));
             });
           },
         ),
@@ -230,7 +231,7 @@ class _ReportScreenState extends State<ReportScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(localizations.wageBreakdown,
-              style: TextStyle(fontWeight: FontWeight.bold)),
+              style: const TextStyle(fontWeight: FontWeight.bold)),
           ...sortedEntries.map((entry) {
             return Row(
               children: [
@@ -262,7 +263,7 @@ class _ReportScreenState extends State<ReportScreen> {
             ),
           ],
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [

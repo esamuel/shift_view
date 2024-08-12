@@ -1,12 +1,8 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:csv/csv.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:share_plus/share_plus.dart';
 import 'app_state.dart';
 
 // Conditional imports
@@ -40,7 +36,7 @@ class ExportService {
       return platform.createBackup(jsonString);
     } catch (e) {
       print("Error in createBackup: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -75,7 +71,7 @@ class ExportService {
       appState.notifyListeners();
     } catch (e) {
       print("Error in restoreBackup: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -106,7 +102,7 @@ class ExportService {
       return platform.generateCSV(csv);
     } catch (e) {
       print("Error in generateCSV: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -144,7 +140,7 @@ class ExportService {
       return platform.generatePDF(pdfBytes);
     } catch (e) {
       print("Error in generatePDF: $e");
-      throw e;
+      rethrow;
     }
   }
 
@@ -153,7 +149,7 @@ class ExportService {
       await platform.shareFile(filePath, subject);
     } catch (e) {
       print("Error in shareFile: $e");
-      throw e;
+      rethrow;
     }
   }
 

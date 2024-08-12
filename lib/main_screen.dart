@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'settings_screen.dart';
@@ -8,6 +7,8 @@ import 'info_screen.dart';
 import 'overtime_rules_screen.dart';
 
 class MainScreen extends StatelessWidget {
+  const MainScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -19,7 +20,7 @@ class MainScreen extends StatelessWidget {
         foregroundColor: colorScheme.onPrimary,
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: <Widget>[
             _buildButton(
@@ -27,9 +28,9 @@ class MainScreen extends StatelessWidget {
               localizations.settingsTitle,
               Icons.settings,
               () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => SettingsScreen())),
+                  MaterialPageRoute(builder: (context) => const SettingsScreen())),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildButton(
               context,
               localizations.shiftManagerTitle,
@@ -37,25 +38,25 @@ class MainScreen extends StatelessWidget {
               () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ShiftManagerScreen())),
+                      builder: (context) => const ShiftManagerScreen())),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildButton(
               context,
               localizations.reportsTitle,
               Icons.bar_chart,
               () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ReportScreen())),
+                  MaterialPageRoute(builder: (context) => const ReportScreen())),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildButton(
               context,
               localizations.infoButtonTitle,
               Icons.info,
               () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => InfoScreen())),
+                  MaterialPageRoute(builder: (context) => const InfoScreen())),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildButton(
               context,
               localizations.overtimeRulesTitle,
@@ -63,9 +64,9 @@ class MainScreen extends StatelessWidget {
               () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => OvertimeRulesScreen())),
+                      builder: (context) => const OvertimeRulesScreen())),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildButton(
               context,
               localizations.addToHomeScreen,
@@ -85,7 +86,7 @@ class MainScreen extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -94,14 +95,14 @@ class MainScreen extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Icon(icon, size: 24.0),
-          SizedBox(width: 16.0),
+          const SizedBox(width: 16.0),
           Expanded(
             child: Text(
               title,
-              style: TextStyle(fontSize: 18.0),
+              style: const TextStyle(fontSize: 16.0),
             ),
           ),
-          Icon(Icons.arrow_forward_ios, size: 18.0),
+          const Icon(Icons.arrow_forward_ios, size: 18.0),
         ],
       ),
     );
@@ -118,7 +119,7 @@ class MainScreen extends StatelessWidget {
             child: ListBody(
               children: <Widget>[
                 Text(localizations.addToHomeScreeniOS),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(localizations.addToHomeScreenAndroid),
               ],
             ),

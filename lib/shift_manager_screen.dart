@@ -5,9 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
 import 'dart:math' as Math;
-import 'rtl_fix.dart';
 
 class ShiftManagerScreen extends StatefulWidget {
+  const ShiftManagerScreen({Key? key}) : super(key: key);
+
   @override
   _ShiftManagerScreenState createState() => _ShiftManagerScreenState();
 }
@@ -15,8 +16,8 @@ class ShiftManagerScreen extends StatefulWidget {
 // Part 2: State class and variables
 class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   DateTime _selectedDate = DateTime.now();
-  TimeOfDay _startTime = TimeOfDay(hour: 8, minute: 0);
-  TimeOfDay _endTime = TimeOfDay(hour: 17, minute: 0);
+  TimeOfDay _startTime = const TimeOfDay(hour: 8, minute: 0);
+  TimeOfDay _endTime = const TimeOfDay(hour: 17, minute: 0);
   bool _showCurrentMonthOnly = true;
 
 // Part 3: Build method
@@ -35,19 +36,19 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(localizations.addNewShift,
                     style: Theme.of(context).textTheme.titleLarge),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 _buildButton(
                   context,
                   '${localizations.selectDate}: ${DateFormat('dd-MM-yyyy').format(_selectedDate)}',
                   () => _selectDate(context),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
@@ -57,7 +58,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                         () => _selectTime(context, true),
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: _buildButton(
                         context,
@@ -67,12 +68,12 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 _buildButton(context, localizations.addShift, _addShift),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
                 Text(localizations.existingShifts,
                     style: Theme.of(context).textTheme.titleLarge),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -94,7 +95,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 _buildShiftsList(appState, localizations),
               ],
             ),
@@ -112,8 +113,8 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       style: ElevatedButton.styleFrom(
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
-        minimumSize: Size(double.infinity, 36),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        minimumSize: const Size(double.infinity, 36),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
     );
   }
@@ -126,13 +127,13 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
 
     return ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: shiftsToShow.length,
       itemBuilder: (context, index) {
         final shift = shiftsToShow[index];
         return Card(
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -140,7 +141,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                   _getLocalizedDayMonth(context, shift.date),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   '${localizations.startTime}: ${_formatTime(shift.startTime)} - ${localizations.endTime}: ${_formatTime(shift.endTime)}',
                 ),
@@ -153,16 +154,16 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                 Text(
                   '${localizations.netWage}: ${appState.getCurrencySymbol()}${shift.netWage.toStringAsFixed(2)}',
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.edit),
+                      icon: const Icon(Icons.edit),
                       onPressed: () => _editShift(context, appState, shift),
                     ),
                     IconButton(
-                      icon: Icon(Icons.delete),
+                      icon: const Icon(Icons.delete),
                       onPressed: () => _confirmDeleteShift(context, appState, shift),
                     ),
                   ],
@@ -266,7 +267,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                       }
                     },
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
@@ -286,7 +287,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                           },
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: _buildButton(
                           context,
@@ -400,7 +401,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
     var endDateTime = DateTime(date.year, date.month, date.day, endTime.hour, endTime.minute);
 
     if (endDateTime.isBefore(startDateTime)) {
-      endDateTime = endDateTime.add(Duration(days: 1));
+      endDateTime = endDateTime.add(const Duration(days: 1));
     }
 
     return endDateTime.difference(startDateTime).inMinutes / 60.0;

@@ -10,7 +10,7 @@ class AppState extends ChangeNotifier {
   double _hourlyWage = 0;
   double _taxDeduction = 0;
   bool _startOnSunday = true;
-  Locale _locale = Locale('en', '');
+  Locale _locale = const Locale('en', '');
   String _countryCode = 'US';
   double _baseHoursWeekday = 8.0;
   double _baseHoursSpecialDay = 8.0;

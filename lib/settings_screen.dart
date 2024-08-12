@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
 import 'overtime_rules_screen.dart';
-import 'rtl_fix.dart';
 
 class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({Key? key}) : super(key: key);
+
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
@@ -45,30 +46,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(localizations.settingsTitle),
       ),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: [
           _buildNumberInput(
             controller: _hourlyWageController,
             label: localizations.hourlyWage,
             prefixText: appState.getCurrencySymbol(),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildNumberInput(
             controller: _taxDeductionController,
             label: localizations.taxDeduction,
             suffixText: '%',
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildNumberInput(
             controller: _baseHoursWeekdayController,
             label: localizations.baseHoursWeekday,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildNumberInput(
             controller: _baseHoursSpecialDayController,
             label: localizations.baseHoursSpecialDay,
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           SwitchListTile(
             title: Text(localizations.startWorkWeekOnSunday),
             value: appState.startOnSunday,
@@ -78,11 +79,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               });
             },
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: localizations.language),
             value: appState.locale.languageCode,
-            items: [
+            items: const [
               DropdownMenuItem(child: Text('English'), value: 'en'),
               DropdownMenuItem(child: Text('Español'), value: 'es'),
               DropdownMenuItem(child: Text('Français'), value: 'fr'),
@@ -96,7 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }
             },
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: localizations.country),
             value: appState.countryCode,
@@ -114,17 +115,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }
             },
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ElevatedButton(
             child: Text(localizations.manageOvertimeRules),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => OvertimeRulesScreen()),
+                MaterialPageRoute(builder: (context) => const OvertimeRulesScreen()),
               );
             },
           ),
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           ElevatedButton(
             child: Text(localizations.saveSettings),
             onPressed: () {
@@ -158,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         prefixText: prefixText,
         suffixText: suffixText,
       ),
-      keyboardType: TextInputType.numberWithOptions(decimal: true),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.left,
     );

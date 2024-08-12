@@ -207,12 +207,6 @@
   "addToHomeScreenTitle": "How to Add to Home Screen",
   "addToHomeScreeniOS": "For iOS: Tap the share button in Safari, then select 'Add to Home Screen'.",
   "addToHomeScreenAndroid": "For Android: Tap the menu button in Chrome, then select 'Add to Home screen'.",
-  "ok": "OK",
-  "notificationSettings": "Notification Settings",
-  "enableShiftReminders": "Enable Shift Reminders",
-  "reminderTime": "Reminder Time",
-  "minutesBefore": "minutes before",
-  "enableEndShiftReminders": "Enable End Shift Reminders",
-  "setReminderTime": "Set Reminder Time",
-  "minutes": "minutes"
+  "ok": "OK"
+ 
 }

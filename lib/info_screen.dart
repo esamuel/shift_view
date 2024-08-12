@@ -17,7 +17,7 @@ class InfoScreen extends StatelessWidget {
         title: Text(localizations.infoTitle),
       ),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: [
           _buildSection(localizations.appGuideIntroduction,
               localizations.appGuideIntroductionContent),
@@ -57,10 +57,10 @@ class InfoScreen extends StatelessWidget {
           _buildSection(localizations.appGuidePrivacyAndDataSecurity,
               localizations.appGuidePrivacyAndDataSecurityContent),
           Padding(
-            padding: EdgeInsets.only(top: 16.0),
+            padding: const EdgeInsets.only(top: 16.0),
             child: Text(
               localizations.appGuideFooter,
-              style: TextStyle(fontStyle: FontStyle.italic),
+              style: const TextStyle(fontStyle: FontStyle.italic),
             ),
           ),
         ],
@@ -70,21 +70,21 @@ class InfoScreen extends StatelessWidget {
 
   Widget _buildSection(String title, String content) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: TextStyle(
-              fontSize: 18,
+            style: const TextStyle(
+              fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             content,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ],
       ),

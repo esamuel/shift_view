@@ -4,6 +4,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
 
 class OvertimeRulesScreen extends StatelessWidget {
+  const OvertimeRulesScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
@@ -20,7 +22,7 @@ class OvertimeRulesScreen extends StatelessWidget {
             subtitle:
                 Text('${appState.baseHoursWeekday} ${localizations.hours}'),
             trailing: IconButton(
-              icon: Icon(Icons.edit),
+              icon: const Icon(Icons.edit),
               onPressed: () =>
                   _editBaseHours(context, appState, isWeekday: true),
             ),
@@ -30,12 +32,12 @@ class OvertimeRulesScreen extends StatelessWidget {
             subtitle:
                 Text('${appState.baseHoursSpecialDay} ${localizations.hours}'),
             trailing: IconButton(
-              icon: Icon(Icons.edit),
+              icon: const Icon(Icons.edit),
               onPressed: () =>
                   _editBaseHours(context, appState, isWeekday: false),
             ),
           ),
-          Divider(),
+          const Divider(),
           ...appState.overtimeRules.asMap().entries.map((entry) {
             final index = entry.key;
             final rule = entry.value;
@@ -49,12 +51,12 @@ class OvertimeRulesScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.edit),
+                    icon: const Icon(Icons.edit),
                     onPressed: () =>
                         _editOvertimeRule(context, appState, index),
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete),
+                    icon: const Icon(Icons.delete),
                     onPressed: () => appState.deleteOvertimeRule(index),
                   ),
                 ],
@@ -64,7 +66,7 @@ class OvertimeRulesScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () => _addOvertimeRule(context, appState),
       ),
     );
@@ -103,7 +105,7 @@ class OvertimeRulesScreen extends StatelessWidget {
                     decoration: InputDecoration(
                         labelText: localizations.hoursThreshold),
                     keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     onChanged: (value) => hoursThreshold =
                         double.tryParse(value) ?? hoursThreshold,
                   ),
@@ -111,7 +113,7 @@ class OvertimeRulesScreen extends StatelessWidget {
                     initialValue: rate.toString(),
                     decoration: InputDecoration(labelText: localizations.rate),
                     keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
+                        const TextInputType.numberWithOptions(decimal: true),
                     onChanged: (value) => rate = double.tryParse(value) ?? rate,
                   ),
                   SwitchListTile(
@@ -168,7 +170,7 @@ class OvertimeRulesScreen extends StatelessWidget {
               : localizations.baseHoursSpecialDay),
           content: TextFormField(
             initialValue: currentValue.toString(),
-            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (value) =>
                 newValue = double.tryParse(value) ?? currentValue,
           ),
