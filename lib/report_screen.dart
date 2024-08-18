@@ -160,9 +160,11 @@ class _ReportScreenState extends State<ReportScreen> {
           subtitle: Row(
             children: [
               Text('${localizations.startTime}: '),
-              RTLFix.number(_formatTime(shift.startTime)),
+              RTLFix.number(_formatTime(shift.startTime),
+                  style: Theme.of(context).textTheme.bodyMedium),
               Text(' - ${localizations.endTime}: '),
-              RTLFix.number(_formatTime(shift.endTime)),
+              RTLFix.number(_formatTime(shift.endTime),
+                  style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
           trailing: RTLFix.number(

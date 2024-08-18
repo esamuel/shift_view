@@ -74,6 +74,8 @@ class AppState extends ChangeNotifier {
     loadFestiveDays();
   }
 
+  get userName => null;
+
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _hourlyWage = prefs.getDouble('hourlyWage') ?? 0;

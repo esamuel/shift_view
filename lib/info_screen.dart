@@ -10,7 +10,7 @@ class InfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final appState = Provider.of<AppState>(context);
-    final currencySymbol = appState.getCurrencySymbol();
+    appState.getCurrencySymbol();
 
     return Scaffold(
       appBar: AppBar(
