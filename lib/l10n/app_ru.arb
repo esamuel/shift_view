@@ -210,8 +210,15 @@
   "addToHomeScreenTitle": "Как добавить на главный экран",
   "addToHomeScreeniOS": "Для iOS: Нажмите кнопку «Поделиться» в Safari, затем выберите «На экран «Домой».",
   "addToHomeScreenAndroid": "Для Android: Нажмите кнопку меню в Chrome, затем выберите «Добавить на главный экран».",
-  "ok": "ОК"
-
+  "ok": "ОК",
+  "addRule": "Добавить правило",
+  "saveRule": "Сохранить правило",
+  "changesSaved": "Изменения сохранены",
+  "errorInvalidShiftId": "Ошибка: Неверный ID смены",
+  "selectDate": "Выбрать дату",
+  "shiftNotes": "Заметки",
+  "settingsSaved": "Настройки успешно сохранены",
+  "upcomingShifts": "Предстоящие смены"
 }
 
 

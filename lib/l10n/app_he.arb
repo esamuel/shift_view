@@ -218,7 +218,15 @@
   "addToHomeScreenTitle": "כיצד להוסיף למסך הבית",
   "addToHomeScreeniOS": "עבור iOS: הקש על כפתור השיתוף בספארי, ואז בחר 'הוסף למסך הבית'.",
   "addToHomeScreenAndroid": "עבור אנדרואיד: הקש על כפתור התפריט בכרום, ואז בחר 'הוסף למסך הבית'.",
-  "ok": "אישור"
+  "ok": "אישור",
+  "addRule": "הוסף כלל",
+  "saveRule": "שמור כלל",
+  "changesSaved": "השינויים נשמרו",
+  "errorInvalidShiftId": "שגיאה: מזהה משמרת לא חוקי",
+  "selectDate": "בחר תאריך",
+  "shiftNotes": "הערות",
+  "settingsSaved": "ההגדרות נשמרו בהצלחה",
+  "upcomingShifts": "משמרות קרובות"
 }
 
 

@@ -1,0 +1,56 @@
+{
+  "de": [
+    "showingAllShifts",
+    "showingCurrentMonthShifts",
+    "addToHomeScreen",
+    "addToHomeScreenTitle",
+    "iPhoneInstructions",
+    "openInSafari",
+    "tapShareButton",
+    "scrollAndTapAddToHomeScreen",
+    "tapAddInTopRight",
+    "androidInstructions",
+    "openInChrome",
+    "tapMenuIcon",
+    "tapAddOnPopup",
+    "close",
+    "exportedReport",
+    "dateLabel",
+    "backupFileCreated",
+    "festiveDays",
+    "addFestiveDay",
+    "currentMonth",
+    "allShifts",
+    "editShift",
+    "deleteShift",
+    "shiftUpdatedSuccessfully",
+    "shiftDeletedSuccessfully",
+    "addToHomeScreeniOS",
+    "addToHomeScreenAndroid",
+    "ok",
+    "upcomingShifts",
+    "noUpcomingShifts",
+    "shiftNotes",
+    "settingsSaved",
+    "addRule",
+    "saveRule",
+    "changesSaved",
+    "errorInvalidShiftId"
+  ],
+
+  "es": [
+    "noUpcomingShifts"
+  ],
+
+  "fr": [
+    "noUpcomingShifts"
+  ],
+
+  "he": [
+    "noUpcomingShifts"
+  ],
+
+  "ru": [
+    "noUpcomingShifts"
+  ]
+}

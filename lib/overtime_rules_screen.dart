@@ -15,164 +15,64 @@ class OvertimeRulesScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(localizations.overtimeRulesTitle),
       ),
-      body: ListView(
-        children: [
-          ListTile(
-            title: Text(localizations.baseHoursWeekday),
-            subtitle:
-                Text('${appState.baseHoursWeekday} ${localizations.hours}'),
+      body: ListView.builder(
+        itemCount: appState.overtimeRules.length,
+        itemBuilder: (context, index) {
+          final rule = appState.overtimeRules[index];
+          return ListTile(
+            title: Text('${localizations.afterHours(rule.hoursThreshold.toString())}: ${(rule.rate * 100).toInt()}%'),
+            subtitle: Text(rule.isForSpecialDays ? localizations.specialDays : localizations.weekdays),
             trailing: IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () =>
-                  _editBaseHours(context, appState, isWeekday: true),
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () {
+                appState.deleteOvertimeRule(index);
+                appState.saveOvertimeRules();
+              },
             ),
-          ),
-          ListTile(
-            title: Text(localizations.baseHoursSpecialDay),
-            subtitle:
-                Text('${appState.baseHoursSpecialDay} ${localizations.hours}'),
-            trailing: IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () =>
-                  _editBaseHours(context, appState, isWeekday: false),
-            ),
-          ),
-          const Divider(),
-          ...appState.overtimeRules.asMap().entries.map((entry) {
-            final index = entry.key;
-            final rule = entry.value;
-            return ListTile(
-              title: Text(
-                  '${localizations.afterHours(rule.hoursThreshold.toString())} @ ${rule.rate}x'),
-              subtitle: Text(rule.isForSpecialDays
-                  ? localizations.specialDays
-                  : localizations.weekdays),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () =>
-                        _editOvertimeRule(context, appState, index),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () => appState.deleteOvertimeRule(index),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-        ],
+            onTap: () => _editOvertimeRule(context, appState, index, rule),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
         onPressed: () => _addOvertimeRule(context, appState),
+        child: const Icon(Icons.add),
       ),
     );
   }
 
   void _addOvertimeRule(BuildContext context, AppState appState) {
-    _showOvertimeRuleDialog(context, appState);
-  }
-
-  void _editOvertimeRule(BuildContext context, AppState appState, int index) {
-    _showOvertimeRuleDialog(context, appState,
-        existingRule: appState.overtimeRules[index], index: index);
-  }
-
-  void _showOvertimeRuleDialog(BuildContext context, AppState appState,
-      {OvertimeRule? existingRule, int? index}) {
     final localizations = AppLocalizations.of(context)!;
-    double hoursThreshold = existingRule?.hoursThreshold ?? 8;
-    double rate = existingRule?.rate ?? 1.5;
-    bool isForSpecialDays = existingRule?.isForSpecialDays ?? false;
+    final TextEditingController hoursThresholdController = TextEditingController();
+    final TextEditingController rateController = TextEditingController();
+    bool isForSpecialDays = false;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text(existingRule == null
-                  ? localizations.addOvertimeRule
-                  : localizations.editOvertimeRule),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    initialValue: hoursThreshold.toString(),
-                    decoration: InputDecoration(
-                        labelText: localizations.hoursThreshold),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (value) => hoursThreshold =
-                        double.tryParse(value) ?? hoursThreshold,
-                  ),
-                  TextFormField(
-                    initialValue: rate.toString(),
-                    decoration: InputDecoration(labelText: localizations.rate),
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (value) => rate = double.tryParse(value) ?? rate,
-                  ),
-                  SwitchListTile(
-                    title: Text(localizations.isForSpecialDays),
-                    value: isForSpecialDays,
-                    onChanged: (value) =>
-                        setState(() => isForSpecialDays = value),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  child: Text(localizations.cancel),
-                  onPressed: () => Navigator.of(context).pop(),
+        return AlertDialog(
+          title: Text(localizations.addOvertimeRule),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: hoursThresholdController,
+                  decoration: InputDecoration(labelText: localizations.hoursThreshold),
+                  keyboardType: TextInputType.number,
                 ),
-                TextButton(
-                  child: Text(localizations.save),
-                  onPressed: () {
-                    final rule = OvertimeRule(
-                      id: existingRule?.id ?? DateTime.now().toIso8601String(),
-                      hoursThreshold: hoursThreshold,
-                      rate: rate,
-                      isForSpecialDays: isForSpecialDays,
-                    );
-                    if (existingRule == null) {
-                      appState.addOvertimeRule(rule);
-                    } else {
-                      appState.updateOvertimeRule(index!, rule);
-                    }
-                    Navigator.of(context).pop();
+                TextField(
+                  controller: rateController,
+                  decoration: InputDecoration(labelText: localizations.rate),
+                  keyboardType: TextInputType.number,
+                ),
+                SwitchListTile(
+                  title: Text(localizations.appliesOnSpecialDays),
+                  value: isForSpecialDays,
+                  onChanged: (bool value) {
+                    isForSpecialDays = value;
                   },
                 ),
               ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _editBaseHours(BuildContext context, AppState appState,
-      {required bool isWeekday}) {
-    final localizations = AppLocalizations.of(context)!;
-    final currentValue =
-        isWeekday ? appState.baseHoursWeekday : appState.baseHoursSpecialDay;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        double newValue = currentValue;
-        return AlertDialog(
-          title: Text(isWeekday
-              ? localizations.baseHoursWeekday
-              : localizations.baseHoursSpecialDay),
-          content: TextFormField(
-            initialValue: currentValue.toString(),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            onChanged: (value) =>
-                newValue = double.tryParse(value) ?? currentValue,
+            ),
           ),
           actions: [
             TextButton(
@@ -182,12 +82,79 @@ class OvertimeRulesScreen extends StatelessWidget {
             TextButton(
               child: Text(localizations.save),
               onPressed: () {
-                if (isWeekday) {
-                  appState.baseHoursWeekday = newValue;
-                } else {
-                  appState.baseHoursSpecialDay = newValue;
+                if (hoursThresholdController.text.isNotEmpty && rateController.text.isNotEmpty) {
+                  appState.addOvertimeRule(OvertimeRule(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    hoursThreshold: double.parse(hoursThresholdController.text),
+                    rate: double.parse(rateController.text),
+                    isForSpecialDays: isForSpecialDays,
+                  ));
+                  appState.saveOvertimeRules();
+                  Navigator.of(context).pop();
                 }
-                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _editOvertimeRule(BuildContext context, AppState appState, int index, OvertimeRule rule) {
+    final localizations = AppLocalizations.of(context)!;
+    final TextEditingController hoursThresholdController = TextEditingController(text: rule.hoursThreshold.toString());
+    final TextEditingController rateController = TextEditingController(text: rule.rate.toString());
+    bool isForSpecialDays = rule.isForSpecialDays;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(localizations.editOvertimeRule),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: hoursThresholdController,
+                  decoration: InputDecoration(labelText: localizations.hoursThreshold),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: rateController,
+                  decoration: InputDecoration(labelText: localizations.rate),
+                  keyboardType: TextInputType.number,
+                ),
+                SwitchListTile(
+                  title: Text(localizations.appliesOnSpecialDays),
+                  value: isForSpecialDays,
+                  onChanged: (bool value) {
+                    isForSpecialDays = value;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text(localizations.cancel),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text(localizations.save),
+              onPressed: () {
+                if (hoursThresholdController.text.isNotEmpty && rateController.text.isNotEmpty) {
+                  appState.updateOvertimeRule(
+                    index,
+                    OvertimeRule(
+                      id: rule.id,
+                      hoursThreshold: double.parse(hoursThresholdController.text),
+                      rate: double.parse(rateController.text),
+                      isForSpecialDays: isForSpecialDays,
+                    ),
+                  );
+                  appState.saveOvertimeRules();
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ],

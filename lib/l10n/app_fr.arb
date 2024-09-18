@@ -209,7 +209,15 @@
   "addToHomeScreenTitle": "Comment ajouter à l'écran d'accueil",
   "addToHomeScreeniOS": "Pour iOS : Appuyez sur le bouton de partage dans Safari, puis sélectionnez 'Ajouter à l'écran d'accueil'.",
   "addToHomeScreenAndroid": "Pour Android : Appuyez sur le bouton de menu dans Chrome, puis sélectionnez 'Ajouter à l'écran d'accueil'.",
-  "ok": "OK"
+  "ok": "OK",
+  "addRule": "Ajouter une règle",
+  "saveRule": "Enregistrer la règle",
+  "changesSaved": "Modifications enregistrées",
+  "errorInvalidShiftId": "Erreur : ID de quart invalide",
+  "selectDate": "Sélectionner une date",
+  "shiftNotes": "Notes",
+  "settingsSaved": "Paramètres enregistrés avec succès",
+  "upcomingShifts": "Prochains quarts"
 }
 
 

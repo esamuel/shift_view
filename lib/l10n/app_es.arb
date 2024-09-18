@@ -209,8 +209,17 @@
   "addToHomeScreenTitle": "Cómo añadir a la pantalla de inicio",
   "addToHomeScreeniOS": "Para iOS: Toca el botón de compartir en Safari, luego selecciona 'Añadir a la pantalla de inicio'.",
   "addToHomeScreenAndroid": "Para Android: Toca el botón de menú en Chrome, luego selecciona 'Añadir a la pantalla de inicio'.",
-  "ok": "Aceptar"
+  "ok": "Aceptar",
+  "addRule": "Agregar regla",
+  "saveRule": "Guardar regla",
+  "changesSaved": "Cambios guardados",
+  "errorInvalidShiftId": "Error: ID de turno inválido",
+  "selectDate": "Seleccionar fecha",
+  "shiftNotes": "Notas",
+  "settingsSaved": "Configuración guardada exitosamente",
+  "upcomingShifts": "Próximos turnos"
 }
+
 
 
 

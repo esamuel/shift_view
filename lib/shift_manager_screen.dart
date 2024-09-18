@@ -19,6 +19,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   TimeOfDay _startTime = const TimeOfDay(hour: 8, minute: 0);
   TimeOfDay _endTime = const TimeOfDay(hour: 17, minute: 0);
   bool _showCurrentMonthOnly = true;
+  String notes = '';
 
 // Part 3: Build method
   @override
@@ -163,8 +164,8 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                       onPressed: () => _editShift(context, appState, shift),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _confirmDeleteShift(context, appState, shift),
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _deleteShift(context, appState, shift),
                     ),
                   ],
                 ),
@@ -211,111 +212,218 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
     final appState = Provider.of<AppState>(context, listen: false);
     final localizations = AppLocalizations.of(context)!;
 
-    final newShift = _createShift(appState);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(localizations.addNewShift),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildButton(
+                  context,
+                  '${localizations.selectDate}: ${DateFormat('dd-MM-yyyy').format(_selectedDate)}',
+                  () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
+                    );
+                    if (picked != null && picked != _selectedDate) {
+                      setState(() {
+                        _selectedDate = picked;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildButton(
+                        context,
+                        '${localizations.startTime}: ${_formatTime(_startTime)}',
+                        () async {
+                          final TimeOfDay? picked = await showTimePicker(
+                            context: context,
+                            initialTime: _startTime,
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              _startTime = picked;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildButton(
+                        context,
+                        '${localizations.endTime}: ${_formatTime(_endTime)}',
+                        () async {
+                          final TimeOfDay? picked = await showTimePicker(
+                            context: context,
+                            initialTime: _endTime,
+                          );
+                          if (picked != null) {
+                            setState(() {
+                              _endTime = picked;
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  decoration: InputDecoration(labelText: localizations.shiftNotes),
+                  onChanged: (value) => notes = value,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text(localizations.cancel),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text(localizations.addShift),
+              onPressed: () {
+                final totalHours = _calculateTotalHours(_selectedDate, _startTime, _endTime);
+                final grossWage = _calculateGrossWage(appState, _selectedDate, _startTime, _endTime);
+                final netWage = _calculateNetWage(grossWage, appState.taxDeduction);
+                final wagePercentages = _calculateWagePercentages(appState, _selectedDate, _startTime, _endTime);
 
-    bool isDuplicate = appState.shifts.any((shift) =>
-        shift.date.year == newShift.date.year &&
-        shift.date.month == newShift.date.month &&
-        shift.date.day == newShift.date.day &&
-        shift.startTime.hour == newShift.startTime.hour &&
-        shift.startTime.minute == newShift.startTime.minute &&
-        shift.endTime.hour == newShift.endTime.hour &&
-        shift.endTime.minute == newShift.endTime.minute);
+                final newShift = Shift(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  date: _selectedDate,
+                  startTime: _startTime,
+                  endTime: _endTime,
+                  totalHours: totalHours,
+                  grossWage: grossWage,
+                  netWage: netWage,
+                  wagePercentages: wagePercentages,
+                  notes: notes,
+                );
 
-    if (isDuplicate) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.shiftAlreadySaved)),
-      );
-    } else {
-      appState.addShift(newShift);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.shiftAddedSuccessfully)),
-      );
-    }
+                bool isDuplicate = appState.shifts.any((shift) =>
+                    shift.date.year == newShift.date.year &&
+                    shift.date.month == newShift.date.month &&
+                    shift.date.day == newShift.date.day &&
+                    shift.startTime.hour == newShift.startTime.hour &&
+                    shift.startTime.minute == newShift.startTime.minute &&
+                    shift.endTime.hour == newShift.endTime.hour &&
+                    shift.endTime.minute == newShift.endTime.minute);
+
+                if (isDuplicate) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(localizations.shiftAlreadySaved)),
+                  );
+                } else {
+                  appState.addShift(newShift);
+                  appState.saveShifts(); // Save changes immediately
+                  Navigator.of(context).pop();
+                  setState(() {}); // Trigger a rebuild to show the new shift
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(localizations.shiftAddedSuccessfully)),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _editShift(BuildContext context, AppState appState, Shift shift) async {
-    final localizations = AppLocalizations.of(context)!;
+    print("Editing shift with ID: ${shift.id}");
     DateTime editDate = shift.date;
     TimeOfDay editStartTime = shift.startTime;
     TimeOfDay editEndTime = shift.endTime;
+    String notes = shift.notes;
 
     final result = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
+          builder: (context, setState) {
             return AlertDialog(
-              title: Text(localizations.editShift),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildButton(
-                    context,
-                    '${localizations.selectDate}: ${DateFormat('dd-MM-yyyy').format(editDate)}',
-                    () async {
-                      final DateTime? picked = await showDatePicker(
-                        context: context,
-                        initialDate: editDate,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2101),
-                      );
-                      if (picked != null && picked != editDate) {
-                        setState(() {
-                          editDate = picked;
-                        });
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildButton(
-                          context,
-                          '${localizations.startTime}: ${_formatTime(editStartTime)}',
-                          () async {
-                            final TimeOfDay? picked = await showTimePicker(
-                              context: context,
-                              initialTime: editStartTime,
-                            );
-                            if (picked != null) {
-                              setState(() {
-                                editStartTime = picked;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildButton(
-                          context,
-                          '${localizations.endTime}: ${_formatTime(editEndTime)}',
-                          () async {
-                            final TimeOfDay? picked = await showTimePicker(
-                              context: context,
-                              initialTime: editEndTime,
-                            );
-                            if (picked != null) {
-                              setState(() {
-                                editEndTime = picked;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              title: Text(AppLocalizations.of(context)!.editShift),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      title: Text(AppLocalizations.of(context)!.selectDate),
+                      subtitle: Text(DateFormat('yyyy-MM-dd').format(editDate)),
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: editDate,
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            editDate = picked;
+                          });
+                        }
+                      },
+                    ),
+                    ListTile(
+                      title: Text(AppLocalizations.of(context)!.startTime),
+                      subtitle: Text(editStartTime.format(context)),
+                      onTap: () async {
+                        final picked = await showTimePicker(
+                          context: context,
+                          initialTime: editStartTime,
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            editStartTime = picked;
+                          });
+                        }
+                      },
+                    ),
+                    ListTile(
+                      title: Text(AppLocalizations.of(context)!.endTime),
+                      subtitle: Text(editEndTime.format(context)),
+                      onTap: () async {
+                        final picked = await showTimePicker(
+                          context: context,
+                          initialTime: editEndTime,
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            editEndTime = picked;
+                          });
+                        }
+                      },
+                    ),
+                    TextField(
+                      decoration: InputDecoration(labelText: AppLocalizations.of(context)!.shiftNotes),
+                      controller: TextEditingController(text: notes),
+                      onChanged: (value) => notes = value,
+                      maxLines: null,
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
-                  child: Text(localizations.cancel),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                   onPressed: () => Navigator.of(context).pop(false),
                 ),
                 TextButton(
-                  child: Text(localizations.save),
+                  child: Text(AppLocalizations.of(context)!.save),
                   onPressed: () => Navigator.of(context).pop(true),
                 ),
               ],
@@ -326,55 +434,67 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
     );
 
     if (result == true) {
+      print("Updating shift...");
+      final totalHours = _calculateTotalHours(editDate, editStartTime, editEndTime);
+      final grossWage = _calculateGrossWage(appState, editDate, editStartTime, editEndTime);
+      final netWage = _calculateNetWage(grossWage, appState.taxDeduction);
+      final wagePercentages = _calculateWagePercentages(appState, editDate, editStartTime, editEndTime);
+
       final updatedShift = Shift(
         id: shift.id,
         date: editDate,
         startTime: editStartTime,
         endTime: editEndTime,
-        totalHours: _calculateTotalHours(editDate, editStartTime, editEndTime),
-        grossWage: _calculateGrossWage(appState, editDate, editStartTime, editEndTime),
-        netWage: _calculateNetWage(
-            _calculateGrossWage(appState, editDate, editStartTime, editEndTime),
-            appState.taxDeduction),
-        wagePercentages: _calculateWagePercentages(
-            appState, editDate, editStartTime, editEndTime),
+        totalHours: totalHours,
+        grossWage: grossWage,
+        netWage: netWage,
+        wagePercentages: wagePercentages,
+        notes: notes,
       );
-      appState.updateShift(appState.shifts.indexOf(shift), updatedShift);
+
+      print("Updated shift: $updatedShift");
+      appState.updateShift(shift.id, updatedShift);
+      print("Shift updated");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.shiftUpdatedSuccessfully)),
+        SnackBar(content: Text(AppLocalizations.of(context)!.shiftUpdatedSuccessfully)),
       );
+    } else {
+      print("Edit cancelled");
     }
   }
 
-  void _confirmDeleteShift(BuildContext context, AppState appState, Shift shift) {
-    final localizations = AppLocalizations.of(context)!;
-    showDialog(
+  void _deleteShift(BuildContext context, AppState appState, Shift shift) {
+    print("Attempting to delete shift with ID: ${shift.id}");
+    showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(localizations.confirmDelete),
-          content: Text(localizations.deleteShiftConfirmation),
-          actions: <Widget>[
+          title: Text(AppLocalizations.of(context)!.deleteShift),
+          content: Text(AppLocalizations.of(context)!.deleteShiftConfirmation),
+          actions: [
             TextButton(
-              child: Text(localizations.cancel),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              child: Text(AppLocalizations.of(context)!.cancel),
+              onPressed: () => Navigator.of(context).pop(false),
             ),
             TextButton(
-              child: Text(localizations.delete),
-              onPressed: () {
-                appState.deleteShift(appState.shifts.indexOf(shift));
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(localizations.shiftDeletedSuccessfully)),
-                );
-              },
+              child: Text(AppLocalizations.of(context)!.delete),
+              onPressed: () => Navigator.of(context).pop(true),
             ),
           ],
         );
       },
-    );
+    ).then((confirmed) {
+      if (confirmed == true) {
+        print("Deleting shift...");
+        appState.deleteShift(shift.id);
+        print("Shift deleted");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.shiftDeletedSuccessfully)),
+        );
+      } else {
+        print("Deletion cancelled");
+      }
+    });
   }
 
 // Part 7: Calculation methods
@@ -382,6 +502,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
     final totalHours = _calculateTotalHours(_selectedDate, _startTime, _endTime);
     final grossWage = _calculateGrossWage(appState, _selectedDate, _startTime, _endTime);
     final netWage = _calculateNetWage(grossWage, appState.taxDeduction);
+    final wagePercentages = _calculateWagePercentages(appState, _selectedDate, _startTime, _endTime);
 
     return Shift(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -391,7 +512,8 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       totalHours: totalHours,
       grossWage: grossWage,
       netWage: netWage,
-      wagePercentages: _calculateWagePercentages(appState, _selectedDate, _startTime, _endTime),
+      wagePercentages: wagePercentages,
+      notes: notes,
     );
   }
 
