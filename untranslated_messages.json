@@ -35,22 +35,32 @@
     "addRule",
     "saveRule",
     "changesSaved",
-    "errorInvalidShiftId"
+    "errorInvalidShiftId",
+    "notImplemented",
+    "featureNotImplemented"
   ],
 
   "es": [
-    "noUpcomingShifts"
+    "noUpcomingShifts",
+    "notImplemented",
+    "featureNotImplemented"
   ],
 
   "fr": [
-    "noUpcomingShifts"
+    "noUpcomingShifts",
+    "notImplemented",
+    "featureNotImplemented"
   ],
 
   "he": [
-    "noUpcomingShifts"
+    "noUpcomingShifts",
+    "notImplemented",
+    "featureNotImplemented"
   ],
 
   "ru": [
-    "noUpcomingShifts"
+    "noUpcomingShifts",
+    "notImplemented",
+    "featureNotImplemented"
   ]
 }

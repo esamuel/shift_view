@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'models/shift.dart';
 
 class AppState extends ChangeNotifier {
   List<Shift> shifts = [];
@@ -111,12 +112,10 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> saveShifts() async {
-    print("Saving shifts to storage");
     final prefs = await SharedPreferences.getInstance();
     final shiftsJson =
         json.encode(shifts.map((shift) => shift.toJson()).toList());
     await prefs.setString('shifts', shiftsJson);
-    print("Shifts saved successfully");
   }
 
   Future<void> loadOvertimeRules() async {
@@ -209,25 +208,20 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateShift(String id, Shift updatedShift) {
-    print("Updating shift in AppState. ID: $id");
-    final index = shifts.indexWhere((shift) => shift.id == id);
-    if (index != -1) {
+  void updateShift(int index, Shift updatedShift) {
+    if (index >= 0 && index < shifts.length) {
       shifts[index] = updatedShift;
-      notifyListeners();
       saveShifts();
-      print("Shift updated successfully");
-    } else {
-      print("Shift not found for update");
+      notifyListeners();
     }
   }
 
-  void deleteShift(String id) {
-    print("Deleting shift in AppState. ID: $id");
-    shifts.removeWhere((shift) => shift.id == id);
-    notifyListeners();
-    saveShifts();
-    print("Shift deleted successfully");
+  void deleteShift(int index) {
+    if (index >= 0 && index < shifts.length) {
+      shifts.removeAt(index);
+      saveShifts();
+      notifyListeners();
+    }
   }
 
   void updateSettings({
@@ -271,24 +265,11 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  List<Shift> getUpcomingShifts({int limit = 3}) {
+  // Add a getter for upcoming shifts
+  List<Shift> get upcomingShifts {
     final now = DateTime.now();
-    print("Current date and time: $now");
-    print("Total shifts: ${shifts.length}");
-    
-    final upcomingShifts = shifts
-        .where((shift) {
-          print("Shift date: ${shift.date}");
-          return shift.date.isAfter(now);
-        })
-        .toList()
+    return shifts.where((shift) => shift.date.isAfter(now)).toList()
       ..sort((a, b) => a.date.compareTo(b.date));
-    
-    print("Upcoming shifts before limit: ${upcomingShifts.length}");
-    final limitedShifts = upcomingShifts.take(limit).toList();
-    print("Upcoming shifts after limit: ${limitedShifts.length}");
-    
-    return limitedShifts;
   }
 }
 
@@ -301,7 +282,6 @@ class Shift {
   final double grossWage;
   final double netWage;
   final Map<String, double> wagePercentages;
-  final String notes;
 
   Shift({
     required this.id,
@@ -312,7 +292,6 @@ class Shift {
     required this.grossWage,
     required this.netWage,
     required this.wagePercentages,
-    required this.notes,
   });
 
   Map<String, dynamic> toJson() {
@@ -325,7 +304,6 @@ class Shift {
       'grossWage': grossWage,
       'netWage': netWage,
       'wagePercentages': wagePercentages,
-      'notes': notes,
     };
   }
 
@@ -344,7 +322,6 @@ class Shift {
       grossWage: json['grossWage'],
       netWage: json['netWage'],
       wagePercentages: Map<String, double>.from(json['wagePercentages']),
-      notes: json['notes'],
     );
   }
 }

@@ -12,10 +12,10 @@ class ShiftService extends ChangeNotifier {
   void _addSampleShifts() {
     final now = DateTime.now();
     _shifts.addAll([
-      Shift(startTime: now.add(Duration(days: 1)), endTime: now.add(Duration(days: 1, hours: 8))),
-      Shift(startTime: now.add(Duration(days: 2)), endTime: now.add(Duration(days: 2, hours: 8))),
-      Shift(startTime: now.add(Duration(days: 3)), endTime: now.add(Duration(days: 3, hours: 8))),
-      Shift(startTime: now.add(Duration(days: 4)), endTime: now.add(Duration(days: 4, hours: 8))),
+      Shift(startTime: now.add(const Duration(days: 1)), endTime: now.add(const Duration(days: 1, hours: 8))),
+      Shift(startTime: now.add(const Duration(days: 2)), endTime: now.add(const Duration(days: 2, hours: 8))),
+      Shift(startTime: now.add(const Duration(days: 3)), endTime: now.add(const Duration(days: 3, hours: 8))),
+      Shift(startTime: now.add(const Duration(days: 4)), endTime: now.add(const Duration(days: 4, hours: 8))),
     ]);
     print('DEBUG: Added ${_shifts.length} sample shifts');
   }

@@ -84,7 +84,7 @@
   "hoursThreshold": "Hours Threshold",
   "rate": "Rate",
   "isWeekly": "Is Weekly",
-  "afterHours": "After {hours} hours",
+  "afterHours": "After {hours} hours at {rate}x rate",
   "weekly": "Weekly",
   "daily": "Daily",
   "appliesOnWeekends": "Applies on Weekends",
@@ -172,13 +172,15 @@
   "addToHomeScreenAndroid": "For Android: Tap the menu button in Chrome, then select 'Add to Home screen'.",
   "ok": "OK",
   "upcomingShifts": "Upcoming Shifts",
-  "noUpcomingShifts": "No upcoming shifts scheduled",
+  "noUpcomingShifts": "No upcoming shifts",
   "shiftNotes": "Notes",
   "settingsSaved": "Settings saved successfully",
   "addRule": "Add Rule",
   "saveRule": "Save Rule",
   "changesSaved": "Changes saved",
   "errorInvalidShiftId": "Error: Invalid shift ID",
+  "notImplemented": "Not Implemented",
+  "featureNotImplemented": "The feature is not yet implemented:",
   "@selectDate": {
     "description": "Label for date selection in shift edit dialog"
   }
