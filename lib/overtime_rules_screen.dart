@@ -43,7 +43,7 @@ class OvertimeRulesScreen extends StatelessWidget {
             final rule = entry.value;
             return ListTile(
               title: Text(
-                  '${localizations.afterHours(rule.hoursThreshold.toString())} @ ${rule.rate}x'),
+                  '${localizations.afterHours(rule.hoursThreshold.toString(), rule.rate.toString())} @ ${rule.rate}x'),
               subtitle: Text(rule.isForSpecialDays
                   ? localizations.specialDays
                   : localizations.weekdays),
@@ -56,7 +56,7 @@ class OvertimeRulesScreen extends StatelessWidget {
                         _editOvertimeRule(context, appState, index),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete),
+                    icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () => appState.deleteOvertimeRule(index),
                   ),
                 ],

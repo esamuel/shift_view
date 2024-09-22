@@ -163,7 +163,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                       onPressed: () => _editShift(context, appState, shift),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete),
+                      icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () => _confirmDeleteShift(context, appState, shift),
                     ),
                   ],

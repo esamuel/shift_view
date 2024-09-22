@@ -149,7 +149,7 @@
   "appGuideTaxEstimation": "אומדן מס: האפליקציה משתמשת באחוז ניכוי המס שהגדרת כדי לאמוד את הרווחים הנקיים שלך. זהו אומדן גס ואין להשתמש בו למטרות מס רשמיות.",
 
   "appGuideTipsAndTricks": "טיפים וטריקים",
-  "appGuideTipsAndTricksContent": "• השתמש בתבניות משמרת עבור משמרות חוזרות\n• ייצא את הנתונים שלך באופן קבוע לגיבוי\n• בדוק את כללי השעות הנוספות שלך מעת לעת כדי להבטיח דיוק",
+  "appGuideTipsAndTricksContent": "• השתמש בתבניות משמרת עבור משמרות חוזרות\n• ייצא את הנתונים שלך באופן ק��וע לגיבוי\n• בדוק את כללי השעות הנוספות שלך מעת לעת כדי להבטיח דיוק",
   "appGuideTroubleshooting": "פתרון בעיות: • אם החישובים נראים שגויים, בדוק שוב את כללי השעות הנוספות וההגדרות שלך • עבור בעיות מתמשכות, נסה לנקות את נתוני האפליקציה או להתקין מחדש • צור קשר עם התמיכה אם הבעיות נמשכות",
   "appGuidePrivacyAndDataSecurity": "פרטיות ואבטחת מידע: • כל הנתונים שלך מאוחסנים מקומית במכשיר שלך • איננו אוספים או מעבירים מידע אישי כלשהו • גבה את הנתונים שלך באופן קבוע כדי למנוע אובדן",
   "appGuideFooter": "תודה שאתה משתמש ב-Shift View! אנו מקווים שמדריך זה עוזר לך להפיק את המרב מהאפליקציה.",
@@ -160,7 +160,7 @@
   
   "appGuidePrivacyAndDataSecurity": "פרטיות ואבטחת נתונים",
   "appGuidePrivacyAndDataSecurityContent": "• כל הנתונים שלך מאוחסנים מקומית במכשיר שלך\n• אנו לא אוספים או מעבירים מידע אישי\n• גבה את הנתונים שלך באופן קבוע כדי למנוע אובדן",
-"totalWorkingDays": "סה״כ ימי עבודה",
+"totalWorkingDays": "סה\"כ ימי עבודה",
  "backup": "גיבוי",
   "restore": "שחזור",
   "backupCreated": "הגיבוי נוצר בהצלחה",
@@ -218,7 +218,42 @@
   "addToHomeScreenTitle": "כיצד להוסיף למסך הבית",
   "addToHomeScreeniOS": "עבור iOS: הקש על כפתור השיתוף בספארי, ואז בחר 'הוסף למסך הבית'.",
   "addToHomeScreenAndroid": "עבור אנדרואיד: הקש על כפתור התפריט בכרום, ואז בחר 'הוסף למסך הבית'.",
-  "ok": "אישור"
+  "ok": "אישור",
+  "addRule": "הוסף כלל",
+  "saveRule": "שמור כלל",
+  "changesSaved": "השינויים נשמרו",
+  "errorInvalidShiftId": "שגיאה: מזהה משמרת לא חוקי",
+  "selectDate": "בחר תאריך",
+  "shiftNotes": "הערות",
+  "settingsSaved": "ההגדרות נשמרו בהצלחה",
+  "upcomingShifts": "משמרות קרובות",
+  "upcomingShiftsTitle": "משמרות קרובות",
+  "upcomingShiftsClose": "סגור",
+  "noUpcomingShifts": "אין משמרות קרובות",
+  "shiftDateFormat": "{weekday}, {day}/{month}",
+  "shiftTimeFormat": "התחלה: {start}, סיום: {end}, סה\"כ: {hours} ש' {minutes} דק'",
+  "@shiftDateFormat": {
+    "placeholders": {
+      "weekday": {},
+      "day": {},
+      "month": {}
+    }
+  },
+  "@shiftTimeFormat": {
+    "placeholders": {
+      "start": {},
+      "end": {},
+      "hours": {},
+      "minutes": {}
+    }
+  },
+  "mon": "יום א'",
+  "tue": "יום ב'",
+  "wed": "יום ג'",
+  "thu": "יום ד'",
+  "fri": "יום ה'",
+  "sat": "יום ו'",
+  "sun": "שבת"  
 }
 
 

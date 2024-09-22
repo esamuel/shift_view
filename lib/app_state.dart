@@ -74,6 +74,8 @@ class AppState extends ChangeNotifier {
     loadFestiveDays();
   }
 
+  get userName => null;
+
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _hourlyWage = prefs.getDouble('hourlyWage') ?? 0;
@@ -260,6 +262,20 @@ class AppState extends ChangeNotifier {
       default:
         return '\$';
     }
+  }
+
+  // Add a getter for upcoming shifts
+  List<Shift> get upcomingShifts {
+    final now = DateTime.now();
+    return shifts.where((shift) => shift.date.isAfter(now)).toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  List<Shift> getShiftsBetweenDates(DateTime start, DateTime end) {
+    return shifts.where((shift) => 
+      shift.date.isAfter(start.subtract(Duration(days: 1))) && 
+      shift.date.isBefore(end.add(Duration(days: 1)))
+    ).toList();
   }
 }
 
