@@ -48,7 +48,7 @@
   "hoursAt150Percent": "Horas al 150%",
   "hoursAt175Percent": "Horas al 175%",
   "hoursAt200Percent": "Horas al 200%",
-  "infoButtonTitle": "info",
+  "infoButtonTitle": "Guía",
   "january": "Enero",
   "february": "Febrero",
   "march": "Marzo",
@@ -110,8 +110,7 @@
   "specialDays": "Días especiales",
   "weekdays": "Días laborables",
   "afterHours": "Después de {hours} horas",
-  "hours": "horas",
-  
+  "hours": "horas",  
   "appGuideTitle": "Vista de Turnos: Guía Completa del Usuario",
   "appGuideIntroduction": "Introducción",
   "appGuideIntroductionContent": "Vista de Turnos está diseñada para trabajadores por horas, freelancers y cualquier persona que necesite rastrear sus horas de trabajo y ganancias. Esta aplicación te permite registrar fácilmente tus turnos, calcular tus ganancias (incluidas las horas extra) y generar informes.\n\nCaracterísticas clave:\n• Registrar turnos de trabajo con horarios de inicio y fin\n• Establecer tarifas por hora personalizadas y reglas de horas extra\n• Ver informes de ganancias semanales y mensuales\n• Exportar informes como CSV o PDF\n• Soporte multilingüe y múltiples opciones de moneda",
@@ -217,7 +216,34 @@
   "selectDate": "Seleccionar fecha",
   "shiftNotes": "Notas",
   "settingsSaved": "Configuración guardada exitosamente",
-  "upcomingShifts": "Próximos turnos"
+  "upcomingShifts": "Próximos turnos",
+  "upcomingShiftsTitle": "Próximos turnos",
+  "upcomingShiftsClose": "Cerrar",
+  "noUpcomingShifts": "No hay próximos turnos",
+  "shiftDateFormat": "{weekday}, {day}-{month}",
+  "shiftTimeFormat": "Inicio: {start}, Fin: {end}, Total: {hours} h {minutes} min",
+  "@shiftDateFormat": {
+    "placeholders": {
+      "weekday": {},
+      "day": {},
+      "month": {}
+    }
+  },
+  "@shiftTimeFormat": {
+    "placeholders": {
+      "start": {},
+      "end": {},
+      "hours": {},
+      "minutes": {}
+    }
+  },
+  "mon": "LUN",
+  "tue": "MAR",
+  "wed": "MIÉ",
+  "thu": "JUE",
+  "fri": "VIE",
+  "sat": "SÁB",
+  "sun": "DOM"
 }
 
 

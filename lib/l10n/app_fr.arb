@@ -217,7 +217,34 @@
   "selectDate": "Sélectionner une date",
   "shiftNotes": "Notes",
   "settingsSaved": "Paramètres enregistrés avec succès",
-  "upcomingShifts": "Prochains quarts"
+  "upcomingShifts": "Prochains quarts",
+  "upcomingShiftsTitle": "Prochains quarts",
+  "upcomingShiftsClose": "Fermer",
+  "noUpcomingShifts": "Aucun quart à venir",
+  "shiftDateFormat": "{weekday} {day}/{month}",
+  "shiftTimeFormat": "Début : {start}, Fin : {end}, Total : {hours} h {minutes} min",
+  "@shiftDateFormat": {
+    "placeholders": {
+      "weekday": {},
+      "day": {},
+      "month": {}
+    }
+  },
+  "@shiftTimeFormat": {
+    "placeholders": {
+      "start": {},
+      "end": {},
+      "hours": {},
+      "minutes": {}
+    }
+  },
+  "mon": "LUN",
+  "tue": "MAR",
+  "wed": "MER",
+  "thu": "JEU",
+  "fri": "VEN",
+  "sat": "SAM",
+  "sun": "DIM"
 }
 
 

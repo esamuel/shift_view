@@ -48,7 +48,7 @@
   "hoursAt150Percent": "Hours at 150%",
   "hoursAt175Percent": "Hours at 175%",
   "hoursAt200Percent": "Hours at 200%",
-  "infoButtonTitle": "Info",
+  "infoButtonTitle": "Guide",
   "january": "January",
   "february": "February",
   "march": "March",
@@ -172,7 +172,11 @@
   "addToHomeScreenAndroid": "For Android: Tap the menu button in Chrome, then select 'Add to Home screen'.",
   "ok": "OK",
   "upcomingShifts": "Upcoming Shifts",
+  "upcomingShiftsTitle": "Upcoming Shifts",
+  "upcomingShiftsClose": "Close",
   "noUpcomingShifts": "No upcoming shifts",
+  "shiftDateFormat": "{weekday}, {day}-{month}",
+  "shiftTimeFormat": "Start: {start}, End: {end}, Total: {hours} h {minutes} min",
   "shiftNotes": "Notes",
   "settingsSaved": "Settings saved successfully",
   "addRule": "Add Rule",
@@ -181,7 +185,32 @@
   "errorInvalidShiftId": "Error: Invalid shift ID",
   "notImplemented": "Not Implemented",
   "featureNotImplemented": "The feature is not yet implemented:",
+  "welcomeMessage": "Welcome to Shift View",
+  "viewShifts": "View Shifts",
+  "guide": "Guide",
+  "@shiftDateFormat": {
+    "placeholders": {
+      "weekday": {},
+      "day": {},
+      "month": {}
+    }
+  },
+  "@shiftTimeFormat": {
+    "placeholders": {
+      "start": {},
+      "end": {},
+      "hours": {},
+      "minutes": {}
+    }
+  },
   "@selectDate": {
     "description": "Label for date selection in shift edit dialog"
-  }
+  },
+  "mon": "MON",
+  "tue": "TUE",
+  "wed": "WED",
+  "thu": "THU",
+  "fri": "FRI",
+  "sat": "SAT",
+  "sun": "SUN"
 }

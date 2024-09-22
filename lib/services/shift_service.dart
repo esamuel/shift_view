@@ -1,35 +1,36 @@
 import 'package:flutter/foundation.dart';
 import '../models/shift.dart';
+import 'dart:collection';
 
 class ShiftService extends ChangeNotifier {
   final List<Shift> _shifts = [];
 
-  ShiftService() {
-    print('DEBUG: ShiftService constructor called');
-    _addSampleShifts(); // Add this line
-  }
+  UnmodifiableListView<Shift> get shifts => UnmodifiableListView(_shifts);
 
-  void _addSampleShifts() {
-    final now = DateTime.now();
-    _shifts.addAll([
-      Shift(startTime: now.add(const Duration(days: 1)), endTime: now.add(const Duration(days: 1, hours: 8))),
-      Shift(startTime: now.add(const Duration(days: 2)), endTime: now.add(const Duration(days: 2, hours: 8))),
-      Shift(startTime: now.add(const Duration(days: 3)), endTime: now.add(const Duration(days: 3, hours: 8))),
-      Shift(startTime: now.add(const Duration(days: 4)), endTime: now.add(const Duration(days: 4, hours: 8))),
-    ]);
-    print('DEBUG: Added ${_shifts.length} sample shifts');
+  void addShift(Shift shift) {
+    if (shift.startTime != null && shift.endTime != null) {
+      _shifts.add(shift);
+      _shifts.sort((a, b) => a.startTime!.compareTo(b.startTime!));
+      notifyListeners();
+    } else {
+      print('Warning: Attempted to add a shift with null startTime or endTime');
+    }
   }
 
   List<Shift> getUpcomingShifts(int count) {
-    print('DEBUG: getUpcomingShifts called with count: $count');
     final now = DateTime.now();
-    final upcomingShifts = _shifts
-      .where((shift) => shift.startTime.isAfter(now))
-      .toList()
-      ..sort((a, b) => a.startTime.compareTo(b.startTime));
-    
-    print('Total shifts: ${_shifts.length}, Upcoming shifts: ${upcomingShifts.length}');
-    
-    return upcomingShifts.take(count).toList();
+    return _shifts
+        .where((shift) => shift.startTime != null && shift.startTime!.isAfter(now))
+        .take(count)
+        .toList();
+  }
+
+  // Add this method to initialize with some sample shifts
+  void addSampleShifts() {
+    final now = DateTime.now();
+    addShift(Shift(startTime: now.add(const Duration(days: 1)), endTime: now.add(const Duration(days: 1, hours: 8))));
+    addShift(Shift(startTime: now.add(const Duration(days: 2)), endTime: now.add(const Duration(days: 2, hours: 8))));
+    addShift(Shift(startTime: now.add(const Duration(days: 3)), endTime: now.add(const Duration(days: 3, hours: 8))));
+    print('Added ${_shifts.length} sample shifts');
   }
 }

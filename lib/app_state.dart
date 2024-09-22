@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'models/shift.dart';
 
 class AppState extends ChangeNotifier {
   List<Shift> shifts = [];
@@ -270,6 +269,13 @@ class AppState extends ChangeNotifier {
     final now = DateTime.now();
     return shifts.where((shift) => shift.date.isAfter(now)).toList()
       ..sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  List<Shift> getShiftsBetweenDates(DateTime start, DateTime end) {
+    return shifts.where((shift) => 
+      shift.date.isAfter(start.subtract(Duration(days: 1))) && 
+      shift.date.isBefore(end.add(Duration(days: 1)))
+    ).toList();
   }
 }
 

@@ -1,71 +1,96 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
-import '../app_state.dart';
+import '../services/shift_service.dart';
 import '../models/shift.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class ShiftManagerScreen extends StatelessWidget {
+class ShiftManagerScreen extends StatefulWidget {
+  const ShiftManagerScreen({Key? key}) : super(key: key);
+
+  @override
+  _ShiftManagerScreenState createState() => _ShiftManagerScreenState();
+}
+
+class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
+  final _formKey = GlobalKey<FormState>();
+  DateTime? _startTime;
+  DateTime? _endTime;
+
   @override
   Widget build(BuildContext context) {
-    final appState = Provider.of<AppState>(context);
-    final localizations = AppLocalizations.of(context)!;
-    final upcomingShifts = appState.upcomingShifts;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.shiftManagerTitle),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Upcoming Shifts Section
-          if (upcomingShifts.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                localizations.upcomingShifts,
-                style: Theme.of(context).textTheme.headline6,
-              ),
+      appBar: AppBar(title: const Text('Shift Manager')),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                final DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                );
+                if (picked != null) {
+                  setState(() {
+                    _startTime = picked;
+                  });
+                }
+              },
+              child: const Text('Pick start date'),
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: upcomingShifts.length,
-                itemBuilder: (context, index) {
-                  final shift = upcomingShifts[index];
-                  return ListTile(
-                    leading: Icon(Icons.event),
-                    title: Text(DateFormat.yMMMd().format(shift.date)),
-                    subtitle: Text('${shift.startTime.format(context)} - ${shift.endTime.format(context)}'),
-                    trailing: Text('${shift.totalHours.toStringAsFixed(2)} ${localizations.hours}'),
-                  );
-                },
-              ),
+            ElevatedButton(
+              onPressed: () async {
+                final TimeOfDay? picked = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now(),
+                );
+                if (picked != null && _startTime != null) {
+                  setState(() {
+                    _startTime = DateTime(
+                      _startTime!.year,
+                      _startTime!.month,
+                      _startTime!.day,
+                      picked.hour,
+                      picked.minute,
+                    );
+                  });
+                }
+              },
+              child: const Text('Pick start time'),
             ),
-          ] else ...[
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                localizations.noUpcomingShifts,
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
+            ElevatedButton(
+              onPressed: () async {
+                final TimeOfDay? picked = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now(),
+                );
+                if (picked != null && _startTime != null) {
+                  setState(() {
+                    _endTime = DateTime(
+                      _startTime!.year,
+                      _startTime!.month,
+                      _startTime!.day,
+                      picked.hour,
+                      picked.minute,
+                    );
+                  });
+                }
+              },
+              child: const Text('Pick end time'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate() && _startTime != null && _endTime != null) {
+                  final shift = Shift(startTime: _startTime!, endTime: _endTime!);
+                  Provider.of<ShiftService>(context, listen: false).addShift(shift);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Shift added')));
+                }
+              },
+              child: const Text('Add Shift'),
             ),
           ],
-
-          // Existing Shifts Section (if you have one)
-          // ...
-
-          // Add New Shift Button
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: () {
-                // Navigate to Add Shift Screen or show Add Shift Dialog
-              },
-              child: Text(localizations.addNewShift),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

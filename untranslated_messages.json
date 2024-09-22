@@ -1,5 +1,40 @@
 {
   "de": [
+    "appGuideTitle",
+    "appGuideIntroduction",
+    "appGuideIntroductionContent",
+    "appGuideGettingStarted",
+    "appGuideSettingUp",
+    "appGuideNavigatingApp",
+    "appGuideSettings",
+    "appGuideHourlyWage",
+    "appGuideTaxDeduction",
+    "appGuideWorkWeekStart",
+    "appGuideLanguage",
+    "appGuideCurrency",
+    "appGuideManagingShifts",
+    "appGuideAddingShift",
+    "appGuideEditingShift",
+    "appGuideDeletingShift",
+    "appGuideOvertimeRules",
+    "appGuideCreatingOvertimeRule",
+    "appGuideEditingOvertimeRule",
+    "appGuideDeletingOvertimeRule",
+    "appGuideReports",
+    "appGuideWeeklyReport",
+    "appGuideMonthlyReport",
+    "appGuideExportingReports",
+    "appGuideCalculations",
+    "appGuideWageCalculation",
+    "appGuideOvertimeCalculation",
+    "appGuideTaxEstimation",
+    "appGuideTipsAndTricks",
+    "appGuideTipsAndTricksContent",
+    "appGuideTroubleshooting",
+    "appGuideTroubleshootingContent",
+    "appGuidePrivacyAndDataSecurity",
+    "appGuidePrivacyAndDataSecurityContent",
+    "appGuideFooter",
     "showingAllShifts",
     "showingCurrentMonthShifts",
     "addToHomeScreen",
@@ -29,7 +64,6 @@
     "addToHomeScreenAndroid",
     "ok",
     "upcomingShifts",
-    "noUpcomingShifts",
     "shiftNotes",
     "settingsSaved",
     "addRule",
@@ -37,30 +71,41 @@
     "changesSaved",
     "errorInvalidShiftId",
     "notImplemented",
-    "featureNotImplemented"
+    "featureNotImplemented",
+    "welcomeMessage",
+    "viewShifts",
+    "guide"
   ],
 
   "es": [
-    "noUpcomingShifts",
     "notImplemented",
-    "featureNotImplemented"
+    "featureNotImplemented",
+    "welcomeMessage",
+    "viewShifts",
+    "guide"
   ],
 
   "fr": [
-    "noUpcomingShifts",
     "notImplemented",
-    "featureNotImplemented"
+    "featureNotImplemented",
+    "welcomeMessage",
+    "viewShifts",
+    "guide"
   ],
 
   "he": [
-    "noUpcomingShifts",
     "notImplemented",
-    "featureNotImplemented"
+    "featureNotImplemented",
+    "welcomeMessage",
+    "viewShifts",
+    "guide"
   ],
 
   "ru": [
-    "noUpcomingShifts",
     "notImplemented",
-    "featureNotImplemented"
+    "featureNotImplemented",
+    "welcomeMessage",
+    "viewShifts",
+    "guide"
   ]
 }
