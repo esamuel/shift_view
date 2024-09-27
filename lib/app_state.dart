@@ -273,8 +273,8 @@ class AppState extends ChangeNotifier {
 
   List<Shift> getShiftsBetweenDates(DateTime start, DateTime end) {
     return shifts.where((shift) => 
-      shift.date.isAfter(start.subtract(Duration(days: 1))) && 
-      shift.date.isBefore(end.add(Duration(days: 1)))
+      shift.date.isAfter(start.subtract(const Duration(days: 1))) && 
+      shift.date.isBefore(end.add(const Duration(days: 1)))
     ).toList();
   }
 }

@@ -43,6 +43,7 @@ class MyApp extends StatelessWidget {
             Locale('fr', ''), // French
           ],
           home: const MainScreen(),
+          debugShowCheckedModeBanner: false, // Add this line to remove the debug banner
         );
       },
     );
