@@ -45,14 +45,6 @@ class MainScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildButton(
               context,
-              localizations.settingsTitle,
-              Icons.settings,
-              () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const SettingsScreen())),
-            ),
-            const SizedBox(height: 16),
-            _buildButton(
-              context,
               localizations.reportsTitle,
               Icons.bar_chart,
               () => Navigator.push(context,
@@ -79,9 +71,10 @@ class MainScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildButton(
               context,
-              localizations.addToHomeScreen,
-              Icons.add_to_home_screen,
-              () => _showAddToHomeScreenDialog(context),
+              localizations.settingsTitle,
+              Icons.settings,
+              () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const SettingsScreen())),
             ),
           ],
         ),
@@ -151,8 +144,9 @@ class MainScreen extends StatelessWidget {
     final localizations = AppLocalizations.of(context)!;
     final appState = Provider.of<AppState>(context, listen: false);
     final now = DateTime.now();
-    final endDate = now.add(Duration(days: 7));
+    final endDate = now.add(const Duration(days: 7));
     final upcomingShifts = appState.getShiftsBetweenDates(now, endDate);
+    upcomingShifts.sort((a, b) => a.date.compareTo(b.date)); // Sort shifts chronologically
 
     showDialog(
       context: context,
