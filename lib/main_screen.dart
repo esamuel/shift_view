@@ -151,7 +151,7 @@ class MainScreen extends StatelessWidget {
     final localizations = AppLocalizations.of(context)!;
     final appState = Provider.of<AppState>(context, listen: false);
     final now = DateTime.now();
-    final endDate = now.add(Duration(days: 7));
+    final endDate = now.add(const Duration(days: 7));
     final upcomingShifts = appState.getShiftsBetweenDates(now, endDate);
 
     showDialog(
