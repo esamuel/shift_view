@@ -43,6 +43,7 @@ class MyApp extends StatelessWidget {
             Locale('fr', ''), // French
           ],
           home: const MainScreen(),
+          debugShowCheckedModeBanner: false,
         );
       },
     );

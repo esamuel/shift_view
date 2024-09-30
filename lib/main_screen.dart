@@ -45,14 +45,6 @@ class MainScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildButton(
               context,
-              localizations.settingsTitle,
-              Icons.settings,
-              () => Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const SettingsScreen())),
-            ),
-            const SizedBox(height: 16),
-            _buildButton(
-              context,
               localizations.reportsTitle,
               Icons.bar_chart,
               () => Navigator.push(context,
@@ -79,9 +71,10 @@ class MainScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _buildButton(
               context,
-              localizations.addToHomeScreen,
-              Icons.add_to_home_screen,
-              () => _showAddToHomeScreenDialog(context),
+              localizations.settingsTitle,
+              Icons.settings,
+              () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const SettingsScreen())),
             ),
           ],
         ),

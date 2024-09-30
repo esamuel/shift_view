@@ -15,6 +15,8 @@ class AppState extends ChangeNotifier {
   double _baseHoursWeekday = 8.0;
   double _baseHoursSpecialDay = 8.0;
 
+  String _userName = '';
+
   // Getters
   double get hourlyWage => _hourlyWage;
   double get taxDeduction => _taxDeduction;
@@ -23,6 +25,7 @@ class AppState extends ChangeNotifier {
   String get countryCode => _countryCode;
   double get baseHoursWeekday => _baseHoursWeekday;
   double get baseHoursSpecialDay => _baseHoursSpecialDay;
+  String get userName => _userName;
 
   // Setters
   set hourlyWage(double value) {
@@ -67,14 +70,17 @@ class AppState extends ChangeNotifier {
     saveSettings();
   }
 
+  void setUserName(String name) {
+    _userName = name;
+    notifyListeners();
+  }
+
   AppState() {
     loadSettings();
     loadShifts();
     loadOvertimeRules();
     loadFestiveDays();
   }
-
-  get userName => null;
 
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
