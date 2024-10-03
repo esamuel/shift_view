@@ -1,0 +1,38 @@
+{
+  "de": [
+    "close"
+  ],
+
+  "es": [
+    "tapShareButton",
+    "notImplemented",
+    "featureNotImplemented",
+    "welcomeMessage",
+    "viewShifts",
+    "guide"
+  ],
+
+  "fr": [
+    "notImplemented",
+    "featureNotImplemented",
+    "welcomeMessage",
+    "viewShifts",
+    "guide"
+  ],
+
+  "he": [
+    "notImplemented",
+    "featureNotImplemented",
+    "welcomeMessage",
+    "viewShifts",
+    "guide"
+  ],
+
+  "ru": [
+    "notImplemented",
+    "featureNotImplemented",
+    "welcomeMessage",
+    "viewShifts",
+    "guide"
+  ]
+}

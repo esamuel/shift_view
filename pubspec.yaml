@@ -1,4 +1,4 @@
-name: shift_view
+name: shift_view_app
 description: A shift management and wage calculation app.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -43,10 +43,11 @@ flutter_icons:
 
 # The following section is specific to Flutter.
 flutter:
+  generate: true
   uses-material-design: true
 
   # Enable generation of localized Strings from arb files.
-  generate: true
+  
 
   # Add assets here if you have any
   assets:
