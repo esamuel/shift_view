@@ -40,7 +40,7 @@ class MainScreen extends StatelessWidget {
               () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const ShiftManagerScreen())),
+                      builder: (context) =>  ShiftManagerScreen())),
             ),
             const SizedBox(height: 16),
             _buildButton(

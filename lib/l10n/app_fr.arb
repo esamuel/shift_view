@@ -244,7 +244,16 @@
   "thu": "JEU",
   "fri": "VEN",
   "sat": "SAM",
-  "sun": "DIM"
+  "sun": "DIM",
+  "addNote": "Ajouter une note",
+  "addNoteHint": "Entrez une note pour ce quart",
+  "note": "Note",
+  "shiftAlreadySaved": "Ce quart a déjà été enregistré",
+  "shiftAddedSuccessfully": "Quart ajouté avec succès",
+  "noNotes": "Pas de notes",
+  "addNote": "Ajouter une note",
+  "addNoteHint": "Entrez une note pour ce quart",
+  "editNote": "Modifier la note"
 }
 
 

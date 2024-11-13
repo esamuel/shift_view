@@ -74,7 +74,12 @@
     "featureNotImplemented",
     "welcomeMessage",
     "viewShifts",
-    "guide"
+    "guide",
+    "addNote",
+    "addNoteHint",
+    "note",
+    "noNotes",
+    "editNote"
   ],
 
   "es": [
@@ -82,7 +87,12 @@
     "featureNotImplemented",
     "welcomeMessage",
     "viewShifts",
-    "guide"
+    "guide",
+    "addNote",
+    "addNoteHint",
+    "note",
+    "noNotes",
+    "editNote"
   ],
 
   "fr": [
@@ -98,7 +108,12 @@
     "featureNotImplemented",
     "welcomeMessage",
     "viewShifts",
-    "guide"
+    "guide",
+    "addNote",
+    "addNoteHint",
+    "note",
+    "noNotes",
+    "editNote"
   ],
 
   "ru": [
@@ -106,6 +121,11 @@
     "featureNotImplemented",
     "welcomeMessage",
     "viewShifts",
-    "guide"
+    "guide",
+    "addNote",
+    "addNoteHint",
+    "note",
+    "noNotes",
+    "editNote"
   ]
 }

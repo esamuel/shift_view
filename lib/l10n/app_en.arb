@@ -212,5 +212,14 @@
   "thu": "THU",
   "fri": "FRI",
   "sat": "SAT",
-  "sun": "SUN"
+  "sun": "SUN",
+  "addNote": "Add Note",
+  "addNoteHint": "Enter note for this shift",
+  "note": "Note",
+  "shiftAlreadySaved": "This shift has already been saved",
+  "shiftAddedSuccessfully": "Shift added successfully",
+  "noNotes": "No notes",
+  "addNote": "Add Note",
+  "addNoteHint": "Enter note for this shift",
+  "editNote": "Edit Note"
 }

@@ -288,6 +288,7 @@ class Shift {
   final double grossWage;
   final double netWage;
   final Map<String, double> wagePercentages;
+  String? note;
 
   Shift({
     required this.id,
@@ -298,36 +299,40 @@ class Shift {
     required this.grossWage,
     required this.netWage,
     required this.wagePercentages,
+    this.note,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'date': date.toIso8601String(),
-      'startTime': '${startTime.hour}:${startTime.minute}',
-      'endTime': '${endTime.hour}:${endTime.minute}',
+      'startTime': {'hour': startTime.hour, 'minute': startTime.minute},
+      'endTime': {'hour': endTime.hour, 'minute': endTime.minute},
       'totalHours': totalHours,
       'grossWage': grossWage,
       'netWage': netWage,
       'wagePercentages': wagePercentages,
+      'note': note,
     };
   }
 
   factory Shift.fromJson(Map<String, dynamic> json) {
-    final startTimeParts = json['startTime'].split(':');
-    final endTimeParts = json['endTime'].split(':');
     return Shift(
       id: json['id'],
       date: DateTime.parse(json['date']),
       startTime: TimeOfDay(
-          hour: int.parse(startTimeParts[0]),
-          minute: int.parse(startTimeParts[1])),
+        hour: json['startTime']['hour'],
+        minute: json['startTime']['minute'],
+      ),
       endTime: TimeOfDay(
-          hour: int.parse(endTimeParts[0]), minute: int.parse(endTimeParts[1])),
+        hour: json['endTime']['hour'],
+        minute: json['endTime']['minute'],
+      ),
       totalHours: json['totalHours'],
       grossWage: json['grossWage'],
       netWage: json['netWage'],
       wagePercentages: Map<String, double>.from(json['wagePercentages']),
+      note: json['note'],
     );
   }
 }
