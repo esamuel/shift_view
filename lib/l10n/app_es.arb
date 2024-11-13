@@ -243,7 +243,16 @@
   "thu": "JUE",
   "fri": "VIE",
   "sat": "SÁB",
-  "sun": "DOM"
+  "sun": "DOM",
+  "noNotes": "Sin notas",
+  "addNote": "Agregar nota",
+  "addNoteHint": "Ingrese una nota para este turno",
+  "editNote": "Editar nota",
+  "toggleSpecialDay": "Alternar Día Especial",
+  "specialDayEnabled": "Día Especial Activado",
+  "specialDayDisabled": "Día Especial Desactivado",
+  "markAsSpecialDay": "Marcar como Día Especial",
+  "specialDayRate": "Tarifa de Día Especial"
 }
 
 

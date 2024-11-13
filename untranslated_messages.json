@@ -75,11 +75,7 @@
     "welcomeMessage",
     "viewShifts",
     "guide",
-    "addNote",
-    "addNoteHint",
-    "note",
-    "noNotes",
-    "editNote"
+    "note"
   ],
 
   "es": [
@@ -88,11 +84,7 @@
     "welcomeMessage",
     "viewShifts",
     "guide",
-    "addNote",
-    "addNoteHint",
-    "note",
-    "noNotes",
-    "editNote"
+    "note"
   ],
 
   "fr": [
@@ -109,11 +101,7 @@
     "welcomeMessage",
     "viewShifts",
     "guide",
-    "addNote",
-    "addNoteHint",
-    "note",
-    "noNotes",
-    "editNote"
+    "note"
   ],
 
   "ru": [
@@ -122,10 +110,6 @@
     "welcomeMessage",
     "viewShifts",
     "guide",
-    "addNote",
-    "addNoteHint",
-    "note",
-    "noNotes",
-    "editNote"
+    "note"
   ]
 }

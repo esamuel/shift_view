@@ -221,5 +221,10 @@
   "noNotes": "No notes",
   "addNote": "Add Note",
   "addNoteHint": "Enter note for this shift",
-  "editNote": "Edit Note"
+  "editNote": "Edit Note",
+  "toggleSpecialDay": "Toggle Special Day",
+  "specialDayEnabled": "Special Day Enabled",
+  "specialDayDisabled": "Special Day Disabled",
+  "markAsSpecialDay": "Mark as Special Day",
+  "specialDayRate": "Special Day Rate"
 }

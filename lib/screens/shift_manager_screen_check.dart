@@ -30,21 +30,28 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
     String? note = await showDialog(
       context: context,
       builder: (context) {
-        TextEditingController _noteController = TextEditingController();
+        TextEditingController _noteController = TextEditingController(text: shift.note)
+          ..selection = TextSelection.fromPosition(
+            TextPosition(offset: shift.note?.length ?? 0),
+          );
         return AlertDialog(
-          title: Text('Add Note to Shift'),
+          title: Text(localizations.editNote),
           content: TextField(
             controller: _noteController,
-            decoration: InputDecoration(hintText: 'Enter note here'),
+            decoration: InputDecoration(
+              hintText: localizations.addNoteHint,
+            ),
+            textDirection: Directionality.of(context),
+            textAlign: TextAlign.start,
             maxLines: 3,
           ),
           actions: [
             TextButton(
-              child: Text('Cancel'),
+              child: Text(localizations.cancel),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text('Save'),
+              child: Text(localizations.save),
               onPressed: () {
                 Navigator.of(context).pop(_noteController.text);
               },

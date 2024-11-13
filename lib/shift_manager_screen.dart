@@ -74,6 +74,8 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                     labelText: localizations.addNote,
                     hintText: localizations.addNoteHint,
                   ),
+                  textDirection: Directionality.of(context),
+                  textAlign: TextAlign.start,
                   maxLines: 2,
                   onChanged: (value) {
                     setState(() {
@@ -145,6 +147,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       itemBuilder: (context, index) {
         final shift = shiftsToShow[index];
         return Card(
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -155,27 +158,45 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  '${localizations.startTime}: ${_formatTime(shift.startTime)} - ${localizations.endTime}: ${_formatTime(shift.endTime)}',
+                Row(
+                  children: [
+                    Text('${localizations.startTime}: '),
+                    Text(_formatTime(shift.startTime)),
+                    Text(' - ${localizations.endTime}: '),
+                    Text(_formatTime(shift.endTime)),
+                  ],
                 ),
-                Text(
-                  '${localizations.totalHours}: ${shift.totalHours.toStringAsFixed(2)}',
+                Row(
+                  children: [
+                    Text('${localizations.totalHours}: '),
+                    Text(shift.totalHours.toStringAsFixed(2)),
+                  ],
                 ),
-                Text(
-                  '${localizations.grossWage}: ${appState.getCurrencySymbol()}${shift.grossWage.toStringAsFixed(2)}',
+                Row(
+                  children: [
+                    Text('${localizations.grossWage}: '),
+                    Text('${appState.getCurrencySymbol()}${shift.grossWage.toStringAsFixed(2)}'),
+                  ],
                 ),
-                Text(
-                  '${localizations.netWage}: ${appState.getCurrencySymbol()}${shift.netWage.toStringAsFixed(2)}',
+                Row(
+                  children: [
+                    Text('${localizations.netWage}: '),
+                    Text('${appState.getCurrencySymbol()}${shift.netWage.toStringAsFixed(2)}'),
+                  ],
                 ),
-                Text(
-                  shift.note?.isNotEmpty == true 
-                      ? '${localizations.note}: ${shift.note}'
-                      : '${localizations.note}: ${localizations.noNotes}',
-                ),
-                const SizedBox(height: 8),
+                if (shift.note?.isNotEmpty == true)
+                  Text('${localizations.note}: ${shift.note}'),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.star,
+                        color: shift.isSpecialDay ? Colors.amber : Colors.grey,
+                      ),
+                      onPressed: () => _toggleSpecialDay(shift),
+                      tooltip: localizations.toggleSpecialDay,
+                    ),
                     IconButton(
                       icon: const Icon(Icons.edit),
                       onPressed: () => _editShift(context, appState, shift),
@@ -238,6 +259,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       netWage: netWage,
       wagePercentages: _calculateWagePercentages(appState, _selectedDate, _startTime, _endTime),
       note: _shiftNote,
+      isSpecialDay: false,
     );
   }
 
@@ -317,11 +339,16 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextField(
-                    controller: TextEditingController(text: editNote),
+                    controller: TextEditingController(text: editNote)
+                      ..selection = TextSelection.fromPosition(
+                        TextPosition(offset: editNote?.length ?? 0),
+                      ),
                     decoration: InputDecoration(
                       labelText: localizations.editNote,
                       hintText: localizations.addNoteHint,
                     ),
+                    textDirection: Directionality.of(context),
+                    textAlign: TextAlign.start,
                     maxLines: 2,
                     onChanged: (value) {
                       setState(() {
@@ -361,6 +388,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
         wagePercentages: _calculateWagePercentages(
             appState, editDate, editStartTime, editEndTime),
         note: editNote,
+        isSpecialDay: shift.isSpecialDay,
       );
       appState.updateShift(appState.shifts.indexOf(shift), updatedShift);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -412,17 +440,46 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
     return endDateTime.difference(startDateTime).inMinutes / 60.0;
   }
 
-  double _calculateGrossWage(AppState appState, DateTime date, TimeOfDay startTime, TimeOfDay endTime) {
+  double _calculateGrossWage(AppState appState, DateTime date, TimeOfDay startTime, TimeOfDay endTime, {bool isSpecialDay = false}) {
     final totalHours = _calculateTotalHours(date, startTime, endTime);
     final hourlyWage = appState.hourlyWage;
     final isWeekend = _isWeekend(appState, date);
     final isFestiveDay = _isFestiveDay(appState, date);
-    final isSpecialDay = isWeekend || isFestiveDay;
+    final isSpecialDayFinal = isSpecialDay || isWeekend || isFestiveDay;
 
     double wage = 0;
     double remainingHours = totalHours;
 
-    // Implement wage calculation logic here
+    // Determine base hours and base rate
+    final baseHours = isSpecialDayFinal ? appState.baseHoursSpecialDay : appState.baseHoursWeekday;
+    final baseRate = isSpecialDayFinal ? 1.5 : 1.0;
+
+    // Apply base rate to base hours
+    if (remainingHours > 0) {
+      final hoursAtBaseRate = Math.min(remainingHours, baseHours);
+      wage += hoursAtBaseRate * hourlyWage * baseRate;
+      remainingHours -= hoursAtBaseRate;
+    }
+
+    // Sort overtime rules by hours threshold
+    final applicableRules = appState.overtimeRules
+        .where((rule) => rule.isForSpecialDays == isSpecialDayFinal)
+        .toList()
+      ..sort((a, b) => a.hoursThreshold.compareTo(b.hoursThreshold));
+
+    // Apply overtime rules
+    for (var rule in applicableRules) {
+      if (remainingHours > 0 && totalHours > rule.hoursThreshold) {
+        final overtimeHours = Math.min(remainingHours, totalHours - rule.hoursThreshold);
+        wage += overtimeHours * hourlyWage * rule.rate;
+        remainingHours -= overtimeHours;
+      }
+    }
+
+    // If there are still remaining hours, apply them at the base rate
+    if (remainingHours > 0) {
+      wage += remainingHours * hourlyWage * baseRate;
+    }
 
     return wage;
   }
@@ -493,5 +550,50 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   bool _isFestiveDay(AppState appState, DateTime date) {
     // Implement festive day check logic here
     return false;
+  }
+
+  void _toggleSpecialDay(Shift shift) {
+    final appState = Provider.of<AppState>(context, listen: false);
+    
+    final updatedShift = Shift(
+      id: shift.id,
+      date: shift.date,
+      startTime: shift.startTime,
+      endTime: shift.endTime,
+      totalHours: shift.totalHours,
+      grossWage: _calculateGrossWage(
+        appState, 
+        shift.date, 
+        shift.startTime, 
+        shift.endTime,
+        isSpecialDay: !shift.isSpecialDay
+      ),
+      netWage: _calculateNetWage(
+        _calculateGrossWage(
+          appState, 
+          shift.date, 
+          shift.startTime, 
+          shift.endTime,
+          isSpecialDay: !shift.isSpecialDay
+        ),
+        appState.taxDeduction
+      ),
+      wagePercentages: _calculateWagePercentages(
+        appState, 
+        shift.date, 
+        shift.startTime, 
+        shift.endTime
+      ),
+      note: shift.note,
+      isSpecialDay: !shift.isSpecialDay,
+    );
+
+    appState.updateShift(appState.shifts.indexOf(shift), updatedShift);
+  }
+
+  bool _isSpecialDay(AppState appState, Shift shift) {
+    return shift.isSpecialDay || 
+           _isWeekend(appState, shift.date) || 
+           _isFestiveDay(appState, shift.date);
   }
 }

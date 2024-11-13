@@ -133,6 +133,15 @@
       "hours": {},
       "minutes": {}
     }
-  }
+  },
+  "noNotes": "Keine Notizen",
+  "addNote": "Notiz hinzufügen",
+  "addNoteHint": "Geben Sie eine Notiz für diese Schicht ein",
+  "editNote": "Notiz bearbeiten",
+  "toggleSpecialDay": "Spezialtag umschalten",
+  "specialDayEnabled": "Spezialtag aktiviert",
+  "specialDayDisabled": "Spezialtag deaktiviert",
+  "markAsSpecialDay": "Als Spezialtag markieren",
+  "specialDayRate": "Spezialtag-Tarif"
 }
  

@@ -253,7 +253,12 @@
   "noNotes": "Pas de notes",
   "addNote": "Ajouter une note",
   "addNoteHint": "Entrez une note pour ce quart",
-  "editNote": "Modifier la note"
+  "editNote": "Modifier la note",
+  "toggleSpecialDay": "Basculer Jour Spécial",
+  "specialDayEnabled": "Jour Spécial Activé",
+  "specialDayDisabled": "Jour Spécial Désactivé",
+  "markAsSpecialDay": "Marquer comme Jour Spécial",
+  "specialDayRate": "Taux Jour Spécial"
 }
 
 

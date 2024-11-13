@@ -176,12 +176,16 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Widget _buildTotalRow(List<Shift> shifts, AppState appState,
       AppLocalizations localizations, int totalWorkingDays) {
-    final totalHours =
-        shifts.fold<double>(0, (sum, shift) => sum + shift.totalHours);
-    final totalGrossWage =
-        shifts.fold<double>(0, (sum, shift) => sum + shift.grossWage);
-    final totalNetWage =
-        shifts.fold<double>(0, (sum, shift) => sum + shift.netWage);
+    final totalHours = shifts.fold<double>(0, (sum, shift) => sum + shift.totalHours);
+    
+    // Calculate gross wage for each shift using the new method
+    final totalGrossWage = shifts.fold<double>(
+      0,
+      (sum, shift) => sum + _calculateShiftGrossWage(shift, appState),
+    );
+    
+    // Calculate net wage using tax deduction
+    final totalNetWage = totalGrossWage * (1 - appState.taxDeduction / 100);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -492,5 +496,44 @@ class _ReportScreenState extends State<ReportScreen> {
             DateTime(shift.date.year, shift.date.month, shift.date.day))
         .toSet();
     return workingDays.length;
+  }
+
+  double _calculateShiftGrossWage(Shift shift, AppState appState) {
+    final totalHours = shift.totalHours;
+    final hourlyWage = appState.hourlyWage;
+    final isWeekend = _isWeekend(appState, shift.date);
+    final isFestiveDay = _isFestiveDay(appState, shift.date);
+    final isSpecialDay = shift.isSpecialDay || isWeekend || isFestiveDay;
+
+    double wage = 0;
+    double remainingHours = totalHours;
+
+    // Determine base hours and base rate
+    final baseHours = isSpecialDay ? appState.baseHoursSpecialDay : appState.baseHoursWeekday;
+    final baseRate = isSpecialDay ? 1.5 : 1.0;
+
+    // Apply base rate to base hours
+    if (remainingHours > 0) {
+      final hoursAtBaseRate = math.min(remainingHours, baseHours);
+      wage += hoursAtBaseRate * hourlyWage * baseRate;
+      remainingHours -= hoursAtBaseRate;
+    }
+
+    // Sort overtime rules by hours threshold
+    final applicableRules = appState.overtimeRules
+        .where((rule) => rule.isForSpecialDays == isSpecialDay)
+        .toList()
+      ..sort((a, b) => a.hoursThreshold.compareTo(b.hoursThreshold));
+
+    // Apply overtime rules
+    for (var rule in applicableRules) {
+      if (remainingHours > 0 && totalHours > rule.hoursThreshold) {
+        final overtimeHours = math.min(remainingHours, totalHours - rule.hoursThreshold);
+        wage += overtimeHours * hourlyWage * rule.rate;
+        remainingHours -= overtimeHours;
+      }
+    }
+
+    return wage;
   }
 }

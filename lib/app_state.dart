@@ -289,6 +289,7 @@ class Shift {
   final double netWage;
   final Map<String, double> wagePercentages;
   String? note;
+  bool isSpecialDay;
 
   Shift({
     required this.id,
@@ -300,6 +301,7 @@ class Shift {
     required this.netWage,
     required this.wagePercentages,
     this.note,
+    this.isSpecialDay = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -313,6 +315,7 @@ class Shift {
       'netWage': netWage,
       'wagePercentages': wagePercentages,
       'note': note,
+      'isSpecialDay': isSpecialDay,
     };
   }
 
@@ -333,6 +336,7 @@ class Shift {
       netWage: json['netWage'],
       wagePercentages: Map<String, double>.from(json['wagePercentages']),
       note: json['note'],
+      isSpecialDay: json['isSpecialDay'] ?? false,
     );
   }
 }
