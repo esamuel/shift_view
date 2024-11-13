@@ -35,6 +35,9 @@
     "appGuidePrivacyAndDataSecurity",
     "appGuidePrivacyAndDataSecurityContent",
     "appGuideFooter",
+    "backupError",
+    "restoreSuccessful",
+    "restoreError",
     "showingAllShifts",
     "showingCurrentMonthShifts",
     "addToHomeScreen",
@@ -75,7 +78,10 @@
     "welcomeMessage",
     "viewShifts",
     "guide",
-    "note"
+    "note",
+    "utilities",
+    "backupAndRestore",
+    "export"
   ],
 
   "es": [
@@ -84,7 +90,10 @@
     "welcomeMessage",
     "viewShifts",
     "guide",
-    "note"
+    "note",
+    "utilities",
+    "backupAndRestore",
+    "export"
   ],
 
   "fr": [
@@ -92,7 +101,10 @@
     "featureNotImplemented",
     "welcomeMessage",
     "viewShifts",
-    "guide"
+    "guide",
+    "utilities",
+    "backupAndRestore",
+    "export"
   ],
 
   "he": [
@@ -101,7 +113,10 @@
     "welcomeMessage",
     "viewShifts",
     "guide",
-    "note"
+    "note",
+    "utilities",
+    "backupAndRestore",
+    "export"
   ],
 
   "ru": [
@@ -110,6 +125,9 @@
     "welcomeMessage",
     "viewShifts",
     "guide",
-    "note"
+    "note",
+    "utilities",
+    "backupAndRestore",
+    "export"
   ]
 }

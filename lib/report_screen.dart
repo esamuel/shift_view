@@ -6,6 +6,8 @@ import 'export_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:math' as math;
 import 'rtl_fix.dart';
+import 'web_backup_service.dart';
+import 'utility_screen.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
@@ -35,6 +37,21 @@ class _ReportScreenState extends State<ReportScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(localizations.reportsTitle),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UtilityScreen(
+                      shifts: appState.shifts,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
           bottom: TabBar(
             tabs: [
               Tab(text: localizations.weeklyView),
@@ -64,6 +81,7 @@ class _ReportScreenState extends State<ReportScreen> {
     return Column(
       children: [
         _buildDateSelector(localizations),
+        const SizedBox(height: 8),
         Text(
           '${_getLocalizedDate(localizations, weekStart)} - ${_getLocalizedDate(localizations, weekEnd)}',
           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -71,10 +89,9 @@ class _ReportScreenState extends State<ReportScreen> {
         Expanded(
           child: _buildShiftsList(weekShifts, appState, localizations),
         ),
-        _buildTotalRow(weekShifts, appState, localizations,
-            _calculateWorkingDays(weekShifts)),
+        _buildTotalRow(weekShifts, appState, localizations, _calculateWorkingDays(weekShifts)),
         _buildPercentageTotals(weekShifts, appState, localizations),
-        _buildExportButtons(localizations, weekShifts),
+        const SizedBox(height: 32),
       ],
     );
   }
@@ -94,6 +111,7 @@ class _ReportScreenState extends State<ReportScreen> {
     return Column(
       children: [
         _buildDateSelector(localizations),
+        const SizedBox(height: 8),
         Text(
           _getLocalizedMonthYear(localizations, _selectedDate),
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -103,7 +121,7 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         _buildTotalRow(monthShifts, appState, localizations, totalWorkingDays),
         _buildPercentageTotals(monthShifts, appState, localizations),
-        _buildExportButtons(localizations, monthShifts),
+        const SizedBox(height: 32),
       ],
     );
   }
@@ -252,41 +270,6 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  Widget _buildExportButtons(
-      AppLocalizations localizations, List<Shift> shifts) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              child: Text(localizations.exportAsCsv),
-              onPressed: () => _exportReport(shifts, 'csv'),
-            ),
-            ElevatedButton(
-              child: Text(localizations.exportAsPdf),
-              onPressed: () => _exportReport(shifts, 'pdf'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              child: Text(localizations.backup),
-              onPressed: () => _createBackup(localizations),
-            ),
-            ElevatedButton(
-              child: Text(localizations.restore),
-              onPressed: () => _restoreBackup(localizations),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
   Map<String, double> _calculatePercentageTotals(
       List<Shift> shifts, AppState appState) {
     Map<String, double> totals = {};
@@ -335,58 +318,6 @@ class _ReportScreenState extends State<ReportScreen> {
     }
 
     return totals;
-  }
-
-  void _exportReport(List<Shift> shifts, String format) async {
-    try {
-      String filePath;
-
-      if (format == 'csv') {
-        filePath = await _exportService.generateCSV(shifts);
-      } else {
-        filePath = await _exportService.generatePDF(shifts);
-      }
-
-      await _exportService.shareFile(filePath, 'Shift Report');
-    } catch (e) {
-      print("Error exporting report: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Export failed: $e")),
-      );
-    }
-  }
-
-  void _createBackup(AppLocalizations localizations) async {
-    try {
-      final backupPath = await _exportService.createBackup();
-      await _exportService.shareFile(backupPath, 'Shift View Backup');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.backupCreated)),
-      );
-    } catch (e) {
-      print("Error creating backup: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${localizations.backupFailed}: $e")),
-      );
-    }
-  }
-
-  void _restoreBackup(AppLocalizations localizations) async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles();
-      if (result != null) {
-        String filePath = result.files.single.path!;
-        await _exportService.restoreBackup(filePath);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localizations.backupRestored)),
-        );
-      }
-    } catch (e) {
-      print("Error restoring backup: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.restoreFailed)),
-      );
-    }
   }
 
   bool _isWeekend(AppState appState, DateTime date) {

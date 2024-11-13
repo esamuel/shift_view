@@ -137,9 +137,9 @@
   "backup": "Backup",
   "restore": "Restore",
   "backupCreated": "Backup created successfully",
-  "backupFailed": "Failed to create backup",
-  "backupRestored": "Backup restored successfully",
-  "restoreFailed": "Failed to restore backup",
+  "backupError": "Error creating backup",
+  "restoreSuccessful": "Data restored successfully",
+  "restoreError": "Error restoring data",
   "creatingBackup": "Creating backup...",
   "restoringBackup": "Restoring backup...",
   "showingAllShifts": "Showing all shifts",
@@ -226,5 +226,8 @@
   "specialDayEnabled": "Special Day Enabled",
   "specialDayDisabled": "Special Day Disabled",
   "markAsSpecialDay": "Mark as Special Day",
-  "specialDayRate": "Special Day Rate"
+  "specialDayRate": "Special Day Rate",
+  "utilities": "Utilities",
+  "backupAndRestore": "Backup and Restore",
+  "export": "Export"
 }

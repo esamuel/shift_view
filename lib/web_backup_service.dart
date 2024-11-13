@@ -79,4 +79,75 @@ class WebBackupService {
 
     appState.notifyListeners();
   }
+
+  static Map<String, dynamic> generateBackupJson(AppState appState) {
+    return {
+      'shifts': appState.shifts.map((shift) => shift.toJson()).toList(),
+      'overtimeRules': appState.overtimeRules.map((rule) => rule.toJson()).toList(),
+      'festiveDays': appState.festiveDays.map((date) => date.toIso8601String()).toList(),
+      'settings': {
+        'hourlyWage': appState.hourlyWage,
+        'taxDeduction': appState.taxDeduction,
+        'startOnSunday': appState.startOnSunday,
+        'locale': appState.locale.languageCode,
+        'countryCode': appState.countryCode,
+        'baseHoursWeekday': appState.baseHoursWeekday,
+        'baseHoursSpecialDay': appState.baseHoursSpecialDay,
+      },
+    };
+  }
+
+  static Future<void> backupToJson(AppState appState) async {
+    try {
+      final jsonData = generateBackupJson(appState);
+      final jsonString = jsonEncode(jsonData);
+      
+      // Create file download
+      final blob = html.Blob([jsonString], 'application/json');
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      final anchor = html.AnchorElement(href: url)
+        ..setAttribute('download', 'shift_tracker_backup_${DateTime.now().toIso8601String()}.json')
+        ..click();
+      html.Url.revokeObjectUrl(url);
+    } catch (e) {
+      print('Error creating backup: $e');
+      rethrow;
+    }
+  }
+
+  static Future<void> restoreFromJson(AppState appState, String jsonString) async {
+    try {
+      final data = jsonDecode(jsonString) as Map<String, dynamic>;
+      
+      // Restore shifts
+      appState.shifts = (data['shifts'] as List)
+          .map((shiftData) => Shift.fromJson(shiftData))
+          .toList();
+      
+      // Restore overtime rules
+      appState.overtimeRules = (data['overtimeRules'] as List)
+          .map((ruleData) => OvertimeRule.fromJson(ruleData))
+          .toList();
+      
+      // Restore festive days
+      appState.festiveDays = (data['festiveDays'] as List)
+          .map((dateString) => DateTime.parse(dateString))
+          .toList();
+      
+      // Restore settings
+      final settings = data['settings'];
+      appState.hourlyWage = settings['hourlyWage'];
+      appState.taxDeduction = settings['taxDeduction'];
+      appState.startOnSunday = settings['startOnSunday'];
+      appState.setLocale(Locale(settings['locale']));
+      appState.setCountry(settings['countryCode']);
+      appState.baseHoursWeekday = settings['baseHoursWeekday'];
+      appState.baseHoursSpecialDay = settings['baseHoursSpecialDay'];
+      
+      appState.notifyListeners();
+    } catch (e) {
+      print('Error restoring backup: $e');
+      rethrow;
+    }
+  }
 }
