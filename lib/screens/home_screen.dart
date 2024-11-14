@@ -10,7 +10,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('AI Chat'),
-        actions: [
+        actions: const [
           // ... existing actions ...
         ],
       ),

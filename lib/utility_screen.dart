@@ -7,7 +7,13 @@ import 'package:file_picker/file_picker.dart';
 
 class UtilityScreen extends StatefulWidget {
   final List<Shift> shifts;
-  const UtilityScreen({Key? key, required this.shifts}) : super(key: key);
+  final DateTime? selectedDate;
+
+  const UtilityScreen({
+    Key? key,
+    required this.shifts,
+    this.selectedDate,
+  }) : super(key: key);
 
   @override
   _UtilityScreenState createState() => _UtilityScreenState();
@@ -125,30 +131,45 @@ class _UtilityScreenState extends State<UtilityScreen> {
 
   void _restoreBackup(AppLocalizations localizations) async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles();
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+      
       if (result != null) {
         String filePath = result.files.single.path!;
         await _exportService.restoreBackup(filePath);
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localizations.restoreSuccessful)),
+          SnackBar(
+            content: Text(localizations.restoreSuccessful),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
         );
       }
     } catch (e) {
       print("Error restoring backup: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.restoreError)),
+        SnackBar(
+          content: Text("${localizations.restoreError}: ${e.toString()}"),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
       );
     }
   }
 
   void _exportReport(String format) async {
-    // Modify the existing _exportReport method to use widget.shifts
     try {
       String filePath;
       if (format == 'csv') {
         filePath = await _exportService.generateCSV(widget.shifts);
       } else {
-        filePath = await _exportService.generatePDF(widget.shifts);
+        filePath = await _exportService.generatePDF(
+          widget.shifts, 
+          selectedDate: widget.selectedDate ?? DateTime.now()
+        );
       }
       await _exportService.shareFile(filePath, 'Shift Report');
     } catch (e) {

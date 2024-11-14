@@ -3,10 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
 import 'export_service.dart';
-import 'package:file_picker/file_picker.dart';
 import 'dart:math' as math;
 import 'rtl_fix.dart';
-import 'web_backup_service.dart';
 import 'utility_screen.dart';
 
 class ReportScreen extends StatefulWidget {
@@ -46,6 +44,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   MaterialPageRoute(
                     builder: (context) => UtilityScreen(
                       shifts: appState.shifts,
+                      selectedDate: _selectedDate,
                     ),
                   ),
                 );
@@ -466,5 +465,22 @@ class _ReportScreenState extends State<ReportScreen> {
     }
 
     return wage;
+  }
+
+  void _exportReport(List<Shift> shifts, String format) async {
+    try {
+      String filePath;
+      if (format == 'csv') {
+        filePath = await _exportService.generateCSV(shifts);
+      } else {
+        filePath = await _exportService.generatePDF(shifts, selectedDate: _selectedDate);
+      }
+      await _exportService.shareFile(filePath, 'Shift Report');
+    } catch (e) {
+      print("Error exporting report: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Export failed: $e")),
+      );
+    }
   }
 }

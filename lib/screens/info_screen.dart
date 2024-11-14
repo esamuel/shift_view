@@ -9,18 +9,18 @@ class InfoScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Info'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      body: const SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 16),
-            const Text(
+            SizedBox(height: 16),
+            Text(
               'Add to Home Screen',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'To add this app to your home screen, follow these steps:\n\n'
               '1. Open the app in your mobile browser\n'
               '2. Tap the browser menu (usually three dots or lines)\n'

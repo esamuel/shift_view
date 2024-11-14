@@ -5,6 +5,8 @@ import 'app_state.dart';  // or wherever your main Shift class is defined
 import 'services/shift_service.dart';
 
 class ShiftManagerScreen extends StatefulWidget {
+  const ShiftManagerScreen({Key? key}) : super(key: key);
+
   @override
   _ShiftManagerScreenState createState() => _ShiftManagerScreenState();
 }
@@ -72,7 +74,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Shift Manager'),
+        title: const Text('Shift Manager'),
       ),
       body: ListView.builder(
         itemCount: _shifts.length,
@@ -80,7 +82,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
           Shift shift = _shifts[index];
           return Card(
             elevation: 4,
-            margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: ListTile(
               title: Text('Shift: ${shift.name}'),
               subtitle: Text('Date: ${shift.date} - Note: ${shift.note ?? 'No notes'}'),
@@ -88,19 +90,19 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: Icon(Icons.edit, color: Colors.blue),
+                    icon: const Icon(Icons.edit, color: Colors.blue),
                     onPressed: () {
                       // Edit shift functionality
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
                       // Delete shift functionality
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.note_add, color: Colors.green),
+                    icon: const Icon(Icons.note_add, color: Colors.green),
                     onPressed: () => _addNoteToShift(shift),
                   ),
                 ],
@@ -110,7 +112,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () {
           // Add new shift functionality
         },
