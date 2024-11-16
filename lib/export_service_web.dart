@@ -1,5 +1,6 @@
 import 'dart:html' as html;
 import 'dart:convert';
+import 'dart:async';
 
 Future<String> createBackup(String jsonString) async {
   try {
@@ -25,26 +26,73 @@ Future<String> createBackup(String jsonString) async {
 
 Future<String> restoreBackup(String source) async {
   try {
+    final completer = Completer<String>();
+    
+    // Create file input element
     final input = html.FileUploadInputElement()
-      ..accept = '.json,application/json';
+      ..accept = '.json,application/json'
+      ..style.display = 'none';
+    
+    html.document.body!.children.add(input);
+
+    // Handle file selection
+    input.onChange.listen((event) async {
+      if (input.files!.isEmpty) {
+        html.document.body!.children.remove(input);
+        completer.completeError('No file selected');
+        return;
+      }
+
+      final file = input.files!.first;
+      if (!file.name.toLowerCase().endsWith('.json')) {
+        html.document.body!.children.remove(input);
+        completer.completeError('Please select a JSON backup file');
+        return;
+      }
+
+      final reader = html.FileReader();
+      
+      reader.onLoad.listen((event) {
+        try {
+          final content = reader.result as String;
+          // Validate JSON format
+          final jsonData = json.decode(content);
+          if (jsonData == null || 
+              !jsonData.containsKey('shifts') || 
+              !jsonData.containsKey('settings')) {
+            throw Exception('Invalid backup file format');
+          }
+          html.document.body!.children.remove(input);
+          completer.complete(content);
+        } catch (e) {
+          html.document.body!.children.remove(input);
+          completer.completeError('Invalid backup file: $e');
+        }
+      });
+
+      reader.onError.listen((event) {
+        html.document.body!.children.remove(input);
+        completer.completeError('Error reading file: ${reader.error}');
+      });
+
+      try {
+        reader.readAsText(file);
+      } catch (e) {
+        html.document.body!.children.remove(input);
+        completer.completeError('Error reading file: $e');
+      }
+    });
+
+    // Handle cancel
+    input.onAbort.listen((event) {
+      html.document.body!.children.remove(input);
+      completer.completeError('File selection cancelled');
+    });
+
+    // Trigger file selection
     input.click();
 
-    await input.onChange.first;
-    if (input.files!.isEmpty) throw Exception('No file selected');
-
-    final file = input.files!.first;
-    if (!file.name.toLowerCase().endsWith('.json')) {
-      throw Exception('Invalid file type. Please select a JSON file.');
-    }
-
-    final reader = html.FileReader();
-    reader.readAsText(file);
-    await reader.onLoad.first;
-
-    final content = reader.result as String;
-    // Validate JSON format
-    json.decode(content); // This will throw if invalid JSON
-    return content;
+    return await completer.future;
   } catch (e) {
     print('Error in web restoreBackup: $e');
     rethrow;
@@ -63,7 +111,6 @@ Future<String> generatePDF(List<int> pdfBytes) async {
 
 Future<void> shareFile(String filePath, String subject) async {
   if (subject.contains('Backup')) {
-    // For backup files, we don't need to do anything as createBackup handles the download
     return;
   }
   

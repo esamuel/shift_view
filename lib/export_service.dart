@@ -5,6 +5,8 @@ import 'package:csv/csv.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'app_state.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter/widgets.dart' show Locale;
 
 // Conditional imports
 import 'export_service_mobile.dart'
@@ -84,6 +86,9 @@ class ExportService {
       await appState.saveFestiveDays();
 
       appState.notifyListeners();
+      
+      // Return success to trigger UI feedback
+      return Future.value();
     } catch (e) {
       print("Error in restoreBackup: $e");
       rethrow;
@@ -122,11 +127,26 @@ class ExportService {
   }
 
   Future<String> generatePDF(List<Shift> shifts, {DateTime? selectedDate}) async {
+    // Create PDF with Unicode font support
     final pdf = pw.Document();
-    final date = selectedDate ?? DateTime.now();
-    final currentMonth = DateFormat('MMMM yyyy').format(date);
     
-    // Filter shifts for selected month
+    // Use a font that supports Unicode
+    final font = pw.Font.helvetica();
+    final boldFont = pw.Font.helveticaBold();
+    
+    final date = selectedDate ?? DateTime.now();
+    final currentMonth = DateFormat('MMMM yyyy', appState.locale.languageCode).format(date);
+    
+    final localizations = await lookupAppLocalizations(appState.locale);
+    final headers = [
+      'Date',
+      localizations.startTime,
+      localizations.endTime,
+      localizations.totalHours,
+      localizations.grossWage,
+      localizations.netWage,
+    ];
+    
     final monthStart = DateTime(date.year, date.month, 1);
     final monthEnd = DateTime(date.year, date.month + 1, 0);
     final monthShifts = shifts.where((shift) =>
@@ -134,84 +154,112 @@ class ExportService {
       shift.date.isBefore(monthEnd.add(const Duration(days: 1)))
     ).toList();
     
-    // Calculate totals for filtered month
     double totalHours = monthShifts.fold(0, (sum, shift) => sum + shift.totalHours);
     double totalNetWage = monthShifts.fold(0, (sum, shift) => sum + shift.netWage);
 
     pdf.addPage(
       pw.Page(
+        pageFormat: PdfPageFormat.a4,
         build: (pw.Context context) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              // Header
-              pw.Center(
-                child: pw.Text(
-                  currentMonth,
-                  style: pw.TextStyle(
-                    fontSize: 24,
-                    fontWeight: pw.FontWeight.bold,
+          return pw.Padding(
+            padding: const pw.EdgeInsets.all(20),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Center(
+                  child: pw.Text(
+                    currentMonth,
+                    style: pw.TextStyle(
+                      font: boldFont,
+                      fontSize: 24,
+                    ),
                   ),
                 ),
-              ),
-              pw.SizedBox(height: 10),
-              // Totals
-              pw.Container(
-                padding: const pw.EdgeInsets.all(10),
-                decoration: pw.BoxDecoration(
-                  color: PdfColors.grey200,
-                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(5)),
+                pw.SizedBox(height: 10),
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(10),
+                  decoration: pw.BoxDecoration(
+                    color: PdfColors.grey200,
+                    borderRadius: const pw.BorderRadius.all(pw.Radius.circular(5)),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        '${localizations.totalWorkingDays}: ${_calculateWorkingDays(monthShifts)}',
+                        style: pw.TextStyle(font: boldFont, fontSize: 14),
+                      ),
+                      pw.SizedBox(height: 5),
+                      pw.Text(
+                        '${localizations.totalHours}: ${totalHours.toStringAsFixed(2)}',
+                        style: pw.TextStyle(font: boldFont, fontSize: 14),
+                      ),
+                      pw.SizedBox(height: 5),
+                      pw.Text(
+                        '${localizations.grossWage}: ${monthShifts.fold<double>(0, (sum, shift) => sum + shift.grossWage).toStringAsFixed(2)}',
+                        style: pw.TextStyle(font: boldFont, fontSize: 14),
+                      ),
+                      pw.SizedBox(height: 5),
+                      pw.Text(
+                        '${localizations.netWage}: ${totalNetWage.toStringAsFixed(2)}',
+                        style: pw.TextStyle(font: boldFont, fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      'Total Working Days: ${_calculateWorkingDays(monthShifts)}',
-                      style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
-                    ),
-                    pw.SizedBox(height: 5),
-                    pw.Text(
-                      'Total Hours: ${totalHours.toStringAsFixed(2)}',
-                      style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
-                    ),
-                    pw.SizedBox(height: 5),
-                    pw.Text(
-                      'Total Gross Wage: ${monthShifts.fold<double>(0, (sum, shift) => sum + shift.grossWage).toStringAsFixed(2)}',
-                      style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
-                    ),
-                    pw.SizedBox(height: 5),
-                    pw.Text(
-                      'Total Net Wage: ${totalNetWage.toStringAsFixed(2)}',
-                      style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
-                    ),
-                  ],
+                pw.SizedBox(height: 20),
+                pw.Container(
+                  width: double.infinity,
+                  child: pw.Table.fromTextArray(
+                    context: context,
+                    headers: headers,
+                    data: () {
+                      var sortedShifts = List<Shift>.from(monthShifts)
+                        ..sort((a, b) => a.date.compareTo(b.date));
+                      return sortedShifts.map((shift) => [
+                        DateFormat('dd/MM/yyyy', appState.locale.languageCode).format(shift.date),
+                        _formatTimeOfDay(shift.startTime),
+                        _formatTimeOfDay(shift.endTime),
+                        shift.totalHours.toStringAsFixed(2),
+                        shift.grossWage.toStringAsFixed(2),
+                        shift.netWage.toStringAsFixed(2),
+                      ]).toList();
+                    }(),
+                    border: pw.TableBorder.all(width: 0.5),
+                    headerStyle: pw.TextStyle(font: boldFont),
+                    headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
+                    cellStyle: pw.TextStyle(font: font, fontSize: 10),
+                    cellAlignment: pw.Alignment.center,
+                    cellPadding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 5),
+                    columnWidths: {
+                      0: const pw.FlexColumnWidth(2), // Date column
+                      1: const pw.FlexColumnWidth(1.5), // Start Time
+                      2: const pw.FlexColumnWidth(1.5), // End Time
+                      3: const pw.FlexColumnWidth(1), // Total Hours
+                      4: const pw.FlexColumnWidth(1.5), // Gross Wage
+                      5: const pw.FlexColumnWidth(1.5), // Net Wage
+                    },
+                    cellDecoration: (index, data, rowNum) {
+                      if (rowNum == -1) return pw.BoxDecoration(color: PdfColors.grey300); // Header
+                      if (rowNum >= monthShifts.length) return pw.BoxDecoration(); // Empty decoration
+                      
+                      final shift = monthShifts[rowNum];
+                      final isWeekend = shift.date.weekday == DateTime.saturday || 
+                                      shift.date.weekday == DateTime.sunday;
+                      final isFestiveDay = appState.festiveDays.any((festiveDay) =>
+                          festiveDay.year == shift.date.year &&
+                          festiveDay.month == shift.date.month &&
+                          festiveDay.day == shift.date.day);
+                      
+                      if (shift.isSpecialDay || isWeekend || isFestiveDay) {
+                        return pw.BoxDecoration(color: PdfColors.grey100);
+                      }
+                      return pw.BoxDecoration(); // Empty decoration instead of null
+                    },
+                  ),
                 ),
-              ),
-              pw.SizedBox(height: 20),
-              // Modified table
-              pw.Table.fromTextArray(
-                context: context,
-                headers: ['Date', 'Start Time', 'End Time', 'Hours', 'Gross Wage', 'Net Wage'],
-                data: () {
-                  var sortedShifts = List<Shift>.from(monthShifts);
-                  sortedShifts.sort((a, b) => a.date.compareTo(b.date));
-                  return sortedShifts.map((shift) => [
-                    DateFormat('dd/MM/yyyy').format(shift.date),
-                    _formatTimeOfDay(shift.startTime),
-                    _formatTimeOfDay(shift.endTime),
-                    shift.totalHours.toStringAsFixed(2),
-                    shift.grossWage.toStringAsFixed(2),
-                    shift.netWage.toStringAsFixed(2),
-                  ]).toList();
-                }(),
-                border: pw.TableBorder.all(),
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
-                cellStyle: pw.TextStyle(fontSize: 10),
-                cellAlignment: pw.Alignment.center,
-                cellPadding: const pw.EdgeInsets.all(5),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),

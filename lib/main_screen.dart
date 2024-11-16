@@ -85,28 +85,39 @@ class MainScreen extends StatelessWidget {
   Widget _buildButton(BuildContext context, String title, IconData icon,
       VoidCallback onPressed, {Color? color}) {
     final colorScheme = Theme.of(context).colorScheme;
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color ?? colorScheme.primary,
-        foregroundColor: color != null ? colorScheme.onPrimary : colorScheme.onPrimary,
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
-      onPressed: onPressed,
-      child: Row(
-        children: <Widget>[
-          Icon(icon, size: 24.0),
-          const SizedBox(width: 16.0),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 16.0),
-            ),
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color ?? colorScheme.primary,
+          foregroundColor: color != null ? colorScheme.onPrimary : colorScheme.onPrimary,
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
           ),
-          const Icon(Icons.arrow_forward_ios, size: 18.0),
-        ],
+        ),
+        onPressed: onPressed,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(icon, size: 24.0),
+                const SizedBox(width: 16.0),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(fontSize: 16.0),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+                const SizedBox(width: 8.0),
+                const Icon(Icons.arrow_forward_ios, size: 18.0),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -146,50 +157,115 @@ class MainScreen extends StatelessWidget {
     final now = DateTime.now();
     final endDate = now.add(const Duration(days: 7));
     final upcomingShifts = appState.getShiftsBetweenDates(now, endDate);
-    upcomingShifts.sort((a, b) => a.date.compareTo(b.date)); // Sort shifts chronologically
+    upcomingShifts.sort((a, b) => a.date.compareTo(b.date));
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(localizations.upcomingShiftsTitle),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: upcomingShifts.isEmpty
-                ? Center(child: Text(localizations.noUpcomingShifts))
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: upcomingShifts.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final shift = upcomingShifts[index];
-                      final duration = Duration(hours: shift.endTime.hour - shift.startTime.hour, minutes: shift.endTime.minute - shift.startTime.minute);
-                      final hours = duration.inHours;
-                      final minutes = duration.inMinutes % 60;
-
-                      return ListTile(
-                        title: Text(localizations.shiftDateFormat(
-                          _getDayName(context, shift.date.weekday),
-                          shift.date.day.toString().padLeft(2, '0'),
-                          shift.date.month.toString().padLeft(2, '0'),
-                        )),
-                        subtitle: Text(localizations.shiftTimeFormat(
-                          shift.startTime.format(context),
-                          shift.endTime.format(context),
-                          hours.toString(),
-                          minutes.toString(),
-                        )),
-                      );
-                    },
-                  ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(localizations.upcomingShiftsClose),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+        return Dialog(
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.9,
+              maxHeight: MediaQuery.of(context).size.height * 0.8,
             ),
-          ],
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    localizations.upcomingShiftsTitle,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  Flexible(
+                    child: upcomingShifts.isEmpty
+                        ? Center(child: Text(localizations.noUpcomingShifts))
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: upcomingShifts.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final shift = upcomingShifts[index];
+                              final duration = Duration(
+                                hours: shift.endTime.hour - shift.startTime.hour,
+                                minutes: shift.endTime.minute - shift.startTime.minute
+                              );
+                              final hours = duration.inHours;
+                              final minutes = duration.inMinutes % 60;
+
+                              return Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: IntrinsicHeight(
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                                      children: [
+                                        // Date Column
+                                        Expanded(
+                                          flex: 2,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                _getDayName(context, shift.date.weekday),
+                                                style: Theme.of(context).textTheme.titleMedium,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Text(
+                                                '${shift.date.day.toString().padLeft(2, '0')}/${shift.date.month.toString().padLeft(2, '0')}',
+                                                style: Theme.of(context).textTheme.bodyMedium,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const VerticalDivider(),
+                                        // Time Column
+                                        Expanded(
+                                          flex: 3,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      '${shift.startTime.format(context)} - ${shift.endTime.format(context)}',
+                                                      style: Theme.of(context).textTheme.bodyMedium,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Text(
+                                                '$hours h ${minutes.toString().padLeft(2, '0')} min',
+                                                style: Theme.of(context).textTheme.bodySmall,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        child: Text(localizations.upcomingShiftsClose),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

@@ -172,20 +172,46 @@ class _ReportScreenState extends State<ReportScreen> {
       itemCount: shifts.length,
       itemBuilder: (context, index) {
         final shift = shifts[index];
-        return ListTile(
-          title: Text(_getLocalizedDayMonth(localizations, shift.date)),
-          subtitle: Row(
-            children: [
-              Text('${localizations.startTime}: '),
-              RTLFix.number(_formatTime(shift.startTime),
-                  style: Theme.of(context).textTheme.bodyMedium),
-              Text(' - ${localizations.endTime}: '),
-              RTLFix.number(_formatTime(shift.endTime),
-                  style: Theme.of(context).textTheme.bodyMedium),
-            ],
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _getLocalizedDayMonth(localizations, shift.date),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Wrap(
+                        spacing: 4,
+                        children: [
+                          Text('${localizations.startTime}:'),
+                          RTLFix.number(
+                            _formatTime(shift.startTime),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          Text('${localizations.endTime}:'),
+                          RTLFix.number(
+                            _formatTime(shift.endTime),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                    RTLFix.number(
+                      '${appState.getCurrencySymbol()}${shift.grossWage.toStringAsFixed(2)}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          trailing: RTLFix.number(
-              '${appState.getCurrencySymbol()}${shift.grossWage.toStringAsFixed(2)}'),
         );
       },
     );
