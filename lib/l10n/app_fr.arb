@@ -7,7 +7,7 @@
   "taxDeduction": "Déduction fiscale (%)",
   "pleaseEnterTaxDeductionPercentage": "Veuillez entrer le pourcentage de déduction fiscale",
   "pleaseEnterAValidPercentage": "Veuillez entrer un pourcentage valide (0-100)",
-  "startWorkWeekOnSunday": "Commencer la semaine de travail le dimanche",
+  "startWorkWeekOn": "Commencer la semaine de travail le",
   "language": "Langue",
   "saveSettings": "Enregistrer les paramètres",
   "shiftManagerTitle": "Gestionnaire de quarts",

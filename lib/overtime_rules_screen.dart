@@ -62,7 +62,7 @@ class OvertimeRulesScreen extends StatelessWidget {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
       floatingActionButton: FloatingActionButton(

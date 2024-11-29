@@ -70,26 +70,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             label: localizations.baseHoursSpecialDay,
           ),
           const SizedBox(height: 16),
-          SwitchListTile(
-            title: Text(localizations.startWorkWeekOnSunday),
-            value: appState.startOnSunday,
-            onChanged: (value) {
-              setState(() {
-                appState.startOnSunday = value;
-              });
-            },
-          ),
+          _buildWorkWeekStartSwitch(appState, localizations),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
             decoration: InputDecoration(labelText: localizations.language),
             value: appState.locale.languageCode,
             items: const [
-              DropdownMenuItem(child: Text('English'), value: 'en'),
-              DropdownMenuItem(child: Text('Español'), value: 'es'),
-              DropdownMenuItem(child: Text('Français'), value: 'fr'),
-              DropdownMenuItem(child: Text('Deutsch'), value: 'de'),
-              DropdownMenuItem(child: Text('עברית'), value: 'he'),
-              DropdownMenuItem(child: Text('Русский'), value: 'ru'),
+              DropdownMenuItem(value: 'en', child: Text('English')),
+              DropdownMenuItem(value: 'es', child: Text('Español')),
+              DropdownMenuItem(value: 'fr', child: Text('Français')),
+              DropdownMenuItem(value: 'de', child: Text('Deutsch')),
+              DropdownMenuItem(value: 'he', child: Text('עברית')),
+              DropdownMenuItem(value: 'ru', child: Text('Русский')),
             ],
             onChanged: (value) {
               if (value != null) {
@@ -102,12 +94,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             decoration: InputDecoration(labelText: localizations.country),
             value: appState.countryCode,
             items: [
-              DropdownMenuItem(child: Text(localizations.countryUS), value: 'US'),
-              DropdownMenuItem(child: Text(localizations.countryGB), value: 'GB'),
-              DropdownMenuItem(child: Text(localizations.countryEU), value: 'EU'),
-              DropdownMenuItem(child: Text(localizations.countryJP), value: 'JP'),
-              DropdownMenuItem(child: Text(localizations.countryIL), value: 'IL'),
-              DropdownMenuItem(child: Text(localizations.countryRU), value: 'RU'),
+              DropdownMenuItem(value: 'US', child: Text(localizations.countryUS)),
+              DropdownMenuItem(value: 'GB', child: Text(localizations.countryGB)),
+              DropdownMenuItem(value: 'EU', child: Text(localizations.countryEU)),
+              DropdownMenuItem(value: 'JP', child: Text(localizations.countryJP)),
+              DropdownMenuItem(value: 'IL', child: Text(localizations.countryIL)),
+              DropdownMenuItem(value: 'RU', child: Text(localizations.countryRU)),
             ],
             onChanged: (value) {
               if (value != null) {
@@ -141,6 +133,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Navigator.pop(context);
             },
           ),
+          const SizedBox(height: 16),
+          SwitchListTile(
+            title: Text(localizations.skipWelcomeScreen),
+            subtitle: Text(localizations.skipWelcomeScreenDescription),
+            value: appState.skipWelcomeScreen,
+            onChanged: (value) {
+              setState(() {
+                appState.updateSettings(skipWelcomeScreen: value);
+              });
+            },
+          ),
         ],
       ),
     );
@@ -162,6 +165,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.left,
+    );
+  }
+
+  Widget _buildWorkWeekStartSwitch(AppState appState, AppLocalizations localizations) {
+    return SwitchListTile(
+      title: Text(
+        '${localizations.startWorkWeekOn} (${appState.startOnSunday ? localizations.sunday : localizations.monday})'
+      ),
+      value: appState.startOnSunday,
+      onChanged: (value) {
+        setState(() {
+          appState.startOnSunday = value;
+        });
+      },
     );
   }
 }

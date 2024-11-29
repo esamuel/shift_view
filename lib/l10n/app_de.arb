@@ -7,7 +7,7 @@
   "taxDeduction": "Steuerabzug (%)",
   "pleaseEnterTaxDeductionPercentage": "Bitte geben Sie den Steuerabzug in Prozent ein",
   "pleaseEnterAValidPercentage": "Bitte geben Sie einen gültigen Prozentsatz ein (0-100)",
-  "startWorkWeekOnSunday": "Arbeitswoche beginnt am Sonntag",
+  "startWorkWeekOn": "Arbeitswoche beginnt am",
   "language": "Sprache",
   "saveSettings": "Einstellungen speichern",
   "shiftManagerTitle": "Schichtmanager",

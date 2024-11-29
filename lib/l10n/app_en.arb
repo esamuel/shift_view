@@ -7,7 +7,7 @@
   "taxDeduction": "Tax Deduction (%)",
   "pleaseEnterTaxDeductionPercentage": "Please enter tax deduction percentage",
   "pleaseEnterAValidPercentage": "Please enter a valid percentage (0-100)",
-  "startWorkWeekOnSunday": "Start work week on Sunday",
+  "startWorkWeekOn": "Start work week on",
   "language": "Language",
   "saveSettings": "Save Settings",
   "shiftManagerTitle": "Shift Manager",
@@ -451,5 +451,13 @@
   "taxDeductionFormulas": "Tax deduction formulas",
   "multiRateCalculations": "Multi-rate calculations",
   "totalEarningsBreakdown": "Total earnings breakdown",
-  "calculationsDescription": "Advanced wage and overtime calculations"
+  "calculationsDescription": "Advanced wage and overtime calculations",
+  "welcomeDescription": "Track your work hours, calculate wages, and manage your shifts with ease.",
+  "getStarted": "Get Started",
+  "featureTimeTracking": "Easy time tracking and shift management",
+  "featureWageCalculation": "Automatic wage calculations with overtime",
+  "featureReports": "Detailed weekly and monthly reports",
+  "featureExport": "Export data to CSV or PDF",
+  "skipWelcomeScreen": "Skip welcome screen",
+  "skipWelcomeScreenDescription": "Go directly to main screen when starting the app"
 }

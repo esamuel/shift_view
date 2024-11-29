@@ -85,7 +85,7 @@ class MainScreen extends StatelessWidget {
   Widget _buildButton(BuildContext context, String title, IconData icon,
       VoidCallback onPressed, {Color? color}) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(

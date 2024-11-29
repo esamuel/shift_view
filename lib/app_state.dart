@@ -14,6 +14,7 @@ class AppState extends ChangeNotifier {
   String _countryCode = 'US';
   double _baseHoursWeekday = 8.0;
   double _baseHoursSpecialDay = 8.0;
+  bool _skipWelcomeScreen = false;
 
   // Getters
   double get hourlyWage => _hourlyWage;
@@ -23,6 +24,7 @@ class AppState extends ChangeNotifier {
   String get countryCode => _countryCode;
   double get baseHoursWeekday => _baseHoursWeekday;
   double get baseHoursSpecialDay => _baseHoursSpecialDay;
+  bool get skipWelcomeScreen => _skipWelcomeScreen;
 
   // Setters
   set hourlyWage(double value) {
@@ -85,6 +87,7 @@ class AppState extends ChangeNotifier {
     _countryCode = prefs.getString('countryCode') ?? 'US';
     _baseHoursWeekday = prefs.getDouble('baseHoursWeekday') ?? 8.0;
     _baseHoursSpecialDay = prefs.getDouble('baseHoursSpecialDay') ?? 8.0;
+    _skipWelcomeScreen = prefs.getBool('skipWelcomeScreen') ?? false;
     notifyListeners();
   }
 
@@ -97,6 +100,7 @@ class AppState extends ChangeNotifier {
     await prefs.setString('countryCode', _countryCode);
     await prefs.setDouble('baseHoursWeekday', _baseHoursWeekday);
     await prefs.setDouble('baseHoursSpecialDay', _baseHoursSpecialDay);
+    await prefs.setBool('skipWelcomeScreen', _skipWelcomeScreen);
   }
 
   Future<void> loadShifts() async {
@@ -231,14 +235,19 @@ class AppState extends ChangeNotifier {
     String? countryCode,
     double? baseHoursWeekday,
     double? baseHoursSpecialDay,
+    bool? skipWelcomeScreen,
   }) {
     if (hourlyWage != null) _hourlyWage = hourlyWage;
     if (taxDeduction != null) _taxDeduction = taxDeduction.clamp(0.0, 100.0);
-    if (startOnSunday != null) _startOnSunday = startOnSunday;
+    if (startOnSunday != null) {
+      _startOnSunday = startOnSunday;
+      notifyListeners();
+    }
     if (languageCode != null) _locale = Locale(languageCode, '');
     if (countryCode != null) _countryCode = countryCode;
     if (baseHoursWeekday != null) _baseHoursWeekday = baseHoursWeekday;
     if (baseHoursSpecialDay != null) _baseHoursSpecialDay = baseHoursSpecialDay;
+    if (skipWelcomeScreen != null) _skipWelcomeScreen = skipWelcomeScreen;
 
     notifyListeners();
     saveSettings();
@@ -276,6 +285,16 @@ class AppState extends ChangeNotifier {
       shift.date.isAfter(start.subtract(const Duration(days: 1))) && 
       shift.date.isBefore(end.add(const Duration(days: 1)))
     ).toList();
+  }
+
+  bool isWeekend(DateTime date) {
+    if (_startOnSunday) {
+      // If week starts on Sunday, Friday and Saturday are weekend
+      return date.weekday == DateTime.friday || date.weekday == DateTime.saturday;
+    } else {
+      // If week starts on Monday, Saturday and Sunday are weekend
+      return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+    }
   }
 }
 

@@ -123,7 +123,6 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   Widget _buildButton(BuildContext context, String text, VoidCallback onPressed) {
     final colorScheme = Theme.of(context).colorScheme;
     return ElevatedButton(
-      child: Text(text, textAlign: TextAlign.center),
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: colorScheme.primary,
@@ -131,6 +130,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
         minimumSize: const Size(double.infinity, 36),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
+      child: Text(text, textAlign: TextAlign.center),
     );
   }
 
@@ -544,7 +544,11 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   }
 
   bool _isWeekend(AppState appState, DateTime date) {
-    return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+    if (appState.startOnSunday) {
+      return date.weekday == DateTime.friday || date.weekday == DateTime.saturday;
+    } else {
+      return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+    }
   }
 
   bool _isFestiveDay(AppState appState, DateTime date) {

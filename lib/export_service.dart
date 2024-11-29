@@ -137,7 +137,7 @@ class ExportService {
     final date = selectedDate ?? DateTime.now();
     final currentMonth = DateFormat('MMMM yyyy', appState.locale.languageCode).format(date);
     
-    final localizations = await lookupAppLocalizations(appState.locale);
+    final localizations = lookupAppLocalizations(appState.locale);
     final headers = [
       'Date',
       localizations.startTime,
@@ -178,9 +178,9 @@ class ExportService {
                 pw.SizedBox(height: 10),
                 pw.Container(
                   padding: const pw.EdgeInsets.all(10),
-                  decoration: pw.BoxDecoration(
+                  decoration: const pw.BoxDecoration(
                     color: PdfColors.grey200,
-                    borderRadius: const pw.BorderRadius.all(pw.Radius.circular(5)),
+                    borderRadius: pw.BorderRadius.all(pw.Radius.circular(5)),
                   ),
                   child: pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -227,7 +227,7 @@ class ExportService {
                     }(),
                     border: pw.TableBorder.all(width: 0.5),
                     headerStyle: pw.TextStyle(font: boldFont),
-                    headerDecoration: pw.BoxDecoration(color: PdfColors.grey300),
+                    headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
                     cellStyle: pw.TextStyle(font: font, fontSize: 10),
                     cellAlignment: pw.Alignment.center,
                     cellPadding: const pw.EdgeInsets.symmetric(horizontal: 3, vertical: 5),
@@ -240,21 +240,20 @@ class ExportService {
                       5: const pw.FlexColumnWidth(1.5), // Net Wage
                     },
                     cellDecoration: (index, data, rowNum) {
-                      if (rowNum == -1) return pw.BoxDecoration(color: PdfColors.grey300); // Header
-                      if (rowNum >= monthShifts.length) return pw.BoxDecoration(); // Empty decoration
+                      if (rowNum == -1) return const pw.BoxDecoration(color: PdfColors.grey300); // Header
+                      if (rowNum >= monthShifts.length) return const pw.BoxDecoration(); // Empty decoration
                       
                       final shift = monthShifts[rowNum];
-                      final isWeekend = shift.date.weekday == DateTime.saturday || 
-                                      shift.date.weekday == DateTime.sunday;
+                      final isWeekend = _isWeekend(shift.date, appState.startOnSunday);
                       final isFestiveDay = appState.festiveDays.any((festiveDay) =>
                           festiveDay.year == shift.date.year &&
                           festiveDay.month == shift.date.month &&
                           festiveDay.day == shift.date.day);
                       
                       if (shift.isSpecialDay || isWeekend || isFestiveDay) {
-                        return pw.BoxDecoration(color: PdfColors.grey100);
+                        return const pw.BoxDecoration(color: PdfColors.grey100);
                       }
-                      return pw.BoxDecoration(); // Empty decoration instead of null
+                      return const pw.BoxDecoration(); // Empty decoration instead of null
                     },
                   ),
                 ),
@@ -289,5 +288,13 @@ class ExportService {
         .map((shift) => DateTime(shift.date.year, shift.date.month, shift.date.day))
         .toSet();
     return workingDays.length;
+  }
+
+  bool _isWeekend(DateTime date, bool startOnSunday) {
+    if (startOnSunday) {
+      return date.weekday == DateTime.friday || date.weekday == DateTime.saturday;
+    } else {
+      return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+    }
   }
 }

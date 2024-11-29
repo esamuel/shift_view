@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
 import 'main_screen.dart';
+import 'screens/welcome_screen.dart';
 
 void main() {
   runApp(
@@ -42,7 +43,9 @@ class MyApp extends StatelessWidget {
             Locale('ru', ''), // Russian
             Locale('fr', ''), // French
           ],
-          home: const MainScreen(),
+          home: appState.skipWelcomeScreen 
+              ? const MainScreen()
+              : const WelcomeScreen(),
           debugShowCheckedModeBanner: false, // Add this line to remove the debug banner
         );
       },

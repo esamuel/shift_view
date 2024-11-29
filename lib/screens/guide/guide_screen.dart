@@ -91,7 +91,7 @@ class GuideScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
-            GuideVideoPlayer(
+            const GuideVideoPlayer(
               videoUrl: 'assets/videos/welcome_guide.mp4',
               thumbnailUrl: 'assets/images/welcome_thumbnail.jpg',
             ),

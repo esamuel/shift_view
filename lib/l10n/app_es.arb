@@ -7,7 +7,7 @@
   "taxDeduction": "Deducción de impuestos (%)",
   "pleaseEnterTaxDeductionPercentage": "Por favor, ingrese el porcentaje de deducción de impuestos",
   "pleaseEnterAValidPercentage": "Por favor, ingrese un porcentaje válido (0-100)",
-  "startWorkWeekOnSunday": "Comenzar la semana laboral el domingo",
+  "startWorkWeekOn": "Comenzar semana laboral en",
   "language": "Idioma",
   "saveSettings": "Guardar configuración",
   "shiftManagerTitle": "Gestor de turnos",

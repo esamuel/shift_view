@@ -287,7 +287,7 @@ ${l10n.initialSetupContent}
    • ${l10n.pleaseEnterAValidPercentage}
 
 3. ${l10n.workWeekSetup}
-   • ${l10n.startWorkWeekOnSunday}
+   • ${l10n.startWorkWeekOn}
 
 4. ${l10n.languageSetup}
    • ${l10n.language}
@@ -479,7 +479,7 @@ ${l10n.basicNavigationContent}
    • ${l10n.taxDeduction}
    • ${l10n.language}
    • ${l10n.country}
-   • ${l10n.startWorkWeekOnSunday}
+   • ${l10n.startWorkWeekOn}
 
 5. ${l10n.utilities}
    • ${l10n.backupAndRestore}
@@ -693,7 +693,7 @@ ${l10n.languageLocalizationContent}
    • ${l10n.startTime}
    • ${l10n.endTime}
    • ${l10n.weekStartDay}
-   • ${l10n.startWorkWeekOnSunday}
+   • ${l10n.startWorkWeekOn}
 
 3. ${l10n.numberFormats}
    • ${l10n.decimalPlaces}
@@ -887,60 +887,6 @@ ${l10n.timeSavingContent}
    • ${l10n.overtimeRulesTitle}
 ''';
 
-      case 'best_practices':
-        return '''
-${l10n.bestPracticesContent}
-
-1. ${l10n.regularBackups}
-   • ${l10n.backupAndRestore}
-     - ${l10n.backupData}
-     - ${l10n.backupCreated}
-   • ${l10n.dataPrivacy}
-     - ${l10n.dataStorage}
-     - ${l10n.dataFormats}
-
-2. ${l10n.organizingShifts}
-   • ${l10n.currentMonth}
-     - ${l10n.weeklyView}
-     - ${l10n.monthlyView}
-   • ${l10n.allShifts}
-     - ${l10n.exportAsCsv}
-     - ${l10n.exportAsPdf}
-   • ${l10n.upcomingShifts}
-     - ${l10n.addNewShift}
-     - ${l10n.editShift}
-
-3. ${l10n.trackingOvertime}
-   • ${l10n.overtimeRulesDescription}
-     - ${l10n.hoursThreshold}
-     - ${l10n.rate}
-   • ${l10n.specialDaysDescription}
-     - ${l10n.appliesOnWeekends}
-     - ${l10n.appliesOnFestiveDays}
-
-4. ${l10n.monitoringEarnings}
-   • ${l10n.weeklyReports}
-     - ${l10n.grossWage}
-     - ${l10n.netWage}
-   • ${l10n.monthlyReports}
-     - ${l10n.totalWorkingDays}
-     - ${l10n.totalEarningsBreakdown}
-
-5. ${l10n.dailyRoutine}
-   • ${l10n.addNewShift}
-   • ${l10n.shiftNotes}
-   • ${l10n.wageBreakdown}
-
-6. ${l10n.weeklyReview}
-   • ${l10n.totalHours}
-   • ${l10n.overtimeCalculation}
-   • ${l10n.exportReport}
-
-7. ${l10n.monthlyReporting}
-   • ${l10n.totalWorkingDays}
-   • ${l10n.totalEarningsBreakdown}
-   • ${l10n.exportedReport}
-''';
 
       case 'data_management_issues':
         return '''
@@ -991,7 +937,7 @@ ${l10n.settingsIssuesContent}
      - ${l10n.hourlyWageSetup}
      - ${l10n.taxDeductionSetup}
    • ${l10n.workWeekSetup}
-     - ${l10n.startWorkWeekOnSunday}
+     - ${l10n.startWorkWeekOn}
      - ${l10n.weekStartDay}
 
 2. ${l10n.languageIssues}
@@ -1015,7 +961,7 @@ ${l10n.settingsIssuesContent}
      - ${l10n.selectDateTime}
      - ${l10n.startTime}
    • ${l10n.weekStartDay}
-     - ${l10n.startWorkWeekOnSunday}
+     - ${l10n.startWorkWeekOn}
      - ${l10n.weeklyView}
 
 5. ${l10n.errorMessagesTitle}
@@ -1370,7 +1316,7 @@ class _GuideVideoState extends State<GuideVideo> {
       autoPlay: false,
       looping: false,
       aspectRatio: 16 / 9,
-      placeholder: Center(child: CircularProgressIndicator()),
+      placeholder: const Center(child: CircularProgressIndicator()),
       autoInitialize: true,
     );
     setState(() {});

@@ -289,7 +289,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     '${entry.value.toStringAsFixed(2)} ${localizations.hours}'),
               ],
             );
-          }).toList(),
+          }),
         ],
       ),
     );

@@ -7,7 +7,7 @@
   "taxDeduction": "Налоговый вычет (%)",
   "pleaseEnterTaxDeductionPercentage": "Пожалуйста, введите процент налогового вычета",
   "pleaseEnterAValidPercentage": "Пожалуйста, введите корректный процент (0-100)",
-  "startWorkWeekOnSunday": "Начинать рабочую неделю с воскресенья",
+  "startWorkWeekOn": "Начинать рабочую неделю с",
   "language": "Язык",
   "saveSettings": "Сохранить настройки",
   "shiftManagerTitle": "Управление сменами",
