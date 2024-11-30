@@ -252,7 +252,15 @@
   "specialDayEnabled": "Día Especial Activado",
   "specialDayDisabled": "Día Especial Desactivado",
   "markAsSpecialDay": "Marcar como Día Especial",
-  "specialDayRate": "Tarifa de Día Especial"
+  "specialDayRate": "Tarifa de Día Especial",
+  "welcomeDescription": "Registra tus horas de trabajo, calcula salarios y gestiona tus turnos fácilmente",
+  "getStarted": "Comenzar",
+  "featureTimeTracking": "Seguimiento de tiempo y gestión de turnos fácil",
+  "featureWageCalculation": "Cálculo automático de salarios con horas extras",
+  "featureReports": "Informes semanales y mensuales detallados",
+  "featureExport": "Exportación de datos a CSV o PDF",
+  "skipWelcomeScreen": "Saltar pantalla de bienvenida",
+  "skipWelcomeScreenDescription": "Ir directamente a la pantalla principal al iniciar la aplicación"
 }
 
 

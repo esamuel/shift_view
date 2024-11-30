@@ -279,6 +279,14 @@
   "taxDeductionFormulas": "Steuerabzugsformeln",
   "multiRateCalculations": "Mehrfachsatzberechnungen",
   "totalEarningsBreakdown": "Gesamtverdienstaufschlüsselung",
-  "calculationsDescription": "Erweiterte Lohn- und Überstundenberechnungen"
+  "calculationsDescription": "Erweiterte Lohn- und Überstundenberechnungen",
+  "welcomeDescription": "Verfolgen Sie Ihre Arbeitszeiten, berechnen Sie Löhne und verwalten Sie Ihre Schichten ganz einfach",
+  "getStarted": "Loslegen",
+  "featureTimeTracking": "Einfache Zeiterfassung und Schichtverwaltung",
+  "featureWageCalculation": "Automatische Lohnberechnung mit Überstunden",
+  "featureReports": "Detaillierte Wochen- und Monatsberichte",
+  "featureExport": "Datenexport als CSV oder PDF",
+  "skipWelcomeScreen": "Startbildschirm überspringen",
+  "skipWelcomeScreenDescription": "Beim App-Start direkt zum Hauptbildschirm gehen"
 }
  

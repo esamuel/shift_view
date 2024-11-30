@@ -168,7 +168,15 @@
   "nextStepsContent": "Découvrez d'autres fonctionnalités pour tirer le meilleur parti de l'application.",
   "exploreOvertimeRules": "Explorer les règles d'heures supplémentaires",
   "learnAboutReports": "En savoir plus sur les rapports",
-  "discoverAdvancedFeatures": "Découvrir les fonctionnalités avancées"
+  "discoverAdvancedFeatures": "Découvrir les fonctionnalités avancées",
+  "welcomeDescription": "Suivez vos heures de travail, calculez les salaires et gérez vos quarts facilement",
+  "getStarted": "Commencer",
+  "featureTimeTracking": "Suivi du temps et gestion des quarts simplifiés",
+  "featureWageCalculation": "Calcul automatique des salaires avec heures supplémentaires",
+  "featureReports": "Rapports hebdomadaires et mensuels détaillés",
+  "featureExport": "Exportation des données en CSV ou PDF",
+  "skipWelcomeScreen": "Ignorer l'écran d'accueil",
+  "skipWelcomeScreenDescription": "Aller directement à l'écran principal au démarrage de l'application"
 }
 
 

@@ -168,7 +168,15 @@
   "nextStepsContent": "Откройте для себя дополнительные функции, чтобы получить максимум от приложения.",
   "exploreOvertimeRules": "Изучите правила сверхурочных",
   "learnAboutReports": "Узнайте больше об отчётах",
-  "discoverAdvancedFeatures": "Откройте расширенные функции"
+  "discoverAdvancedFeatures": "Откройте расширенные функции",
+  "welcomeDescription": "Отслеживайте рабочее время, рассчитывайте зарплату и управляйте сменами с легкостью",
+  "getStarted": "Начать",
+  "featureTimeTracking": "Простой учет времени и управление сменами",
+  "featureWageCalculation": "Автоматический расчет зарплаты с учетом сверхурочных",
+  "featureReports": "Подробные недельные и месячные отчеты",
+  "featureExport": "Экспорт данных в CSV или PDF",
+  "skipWelcomeScreen": "Пропустить экран приветствия",
+  "skipWelcomeScreenDescription": "Переходить сразу к главному экрану при запуске приложения"
 }
 
 

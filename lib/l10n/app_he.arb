@@ -140,7 +140,7 @@
   "deletingShifts": "מחיקת משמרות",
   "specialDaysManagement": "ניהול ימים מיוחדים",
   "timeTrackingTitle": "מעקב זמן",
-  "timeTrackingContent": "עקוב אחר שעות העבודה והשעות הנוספו�� שלך.",
+  "timeTrackingContent": "עקוב אחר שעות העבודה והשעות הנוספו שלך.",
   "regularHoursTracking": "מעקב אחר שעות רגילות",
   "overtimeCalculation": "חישוב שעות נוספות",
   "specialRatesHandling": "טיפול בתעריפים מיוחדים",
@@ -414,7 +414,7 @@
   "productivityHacks": "טריקים לפרודוקטיביות",
   "usefulShortcuts": "קיצורי דרך שימושיים",
   "bestPracticesGuide": "מדריך שיטות עבודה מומלצות",
-  "troubleshootingVideosTitle": "סר��וני פתרון בעיות",
+  "troubleshootingVideosTitle": "סרטוני פתרון בעיות",
   "troubleshootingVideosContent": "עזרה עם בעיות נפוצות.",
   "commonIssuesSolutions": "פתרונות לבעיות נפוצות",
   "dataRecoveryGuide": "מדריך שחזור נתונים",
@@ -447,5 +447,13 @@
   "taxDeductionFormulas": "נוסחאות ניכוי מס",
   "multiRateCalculations": "חישובי תעריפים מרובים",
   "totalEarningsBreakdown": "פירוט סך הכנסות",
-  "calculationsDescription": "חישובי שכר ושעות נוספות מתקדמים"
+  "calculationsDescription": "חישובי שכר ושעות נוספות מתקדמים",
+  "welcomeDescription": "עקוב אחר שעות העבודה, חשב שכר ונהל את המשמרות שלך בקלות",
+  "getStarted": "בוא נתחיל",
+  "featureTimeTracking": "מעקב קל אחר זמן וניהול משמרות",
+  "featureWageCalculation": "חישוב שכר אוטומטי כולל שעות נוספות",
+  "featureReports": "דוחות שבועיים וחודשיים מפורטים",
+  "featureExport": "ייצוא נתונים ל-CSV או PDF",
+  "skipWelcomeScreen": "דלג על מסך הפתיחה",
+  "skipWelcomeScreenDescription": "עבור ישירות למסך הראשי בהפעלת האפליקציה"
 }

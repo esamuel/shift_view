@@ -6,6 +6,7 @@ import 'export_service.dart';
 import 'dart:math' as math;
 import 'rtl_fix.dart';
 import 'utility_screen.dart';
+import 'models/pdf_config.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
@@ -499,7 +500,18 @@ class _ReportScreenState extends State<ReportScreen> {
       if (format == 'csv') {
         filePath = await _exportService.generateCSV(shifts);
       } else {
-        filePath = await _exportService.generatePDF(shifts, selectedDate: _selectedDate);
+        // Create a PDFConfig object with the necessary settings
+        final pdfConfig = PDFConfig(
+          headerText: AppLocalizations.of(context)!.reportsTitle,
+          includeDateRange: true,
+          includePageNumbers: true,
+        );
+
+        filePath = await _exportService.generatePDF(
+          shifts,
+          Provider.of<AppState>(context, listen: false),
+          pdfConfig,
+        );
       }
       await _exportService.shareFile(filePath, 'Shift Report');
     } catch (e) {

@@ -26,6 +26,21 @@ class AppState extends ChangeNotifier {
   double get baseHoursSpecialDay => _baseHoursSpecialDay;
   bool get skipWelcomeScreen => _skipWelcomeScreen;
 
+  // Add new getters for total hours and earnings
+  double get totalHours {
+    return shifts.fold<double>(
+      0,
+      (sum, shift) => sum + shift.totalHours,
+    );
+  }
+
+  double get totalEarnings {
+    return shifts.fold<double>(
+      0,
+      (sum, shift) => sum + shift.grossWage,
+    );
+  }
+
   // Setters
   set hourlyWage(double value) {
     _hourlyWage = value;

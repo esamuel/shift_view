@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
 import 'export_service.dart';
 import 'package:file_picker/file_picker.dart';
+import 'models/pdf_config.dart';
 
 class UtilityScreen extends StatefulWidget {
   final List<Shift> shifts;
@@ -166,9 +167,16 @@ class _UtilityScreenState extends State<UtilityScreen> {
       if (format == 'csv') {
         filePath = await _exportService.generateCSV(widget.shifts);
       } else {
+        final pdfConfig = PDFConfig(
+          headerText: AppLocalizations.of(context)!.reportsTitle,
+          includeDateRange: true,
+          includePageNumbers: true,
+        );
+
         filePath = await _exportService.generatePDF(
-          widget.shifts, 
-          selectedDate: widget.selectedDate ?? DateTime.now()
+          widget.shifts,
+          Provider.of<AppState>(context, listen: false),
+          pdfConfig,
         );
       }
       await _exportService.shareFile(filePath, 'Shift Report');
