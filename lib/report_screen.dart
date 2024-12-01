@@ -7,6 +7,7 @@ import 'dart:math' as math;
 import 'rtl_fix.dart';
 import 'utility_screen.dart';
 import 'models/pdf_config.dart';
+import 'utils/font_loader.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
@@ -16,6 +17,7 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
+  bool _isWeeklyView = true;
   DateTime _selectedDate = DateTime.now();
   late ExportService _exportService;
 
@@ -39,20 +41,15 @@ class _ReportScreenState extends State<ReportScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.settings),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UtilityScreen(
-                      shifts: appState.shifts,
-                      selectedDate: _selectedDate,
-                    ),
-                  ),
-                );
-              },
+              onPressed: _openUtilityScreen,
             ),
           ],
           bottom: TabBar(
+            onTap: (index) {
+              setState(() {
+                _isWeeklyView = index == 0;
+              });
+            },
             tabs: [
               Tab(text: localizations.weeklyView),
               Tab(text: localizations.monthlyView),
@@ -500,11 +497,15 @@ class _ReportScreenState extends State<ReportScreen> {
       if (format == 'csv') {
         filePath = await _exportService.generateCSV(shifts);
       } else {
-        // Create a PDFConfig object with the necessary settings
+        // Load fonts first
+        final fonts = await FontLoader.loadFonts();
+        
         final pdfConfig = PDFConfig(
           headerText: AppLocalizations.of(context)!.reportsTitle,
           includeDateRange: true,
           includePageNumbers: true,
+          font: fonts.regular,
+          boldFont: fonts.bold,
         );
 
         filePath = await _exportService.generatePDF(
@@ -514,11 +515,49 @@ class _ReportScreenState extends State<ReportScreen> {
         );
       }
       await _exportService.shareFile(filePath, 'Shift Report');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Export successful"),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     } catch (e) {
       print("Error exporting report: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Export failed: $e")),
+        SnackBar(
+          content: Text("Export failed: $e"),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
+  }
+
+  void _openUtilityScreen() {
+    List<Shift> filteredShifts;
+    if (_isWeeklyView) {
+      final weekStart = _getWeekStart(_selectedDate, Provider.of<AppState>(context, listen: false).startOnSunday);
+      final weekEnd = weekStart.add(const Duration(days: 6));
+      filteredShifts = Provider.of<AppState>(context, listen: false)
+          .getShiftsBetweenDates(weekStart, weekEnd);
+    } else {
+      final monthStart = DateTime(_selectedDate.year, _selectedDate.month, 1);
+      final monthEnd = DateTime(_selectedDate.year, _selectedDate.month + 1, 0);
+      filteredShifts = Provider.of<AppState>(context, listen: false)
+          .getShiftsBetweenDates(monthStart, monthEnd);
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UtilityScreen(
+          shifts: filteredShifts,
+          selectedDate: _selectedDate,
+          viewType: _isWeeklyView ? 'weekly' : 'monthly',
+        ),
+      ),
+    );
   }
 }

@@ -5,14 +5,18 @@ import 'app_state.dart';
 import 'export_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'models/pdf_config.dart';
+import 'utils/font_loader.dart';
+import 'package:intl/intl.dart';
 
 class UtilityScreen extends StatefulWidget {
   final List<Shift> shifts;
   final DateTime? selectedDate;
+  final String viewType;
 
   const UtilityScreen({
     Key? key,
     required this.shifts,
+    required this.viewType,
     this.selectedDate,
   }) : super(key: key);
 
@@ -120,12 +124,21 @@ class _UtilityScreenState extends State<UtilityScreen> {
       final backupPath = await _exportService.createBackup();
       await _exportService.shareFile(backupPath, 'Shift View Backup');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.backupCreated)),
+        SnackBar(
+          content: Text(localizations.backupCreated),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     } catch (e) {
       print("Error creating backup: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${localizations.backupError}: $e")),
+        SnackBar(
+          content: Text("${localizations.backupError}: $e"),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }
@@ -139,13 +152,13 @@ class _UtilityScreenState extends State<UtilityScreen> {
       
       if (result != null) {
         String filePath = result.files.single.path!;
-        await _exportService.restoreBackup(filePath);
+        await _exportService.restoreBackup();
         
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(localizations.restoreSuccessful),
             backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -155,7 +168,8 @@ class _UtilityScreenState extends State<UtilityScreen> {
         SnackBar(
           content: Text("${localizations.restoreError}: ${e.toString()}"),
           backgroundColor: Colors.red,
-          duration: const Duration(seconds: 5),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
         ),
       );
     }
@@ -163,14 +177,20 @@ class _UtilityScreenState extends State<UtilityScreen> {
 
   void _exportReport(String format) async {
     try {
+      String dateRangeTitle = _getDateRangeTitle();
+      
       String filePath;
       if (format == 'csv') {
         filePath = await _exportService.generateCSV(widget.shifts);
       } else {
+        final fonts = await FontLoader.loadFonts();
+        
         final pdfConfig = PDFConfig(
-          headerText: AppLocalizations.of(context)!.reportsTitle,
+          headerText: '${AppLocalizations.of(context)!.reportsTitle} - $dateRangeTitle',
           includeDateRange: true,
           includePageNumbers: true,
+          font: fonts.regular,
+          boldFont: fonts.bold,
         );
 
         filePath = await _exportService.generatePDF(
@@ -179,12 +199,37 @@ class _UtilityScreenState extends State<UtilityScreen> {
           pdfConfig,
         );
       }
-      await _exportService.shareFile(filePath, 'Shift Report');
+
+      String fileName = _generateFileName(format);
+      await _exportService.shareFile(filePath, fileName);
     } catch (e) {
       print("Error exporting report: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Export failed: $e")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Export failed: $e")),
+        );
+      }
     }
+  }
+
+  String _getDateRangeTitle() {
+    final localizations = AppLocalizations.of(context)!;
+    if (widget.viewType == 'weekly') {
+      final weekStart = widget.selectedDate ?? DateTime.now();
+      final weekEnd = weekStart.add(const Duration(days: 6));
+      return '${DateFormat('MMM d').format(weekStart)} - ${DateFormat('MMM d, yyyy').format(weekEnd)}';
+    } else {
+      final month = widget.selectedDate ?? DateTime.now();
+      return DateFormat('MMMM yyyy').format(month);
+    }
+  }
+
+  String _generateFileName(String format) {
+    final dateStr = widget.selectedDate != null 
+        ? DateFormat('yyyy-MM-dd').format(widget.selectedDate!)
+        : DateFormat('yyyy-MM-dd').format(DateTime.now());
+    
+    final viewTypeStr = widget.viewType == 'weekly' ? 'Weekly' : 'Monthly';
+    return 'Shifts_${viewTypeStr}_$dateStr.$format';
   }
 } 

@@ -97,7 +97,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               DropdownMenuItem(value: 'US', child: Text(localizations.countryUS)),
               DropdownMenuItem(value: 'GB', child: Text(localizations.countryGB)),
               DropdownMenuItem(value: 'EU', child: Text(localizations.countryEU)),
-              DropdownMenuItem(value: 'JP', child: Text(localizations.countryJP)),
               DropdownMenuItem(value: 'IL', child: Text(localizations.countryIL)),
               DropdownMenuItem(value: 'RU', child: Text(localizations.countryRU)),
             ],

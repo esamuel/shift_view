@@ -8,6 +8,11 @@ import 'app_state.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'models/pdf_config.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'utils/font_loader.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 // Conditional imports
 import 'export_service_mobile.dart'
@@ -44,54 +49,48 @@ class ExportService {
     }
   }
 
-  Future<void> restoreBackup(String source) async {
+  Future<void> restoreBackup() async {
     try {
-      String jsonString = await platform.restoreBackup(source);
-      if (jsonString.isEmpty) {
-        throw Exception('No backup data found');
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null) {
+        throw Exception('No file selected');
       }
 
+      String jsonString;
+      
+      if (kIsWeb) {
+        // Handle web platform
+        final bytes = result.files.first.bytes;
+        if (bytes == null) {
+          throw Exception('Could not read file');
+        }
+        jsonString = utf8.decode(bytes);
+      } else {
+        // Handle mobile platforms
+        final path = result.files.first.path;
+        if (path == null) {
+          throw Exception('Could not read file');
+        }
+        final file = File(path);
+        jsonString = await file.readAsString();
+      }
+
+      // Validate JSON format
       final data = json.decode(jsonString);
-      
-      // Validate required fields
-      if (data['shifts'] == null || data['settings'] == null) {
-        throw Exception('Invalid backup format');
+      if (data == null || 
+          !data.containsKey('shifts') || 
+          !data.containsKey('settings')) {
+        throw Exception('Invalid backup file format');
       }
 
-      // Clear existing data
-      appState.shifts.clear();
-      appState.overtimeRules.clear();
-      appState.festiveDays.clear();
-
-      // Restore data
-      appState.shifts =
-          (data['shifts'] as List).map((s) => Shift.fromJson(s)).toList();
-      appState.overtimeRules = (data['overtimeRules'] as List)
-          .map((r) => OvertimeRule.fromJson(r))
-          .toList();
-      appState.festiveDays =
-          (data['festiveDays'] as List).map((d) => DateTime.parse(d)).toList();
-
-      final settings = data['settings'];
-      appState.hourlyWage = settings['hourlyWage'];
-      appState.taxDeduction = settings['taxDeduction'];
-      appState.startOnSunday = settings['startOnSunday'];
-      appState.setLocale(Locale(settings['locale']));
-      appState.setCountry(settings['countryCode']);
-      appState.baseHoursWeekday = settings['baseHoursWeekday'];
-      appState.baseHoursSpecialDay = settings['baseHoursSpecialDay'];
-
-      await appState.saveSettings();
-      await appState.saveShifts();
-      await appState.saveOvertimeRules();
-      await appState.saveFestiveDays();
-
-      appState.notifyListeners();
+      // Process the backup data
+      await appState.restoreFromBackup(data);
       
-      // Return success to trigger UI feedback
-      return Future.value();
     } catch (e) {
-      print("Error in restoreBackup: $e");
       rethrow;
     }
   }
@@ -133,22 +132,33 @@ class ExportService {
     PDFConfig config,
   ) async {
     final pdf = pw.Document();
-
-    // Add company logo if provided
-    pw.Image? logoImage;
-    if (config.companyLogo != null) {
-      final logoBytes = base64Decode(config.companyLogo!);
-      logoImage = pw.Image(pw.MemoryImage(logoBytes));
-    }
+    
+    // No need to load fonts here since they're provided in the config
+    final updatedConfig = PDFConfig(
+      headerText: config.headerText,
+      companyName: config.companyName,
+      companyLogo: config.companyLogo,
+      customHeader: config.customHeader,
+      customFooter: config.customFooter,
+      includeDateRange: config.includeDateRange,
+      includePageNumbers: config.includePageNumbers,
+      pageFormat: config.pageFormat,
+      font: config.font,
+      boldFont: config.boldFont,
+    );
 
     pdf.addPage(
       pw.MultiPage(
-        pageFormat: config.pageFormat,
-        header: (context) => _buildHeader(context, config, logoImage),
-        footer: (context) => _buildFooter(context, config),
+        pageFormat: updatedConfig.pageFormat,
+        theme: pw.ThemeData.withFont(
+          base: config.font,
+          bold: config.boldFont,
+        ),
+        header: (context) => _buildHeader(context, updatedConfig),
+        footer: (context) => _buildFooter(context, updatedConfig),
         build: (context) => [
-          _buildTitle(config),
-          _buildDateRange(shifts, config),
+          _buildTitle(updatedConfig),
+          _buildDateRange(shifts, updatedConfig),
           _buildShiftsTable(shifts, appState),
           _buildSummary(shifts, appState),
         ],
@@ -161,8 +171,14 @@ class ExportService {
   pw.Widget _buildHeader(
     pw.Context context,
     PDFConfig config,
-    pw.Image? logoImage,
   ) {
+    // Create logo image if provided
+    pw.Image? logoImage;
+    if (config.companyLogo != null) {
+      final logoBytes = base64Decode(config.companyLogo!);
+      logoImage = pw.Image(pw.MemoryImage(logoBytes));
+    }
+
     return pw.Container(
       padding: const pw.EdgeInsets.all(10),
       decoration: pw.BoxDecoration(
@@ -181,17 +197,23 @@ class ExportService {
               config.companyName!,
               style: pw.TextStyle(
                 fontSize: 20,
-                fontWeight: pw.FontWeight.bold,
+                font: config.boldFont,
               ),
             ),
           if (config.customHeader != null)
-            pw.Text(config.customHeader!),
+            pw.Text(
+              config.customHeader!,
+              style: pw.TextStyle(font: config.font),
+            ),
         ],
       ),
     );
   }
 
-  pw.Widget _buildFooter(pw.Context context, PDFConfig config) {
+  pw.Widget _buildFooter(
+    pw.Context context,
+    PDFConfig config,
+  ) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(10),
       decoration: pw.BoxDecoration(
@@ -203,10 +225,17 @@ class ExportService {
           if (config.includePageNumbers)
             pw.Text(
               'Page ${context.pageNumber} of ${context.pagesCount}',
+              style: pw.TextStyle(font: config.font),
             ),
           if (config.customFooter != null)
-            pw.Text(config.customFooter!),
-          pw.Text(DateTime.now().toString().split('.')[0]),
+            pw.Text(
+              config.customFooter!,
+              style: pw.TextStyle(font: config.font),
+            ),
+          pw.Text(
+            DateTime.now().toString().split('.')[0],
+            style: pw.TextStyle(font: config.font),
+          ),
         ],
       ),
     );
@@ -219,7 +248,7 @@ class ExportService {
         config.headerText ?? 'Shifts Report',
         style: pw.TextStyle(
           fontSize: 24,
-          fontWeight: pw.FontWeight.bold,
+          font: config.boldFont,
         ),
       ),
     );

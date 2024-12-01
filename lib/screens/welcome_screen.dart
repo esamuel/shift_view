@@ -21,18 +21,11 @@ class WelcomeScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo
-                Container(
+                Image.asset(
+                  'assets/ShiftManagerApp.png',
                   height: 120,
                   width: 120,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.access_time,
-                    size: 80,
-                    color: Colors.white,
-                  ),
+                  fit: BoxFit.contain,
                 ),
                 const SizedBox(height: 32),
                 

@@ -23,6 +23,7 @@ dependencies:
   share_plus: ^7.2.1
   file_picker: ^8.0.7
   cupertino_icons: ^1.0.3
+  
 
   universal_html: ^2.2.4
   flutter_local_notifications: ^16.3.0
@@ -51,9 +52,16 @@ flutter:
 
   assets:
     - assets/
+    - assets/fonts/
     - assets/ShiftManagerApp.png
-    - assets/images/
-    - assets/videos/
+
+
+  fonts:
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans-Regular.ttf
+        - asset: assets/fonts/NotoSans-Bold.ttf
+          weight: 700
 
 flutter_intl:
   enabled: true

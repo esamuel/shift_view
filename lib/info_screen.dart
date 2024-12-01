@@ -685,7 +685,6 @@ ${l10n.languageLocalizationContent}
      - ${l10n.countryGB}
      - ${l10n.countryEU}
      - ${l10n.countryIL}
-     - ${l10n.countryJP}
      - ${l10n.countryRU}
 
 2. ${l10n.dateTimeFormats}
@@ -747,7 +746,6 @@ ${l10n.currencyFormatsContent}
    • ${l10n.countryGB}: GBP (£)
    • ${l10n.countryEU}: EUR (€)
    • ${l10n.countryIL}: ILS (₪)
-   • ${l10n.countryJP}: JPY (¥)
    • ${l10n.countryRU}: RUB (₽)
 
 2. ${l10n.numberFormatting}

@@ -233,12 +233,22 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
 
     if (isDuplicate) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.shiftAlreadySaved)),
+        SnackBar(
+          content: Text(localizations.shiftAlreadySaved),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
       );
     } else {
       appState.addShift(newShift);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.shiftAddedSuccessfully)),
+        SnackBar(
+          content: Text(localizations.shiftAddedSuccessfully),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
       );
     }
   }
@@ -392,7 +402,12 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       );
       appState.updateShift(appState.shifts.indexOf(shift), updatedShift);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.shiftUpdatedSuccessfully)),
+        SnackBar(
+          content: Text(localizations.shiftUpdatedSuccessfully),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
       );
     }
   }
@@ -418,7 +433,12 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
                 appState.deleteShift(appState.shifts.indexOf(shift));
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(localizations.shiftDeletedSuccessfully)),
+                  SnackBar(
+                    content: Text(localizations.shiftDeletedSuccessfully),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                    duration: const Duration(seconds: 2),
+                  ),
                 );
               },
             ),

@@ -40,7 +40,7 @@ class MainScreen extends StatelessWidget {
               () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>  const ShiftManagerScreen())),
+                      builder: (context) => const ShiftManagerScreen())),
             ),
             const SizedBox(height: 16),
             _buildButton(
@@ -97,57 +97,24 @@ class MainScreen extends StatelessWidget {
           ),
         ),
         onPressed: onPressed,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(icon, size: 24.0),
-                const SizedBox(width: 16.0),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: const TextStyle(fontSize: 16.0),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-                const SizedBox(width: 8.0),
-                const Icon(Icons.arrow_forward_ios, size: 18.0),
-              ],
-            );
-          },
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(icon, size: 24.0),
+            const SizedBox(width: 16.0),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(fontSize: 16.0),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+            const SizedBox(width: 8.0),
+            const Icon(Icons.arrow_forward_ios, size: 18.0),
+          ],
         ),
       ),
-    );
-  }
-
-  void _showAddToHomeScreenDialog(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(localizations.addToHomeScreenTitle),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text(localizations.addToHomeScreeniOS),
-                const SizedBox(height: 16),
-                Text(localizations.addToHomeScreenAndroid),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(localizations.ok),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 
@@ -252,7 +219,6 @@ class MainScreen extends StatelessWidget {
                             },
                           ),
                   ),
-                  const SizedBox(height: 8),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [

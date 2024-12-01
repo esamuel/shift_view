@@ -67,9 +67,11 @@ class AppState extends ChangeNotifier {
   }
 
   void setCountry(String newCountryCode) {
-    _countryCode = newCountryCode;
-    notifyListeners();
-    saveSettings();
+    if (['US', 'GB', 'EU', 'IL', 'RU'].contains(newCountryCode)) {
+      _countryCode = newCountryCode;
+      notifyListeners();
+      saveSettings();
+    }
   }
 
   set baseHoursWeekday(double value) {
@@ -99,7 +101,16 @@ class AppState extends ChangeNotifier {
     _taxDeduction = prefs.getDouble('taxDeduction') ?? 0;
     _startOnSunday = prefs.getBool('startOnSunday') ?? true;
     _locale = Locale(prefs.getString('languageCode') ?? 'en', '');
-    _countryCode = prefs.getString('countryCode') ?? 'US';
+    
+    String? storedCountry = prefs.getString('countryCode');
+    if (storedCountry != null && 
+        ['US', 'GB', 'EU', 'IL', 'RU'].contains(storedCountry)) {
+      _countryCode = storedCountry;
+    } else {
+      _countryCode = 'US';
+      await prefs.setString('countryCode', 'US');
+    }
+    
     _baseHoursWeekday = prefs.getDouble('baseHoursWeekday') ?? 8.0;
     _baseHoursSpecialDay = prefs.getDouble('baseHoursSpecialDay') ?? 8.0;
     _skipWelcomeScreen = prefs.getBool('skipWelcomeScreen') ?? false;
@@ -277,8 +288,6 @@ class AppState extends ChangeNotifier {
         return '£';
       case 'EU':
         return '€';
-      case 'JP':
-        return '¥';
       case 'IL':
         return '₪';
       case 'RU':
@@ -310,6 +319,44 @@ class AppState extends ChangeNotifier {
       // If week starts on Monday, Saturday and Sunday are weekend
       return date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
     }
+  }
+
+  Future<void> restoreFromBackup(Map<String, dynamic> data) async {
+    // Clear existing data
+    shifts.clear();
+    overtimeRules.clear();
+    festiveDays.clear();
+
+    // Restore data
+    shifts = (data['shifts'] as List)
+        .map((s) => Shift.fromJson(s))
+        .toList();
+    
+    overtimeRules = (data['overtimeRules'] as List)
+        .map((r) => OvertimeRule.fromJson(r))
+        .toList();
+    
+    festiveDays = (data['festiveDays'] as List)
+        .map((d) => DateTime.parse(d))
+        .toList();
+
+    final settings = data['settings'];
+    updateSettings(
+      hourlyWage: settings['hourlyWage'],
+      taxDeduction: settings['taxDeduction'],
+      startOnSunday: settings['startOnSunday'],
+      languageCode: settings['locale'],
+      countryCode: settings['countryCode'],
+      baseHoursWeekday: settings['baseHoursWeekday'],
+      baseHoursSpecialDay: settings['baseHoursSpecialDay'],
+    );
+
+    await saveSettings();
+    await saveShifts();
+    await saveOvertimeRules();
+    await saveFestiveDays();
+
+    notifyListeners();
   }
 }
 
