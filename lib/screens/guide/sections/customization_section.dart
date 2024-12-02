@@ -3,7 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/guide_section_card.dart';
 
 class CustomizationSection extends StatelessWidget {
-  const CustomizationSection({Key? key}) : super(key: key);
+  const CustomizationSection({super.key});
 
   @override
   Widget build(BuildContext context) {

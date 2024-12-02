@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'dart:io';
 
 class PDFConfigScreen extends StatefulWidget {
+  const PDFConfigScreen({super.key});
+
   @override
   _PDFConfigScreenState createState() => _PDFConfigScreenState();
 }
@@ -37,32 +39,32 @@ class _PDFConfigScreenState extends State<PDFConfigScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('PDF Export Settings'),
+        title: const Text('PDF Export Settings'),
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           children: [
             TextFormField(
-              decoration: InputDecoration(labelText: 'Company Name'),
+              decoration: const InputDecoration(labelText: 'Company Name'),
               onSaved: (value) => _companyName = value,
             ),
             ElevatedButton(
               onPressed: _pickLogo,
-              child: Text('Select Company Logo'),
+              child: const Text('Select Company Logo'),
             ),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Header Text'),
+              decoration: const InputDecoration(labelText: 'Header Text'),
               onSaved: (value) => _headerText = value,
             ),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Footer Text'),
+              decoration: const InputDecoration(labelText: 'Footer Text'),
               onSaved: (value) => _footerText = value,
             ),
             DropdownButtonFormField<PdfPageFormat>(
               value: _pageFormat,
-              items: [
+              items: const [
                 DropdownMenuItem(
                   value: PdfPageFormat.a4,
                   child: Text('A4'),
@@ -80,7 +82,7 @@ class _PDFConfigScreenState extends State<PDFConfigScreen> {
               },
             ),
             SwitchListTile(
-              title: Text('Include Company Info'),
+              title: const Text('Include Company Info'),
               value: _includeCompanyInfo,
               onChanged: (value) {
                 setState(() {
@@ -89,7 +91,7 @@ class _PDFConfigScreenState extends State<PDFConfigScreen> {
               },
             ),
             SwitchListTile(
-              title: Text('Include Page Numbers'),
+              title: const Text('Include Page Numbers'),
               value: _includePageNumbers,
               onChanged: (value) {
                 setState(() {
@@ -98,7 +100,7 @@ class _PDFConfigScreenState extends State<PDFConfigScreen> {
               },
             ),
             SwitchListTile(
-              title: Text('Include Date Range'),
+              title: const Text('Include Date Range'),
               value: _includeDateRange,
               onChanged: (value) {
                 setState(() {
@@ -125,7 +127,7 @@ class _PDFConfigScreenState extends State<PDFConfigScreen> {
                   );
                 }
               },
-              child: Text('Save Configuration'),
+              child: const Text('Save Configuration'),
             ),
           ],
         ),

@@ -10,14 +10,14 @@ class GuideSectionCard extends StatelessWidget {
   final List<GuideSectionLink>? links;
 
   const GuideSectionCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.content,
     this.videoUrl,
     this.thumbnailUrl,
     this.steps,
     this.links,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

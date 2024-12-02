@@ -16,6 +16,10 @@ class AppState extends ChangeNotifier {
   double _baseHoursSpecialDay = 8.0;
   bool _skipWelcomeScreen = false;
 
+  static const String _isDarkModeKey = 'isDarkMode';
+  bool _isDarkMode = false;
+  late SharedPreferences _prefs;
+
   // Getters
   double get hourlyWage => _hourlyWage;
   double get taxDeduction => _taxDeduction;
@@ -25,6 +29,7 @@ class AppState extends ChangeNotifier {
   double get baseHoursWeekday => _baseHoursWeekday;
   double get baseHoursSpecialDay => _baseHoursSpecialDay;
   bool get skipWelcomeScreen => _skipWelcomeScreen;
+  bool get isDarkMode => _isDarkMode;
 
   // Add new getters for total hours and earnings
   double get totalHours {
@@ -87,6 +92,7 @@ class AppState extends ChangeNotifier {
   }
 
   AppState() {
+    _loadPreferences();
     loadSettings();
     loadShifts();
     loadOvertimeRules();
@@ -356,6 +362,18 @@ class AppState extends ChangeNotifier {
     await saveOvertimeRules();
     await saveFestiveDays();
 
+    notifyListeners();
+  }
+
+  Future<void> _loadPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    _isDarkMode = _prefs.getBool(_isDarkModeKey) ?? false;
+    notifyListeners();
+  }
+
+  Future<void> toggleTheme() async {
+    _isDarkMode = !_isDarkMode;
+    await _prefs.setBool(_isDarkModeKey, _isDarkMode);
     notifyListeners();
   }
 }

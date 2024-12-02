@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class UpcomingShiftCard extends StatelessWidget {
   final Shift shift;
 
-  const UpcomingShiftCard({Key? key, required this.shift}) : super(key: key);
+  const UpcomingShiftCard({super.key, required this.shift});
 
   @override
   Widget build(BuildContext context) {

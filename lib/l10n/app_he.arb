@@ -154,7 +154,7 @@
   "weeklyReports": "דוחות שבועיים",
   "monthlyReports": "דוחות חודשיים",
   "exportOptions": "אפשרויות ייצוא",
-  "dataVisualization": "המחשה ויזואלית של נתונים",
+  "dataVisualization": "מחשה ויזואלית של נתונים",
   "dataManagementTitle": "ניהול נתונים",
   "dataManagementContent": "נהל את נתוני האפליקציה שלך ביעילות.",
   "backupData": "גיבוי נתונים",
@@ -301,7 +301,7 @@
   "colorSchemes": "ערכות צבעים",
   "fontSizes": "גודלי גופן",
   "themeSettings": "הגדרות ערכת נושא",
-  "currencyFormatsTitle": "מטבע ופורמטים",
+  "currencyFormatsTitle": "מבע ופורמטים",
   "currencyFormatsContent": "הגדר פורמטים למטבע ומספרים.",
   "settingCurrency": "הגדרת מטבע",
   "numberFormatting": "עיצוב מספרים",
@@ -364,7 +364,7 @@
   "dataManagementIssuesContent": "טיפול בבעיות הקשורות לנתונים.",
   "backupRestoreIssues": "בעיות גיבוי/שחזור",
   "dataLossRecovery": "שחזור נתונים שאבדו",
-  "corruptedDataFix": "תיקון נתונים פגומים",
+  "corruptedDataFix": "תיקון נתונים גומים",
   "importExportProblems": "בעיות ייבוא/ייצוא",
   "settingsIssuesTitle": "בעיות בהגדרות",
   "settingsIssuesContent": "פתרון בעיות הקשורות להגדרות.",
@@ -420,7 +420,7 @@
   "errorResolution": "פתרון שגיאות",
   "preventiveMeasures": "אמצעי מניעה",
   "additionalResourcesTitle": "משאבים נוספים",
-  "additionalResourcesContent": "משאבים נוספים לעזרה.",
+  "additionalResourcesContent": "משאבים נוספם לעזרה.",
   "fullDocumentation": "תיעוד מלא",
   "videoTutorials": "הדרכות וידאו",
   "communityGuides": "מדריכי קהילה",
@@ -441,7 +441,7 @@
   "creatingBackups": "יצירת גיבויים",
   "restoringData": "שחזור נתונים",
   "dataFormats": "פורמטי נתונים",
-  "dataExportDescription": "ייצא וגבה את הנתונים שלך",
+  "dataExportDescription": "ייצא וגבה את הנתוני שלך",
   "complexOvertimeCalculations": "חישובי שעות נוספות מורכבים",
   "taxDeductionFormulas": "נוסחאות ניכוי מס",
   "multiRateCalculations": "חישובי תעריפים מרובים",
@@ -454,5 +454,29 @@
   "featureReports": "דוחות שבועיים וחודשיים מפורטים",
   "featureExport": "ייצוא נתונים ל-CSV או PDF",
   "skipWelcomeScreen": "דלג על מסך הפתיחה",
-  "skipWelcomeScreenDescription": "עבור ישירות למסך הראשי בהפעלת האפליקציה"
+  "skipWelcomeScreenDescription": "עבור ישירות למסך הראשי בהפעלת האפליקציה",
+  "darkMode": "מצב כהה",
+  "@darkMode": {
+    "description": "Label for dark mode toggle switch"
+  },
+  "darkModeDescription": "הפעל ערכת נושא כהה לראות טובה יותר באור נמוך",
+  "@darkModeDescription": {
+    "description": "Description for dark mode toggle switch"
+  },
+  "appearance": "מראה",
+  "@appearance": {
+    "description": "Header for appearance settings section"
+  },
+  "languageAndRegion": "שפה ואזור",
+  "@languageAndRegion": {
+    "description": "Header for language and region settings section"
+  },
+  "workSettings": "הגדרות עבודה",
+  "@workSettings": {
+    "description": "Header for work-related settings section"
+  },
+  "appPreferences": "העדפות אפליקציה",
+  "@appPreferences": {
+    "description": "Header for app preferences section"
+  }
 }

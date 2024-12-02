@@ -5,10 +5,10 @@ class GuideVideoPlayer extends StatelessWidget {
   final String thumbnailUrl;
 
   const GuideVideoPlayer({
-    Key? key,
+    super.key,
     required this.videoUrl,
     required this.thumbnailUrl,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

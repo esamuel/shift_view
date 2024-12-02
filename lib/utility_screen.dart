@@ -14,11 +14,11 @@ class UtilityScreen extends StatefulWidget {
   final String viewType;
 
   const UtilityScreen({
-    Key? key,
+    super.key,
     required this.shifts,
     required this.viewType,
     this.selectedDate,
-  }) : super(key: key);
+  });
 
   @override
   _UtilityScreenState createState() => _UtilityScreenState();

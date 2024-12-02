@@ -2,21 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'app_state.dart';
 import 'main_screen.dart';
-import 'screens/welcome_screen.dart';
+import 'screens/new_onboarding_screen.dart';
+import 'config/app_theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.remove('hasCompletedOnboarding');
+  final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
+  
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppState(),
-      child: const MyApp(),
+      child: MyApp(hasCompletedOnboarding: hasCompletedOnboarding),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final bool hasCompletedOnboarding;
+  
+  const MyApp({
+    super.key,
+    required this.hasCompletedOnboarding,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +37,9 @@ class MyApp extends StatelessWidget {
       builder: (context, appState, child) {
         return MaterialApp(
           title: 'Shift View',
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
-            visualDensity: VisualDensity.adaptivePlatformDensity,
-          ),
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           locale: appState.locale,
           localizationsDelegates: const [
             AppLocalizations.delegate,
@@ -43,10 +55,10 @@ class MyApp extends StatelessWidget {
             Locale('ru', ''), // Russian
             Locale('fr', ''), // French
           ],
-          home: appState.skipWelcomeScreen 
+          home: hasCompletedOnboarding 
               ? const MainScreen()
-              : const WelcomeScreen(),
-          debugShowCheckedModeBanner: false, // Add this line to remove the debug banner
+              : const NewOnboardingScreen(),
+          debugShowCheckedModeBanner: false,
         );
       },
     );

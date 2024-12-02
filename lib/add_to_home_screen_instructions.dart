@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AddToHomeScreenInstructions extends StatelessWidget {
-  const AddToHomeScreenInstructions({Key? key}) : super(key: key);
+  const AddToHomeScreenInstructions({super.key});
 
   @override
   Widget build(BuildContext context) {

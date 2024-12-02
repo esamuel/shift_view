@@ -181,7 +181,7 @@ class ExportService {
 
     return pw.Container(
       padding: const pw.EdgeInsets.all(10),
-      decoration: pw.BoxDecoration(
+      decoration: const pw.BoxDecoration(
         border: pw.Border(bottom: pw.BorderSide(width: 1)),
       ),
       child: pw.Row(
@@ -216,7 +216,7 @@ class ExportService {
   ) {
     return pw.Container(
       padding: const pw.EdgeInsets.all(10),
-      decoration: pw.BoxDecoration(
+      decoration: const pw.BoxDecoration(
         border: pw.Border(top: pw.BorderSide(width: 1)),
       ),
       child: pw.Row(
@@ -308,6 +308,7 @@ class ExportService {
       'Total Hours',
       'Gross Wage',
       'Net Wage',
+      'Notes',
     ];
 
     return pw.Table.fromTextArray(
@@ -319,12 +320,23 @@ class ExportService {
         shift.totalHours.toStringAsFixed(2),
         shift.grossWage.toStringAsFixed(2),
         shift.netWage.toStringAsFixed(2),
+        shift.note ?? '',
       ]).toList(),
       headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
       border: pw.TableBorder.all(),
-      headerDecoration: pw.BoxDecoration(
+      headerDecoration: const pw.BoxDecoration(
         color: PdfColors.grey300,
       ),
+      cellAlignment: pw.Alignment.centerLeft,
+      cellAlignments: {
+        0: pw.Alignment.centerLeft,  // Date
+        1: pw.Alignment.center,      // Start Time
+        2: pw.Alignment.center,      // End Time
+        3: pw.Alignment.centerRight, // Total Hours
+        4: pw.Alignment.centerRight, // Gross Wage
+        5: pw.Alignment.centerRight, // Net Wage
+        6: pw.Alignment.centerLeft,  // Notes
+      },
     );
   }
 

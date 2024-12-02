@@ -6,7 +6,7 @@ import '../export_service.dart';
 import '../screens/pdf_config_screen.dart';
 
 class ReportScreen extends StatelessWidget {
-  const ReportScreen({Key? key}) : super(key: key);
+  const ReportScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

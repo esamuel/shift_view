@@ -5,7 +5,7 @@ import 'app_state.dart';
 import 'overtime_rules_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
@@ -48,6 +48,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          // Appearance Section
+          Text(
+            localizations.appearance,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          SwitchListTile(
+            title: Text(localizations.darkMode),
+            subtitle: Text(localizations.darkModeDescription),
+            value: appState.isDarkMode,
+            onChanged: (bool value) {
+              appState.toggleTheme();
+            },
+          ),
+          const Divider(),
+          // Language and Region Section
+          Text(
+            localizations.languageAndRegion,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            decoration: InputDecoration(labelText: localizations.language),
+            value: appState.locale.languageCode,
+            items: const [
+              DropdownMenuItem(value: 'en', child: Text('English')),
+              DropdownMenuItem(value: 'es', child: Text('Español')),
+              DropdownMenuItem(value: 'fr', child: Text('Français')),
+              DropdownMenuItem(value: 'de', child: Text('Deutsch')),
+              DropdownMenuItem(value: 'he', child: Text('עברית')),
+              DropdownMenuItem(value: 'ru', child: Text('Русский')),
+            ],
+            onChanged: (String? newValue) {
+              if (newValue != null) {
+                appState.setLocale(Locale(newValue));
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(
+            decoration: InputDecoration(labelText: localizations.country),
+            value: appState.countryCode,
+            items: [
+              DropdownMenuItem(value: 'US', child: Text(localizations.countryUS)),
+              DropdownMenuItem(value: 'GB', child: Text(localizations.countryGB)),
+              DropdownMenuItem(value: 'EU', child: Text(localizations.countryEU)),
+              DropdownMenuItem(value: 'IL', child: Text(localizations.countryIL)),
+              DropdownMenuItem(value: 'RU', child: Text(localizations.countryRU)),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                appState.setCountry(value);
+              }
+            },
+          ),
+          const Divider(),
+          // Work Settings Section
+          Text(
+            localizations.workSettings,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
           _buildNumberInput(
             controller: _hourlyWageController,
             label: localizations.hourlyWage,
@@ -72,41 +134,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 16),
           _buildWorkWeekStartSwitch(appState, localizations),
           const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: localizations.language),
-            value: appState.locale.languageCode,
-            items: const [
-              DropdownMenuItem(value: 'en', child: Text('English')),
-              DropdownMenuItem(value: 'es', child: Text('Español')),
-              DropdownMenuItem(value: 'fr', child: Text('Français')),
-              DropdownMenuItem(value: 'de', child: Text('Deutsch')),
-              DropdownMenuItem(value: 'he', child: Text('עברית')),
-              DropdownMenuItem(value: 'ru', child: Text('Русский')),
-            ],
-            onChanged: (value) {
-              if (value != null) {
-                appState.setLocale(Locale(value));
-              }
-            },
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            decoration: InputDecoration(labelText: localizations.country),
-            value: appState.countryCode,
-            items: [
-              DropdownMenuItem(value: 'US', child: Text(localizations.countryUS)),
-              DropdownMenuItem(value: 'GB', child: Text(localizations.countryGB)),
-              DropdownMenuItem(value: 'EU', child: Text(localizations.countryEU)),
-              DropdownMenuItem(value: 'IL', child: Text(localizations.countryIL)),
-              DropdownMenuItem(value: 'RU', child: Text(localizations.countryRU)),
-            ],
-            onChanged: (value) {
-              if (value != null) {
-                appState.setCountry(value);
-              }
-            },
-          ),
-          const SizedBox(height: 16),
           ElevatedButton(
             child: Text(localizations.manageOvertimeRules),
             onPressed: () {
@@ -114,6 +141,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context,
                 MaterialPageRoute(builder: (context) => const OvertimeRulesScreen()),
               );
+            },
+          ),
+          const Divider(),
+          // App Preferences Section
+          Text(
+            localizations.appPreferences,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          SwitchListTile(
+            title: Text(localizations.skipWelcomeScreen),
+            subtitle: Text(localizations.skipWelcomeScreenDescription),
+            value: appState.skipWelcomeScreen,
+            onChanged: (value) {
+              setState(() {
+                appState.updateSettings(skipWelcomeScreen: value);
+              });
             },
           ),
           const SizedBox(height: 32),
@@ -130,17 +174,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 specialDay: double.parse(_baseHoursSpecialDayController.text),
               );
               Navigator.pop(context);
-            },
-          ),
-          const SizedBox(height: 16),
-          SwitchListTile(
-            title: Text(localizations.skipWelcomeScreen),
-            subtitle: Text(localizations.skipWelcomeScreenDescription),
-            value: appState.skipWelcomeScreen,
-            onChanged: (value) {
-              setState(() {
-                appState.updateSettings(skipWelcomeScreen: value);
-              });
             },
           ),
         ],

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'app_state.dart';
 
 class InfoScreen extends StatelessWidget {
-  const InfoScreen({Key? key}) : super(key: key);
+  const InfoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

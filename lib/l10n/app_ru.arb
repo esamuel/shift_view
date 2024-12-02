@@ -33,7 +33,7 @@
   "aboutThisApp": "О приложении",
   "aboutThisAppContent": "Shift View разработан для почасовых работников, которые хотят легко отслеживать свои рабочие часы и заработок.",
   "keyFeatures": "Ключевые функции",
-  "keyFeaturesContent": "• Запись рабочих смен\n• Расчёт зарплаты (включая сверхурочные)\n• Просмотр недельных и месячных отчётов\n• Настройка параметров под ваш график",
+  "keyFeaturesContent": "• Запись рабочих смен\n• Расчёт зарплаты (включая сверхурочные)\n• Просмотр недельных и месячных отчётов\n• Настройка парамеров под ваш график",
   "howToUse": "Как использовать",
   "howToUseContent": "1. Добавляйте смены: Вводите время начала и окончания для каждого рабочего дня\n2. Просматривайте отчёты: Проверяйте недельные или месячные итоги\n3. Настраивайте параметры: Установите почасовую ставку, налоговые вычеты и начало рабочей недели",
   "shiftInformation": "Информация о сменах",
@@ -146,7 +146,7 @@
   "initialSetupTitle": "Начальная настройка",
   "initialSetupContent": "Настройте приложение с базовыми параметрами для начала работы.",
   "basicNavigationTitle": "Основы навигации",
-  "basicNavigationContent": "Узнайте, как перемещаться между различными разделами приложения.",
+  "basicNavigationContent": "Узнайте, как перемещаться между различными разделами приложеня.",
   "homeScreenDescription": "Обзор структуры главного экрана",
   "shiftManagerDescription": "Управляйте вашими рабочими сменами",
   "reportsDescription": "Просматривайте отчёты и аналитику",
@@ -175,7 +175,31 @@
   "featureReports": "Подробные недельные и месячные отчеты",
   "featureExport": "Экспорт данных в CSV или PDF",
   "skipWelcomeScreen": "Пропустить экран приветствия",
-  "skipWelcomeScreenDescription": "Переходить сразу к главному экрану при запуске приложения"
+  "skipWelcomeScreenDescription": "Переходить сразу к главному экрану при запуске риложения",
+  "darkMode": "Тёмная тема",
+  "@darkMode": {
+    "description": "Label for dark mode toggle switch"
+  },
+  "darkModeDescription": "Включить тёмную тему для лучшей видимости при слабом освещении",
+  "@darkModeDescription": {
+    "description": "Description for dark mode toggle switch"
+  },
+  "appearance": "Внешний вид",
+  "@appearance": {
+    "description": "Header for appearance settings section"
+  },
+  "languageAndRegion": "Язык и регион",
+  "@languageAndRegion": {
+    "description": "Header for language and region settings section"
+  },
+  "workSettings": "Настройки работы",
+  "@workSettings": {
+    "description": "Header for work-related settings section"
+  },
+  "appPreferences": "Настройки приложения",
+  "@appPreferences": {
+    "description": "Header for app preferences section"
+  }
 }
 
 

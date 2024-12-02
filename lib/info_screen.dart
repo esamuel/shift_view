@@ -4,7 +4,7 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 
 class InfoScreen extends StatelessWidget {
-  const InfoScreen({Key? key}) : super(key: key);
+  const InfoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -189,7 +189,7 @@ class InfoScreen extends StatelessWidget {
 class GuideDetailScreen extends StatelessWidget {
   final String sectionId;
 
-  const GuideDetailScreen({Key? key, required this.sectionId}) : super(key: key);
+  const GuideDetailScreen({super.key, required this.sectionId});
 
   @override
   Widget build(BuildContext context) {
@@ -1267,10 +1267,10 @@ class GuideLink extends StatelessWidget {
   final VoidCallback onTap;
 
   const GuideLink({
-    Key? key,
+    super.key,
     required this.title,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1287,10 +1287,10 @@ class GuideVideo extends StatefulWidget {
   final String title;
 
   const GuideVideo({
-    Key? key,
+    super.key,
     required this.videoUrl,
     required this.title,
-  }) : super(key: key);
+  });
 
   @override
   State<GuideVideo> createState() => _GuideVideoState();

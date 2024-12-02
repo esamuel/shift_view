@@ -6,7 +6,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 class UpcomingShiftsWidget extends StatelessWidget {
-  const UpcomingShiftsWidget({Key? key}) : super(key: key);
+  const UpcomingShiftsWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

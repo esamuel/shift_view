@@ -10,7 +10,7 @@ import 'sections/video_library_section.dart';
 import 'widgets/guide_video_player.dart';
 
 class GuideScreen extends StatelessWidget {
-  const GuideScreen({Key? key}) : super(key: key);
+  const GuideScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

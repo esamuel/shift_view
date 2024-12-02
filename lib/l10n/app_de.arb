@@ -286,6 +286,30 @@
   "featureReports": "Detaillierte Wochen- und Monatsberichte",
   "featureExport": "Datenexport als CSV oder PDF",
   "skipWelcomeScreen": "Startbildschirm überspringen",
-  "skipWelcomeScreenDescription": "Beim App-Start direkt zum Hauptbildschirm gehen"
+  "skipWelcomeScreenDescription": "Beim App-Start direkt zum Hauptbildschirm gehen",
+  "darkMode": "Dunkelmodus",
+  "@darkMode": {
+    "description": "Label for dark mode toggle switch"
+  },
+  "darkModeDescription": "Dunkles Theme für bessere Sichtbarkeit bei wenig Licht aktivieren",
+  "@darkModeDescription": {
+    "description": "Description for dark mode toggle switch"
+  },
+  "appearance": "Erscheinungsbild",
+  "@appearance": {
+    "description": "Header for appearance settings section"
+  },
+  "languageAndRegion": "Sprache & Region",
+  "@languageAndRegion": {
+    "description": "Header for language and region settings section"
+  },
+  "workSettings": "Arbeitseinstellungen",
+  "@workSettings": {
+    "description": "Header for work-related settings section"
+  },
+  "appPreferences": "App-Einstellungen",
+  "@appPreferences": {
+    "description": "Header for app preferences section"
+  }
 }
  

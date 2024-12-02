@@ -10,7 +10,7 @@ import 'models/pdf_config.dart';
 import 'utils/font_loader.dart';
 
 class ReportScreen extends StatefulWidget {
-  const ReportScreen({Key? key}) : super(key: key);
+  const ReportScreen({super.key});
 
   @override
   _ReportScreenState createState() => _ReportScreenState();
@@ -516,7 +516,7 @@ class _ReportScreenState extends State<ReportScreen> {
       }
       await _exportService.shareFile(filePath, 'Shift Report');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Export successful"),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,

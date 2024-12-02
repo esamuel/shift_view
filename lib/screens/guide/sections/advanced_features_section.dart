@@ -3,7 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/guide_section_card.dart';
 
 class AdvancedFeaturesSection extends StatelessWidget {
-  const AdvancedFeaturesSection({Key? key}) : super(key: key);
+  const AdvancedFeaturesSection({super.key});
 
   @override
   Widget build(BuildContext context) {

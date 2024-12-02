@@ -3,7 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/guide_section_card.dart';
 
 class TroubleshootingSection extends StatelessWidget {
-  const TroubleshootingSection({Key? key}) : super(key: key);
+  const TroubleshootingSection({super.key});
 
   @override
   Widget build(BuildContext context) {

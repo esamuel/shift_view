@@ -5,7 +5,7 @@ import 'app_state.dart';  // or wherever your main Shift class is defined
 import 'services/shift_service.dart';
 
 class ShiftManagerScreen extends StatefulWidget {
-  const ShiftManagerScreen({Key? key}) : super(key: key);
+  const ShiftManagerScreen({super.key});
 
   @override
   _ShiftManagerScreenState createState() => _ShiftManagerScreenState();

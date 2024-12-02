@@ -3,7 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../widgets/guide_section_card.dart';
 
 class GettingStartedSection extends StatelessWidget {
-  const GettingStartedSection({Key? key}) : super(key: key);
+  const GettingStartedSection({super.key});
 
   @override
   Widget build(BuildContext context) {

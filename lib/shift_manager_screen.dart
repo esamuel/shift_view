@@ -8,7 +8,7 @@ import 'app_state.dart';
 import 'dart:math' as Math;
 
 class ShiftManagerScreen extends StatefulWidget {
-  const ShiftManagerScreen({Key? key}) : super(key: key);
+  const ShiftManagerScreen({super.key});
 
   @override
   _ShiftManagerScreenState createState() => _ShiftManagerScreenState();

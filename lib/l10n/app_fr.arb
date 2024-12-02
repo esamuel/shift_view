@@ -175,7 +175,31 @@
   "featureReports": "Rapports hebdomadaires et mensuels détaillés",
   "featureExport": "Exportation des données en CSV ou PDF",
   "skipWelcomeScreen": "Ignorer l'écran d'accueil",
-  "skipWelcomeScreenDescription": "Aller directement à l'écran principal au démarrage de l'application"
+  "skipWelcomeScreenDescription": "Aller directement à l'écran principal au démarrage de l'application",
+  "darkMode": "Mode Sombre",
+  "@darkMode": {
+    "description": "Label for dark mode toggle switch"
+  },
+  "darkModeDescription": "Activer le thème sombre pour une meilleure visibilité en faible luminosité",
+  "@darkModeDescription": {
+    "description": "Description for dark mode toggle switch"
+  },
+  "appearance": "Apparence",
+  "@appearance": {
+    "description": "Header for appearance settings section"
+  },
+  "languageAndRegion": "Langue et Région",
+  "@languageAndRegion": {
+    "description": "Header for language and region settings section"
+  },
+  "workSettings": "Paramètres de Travail",
+  "@workSettings": {
+    "description": "Header for work-related settings section"
+  },
+  "appPreferences": "Préférences de l'Application",
+  "@appPreferences": {
+    "description": "Header for app preferences section"
+  }
 }
 
 

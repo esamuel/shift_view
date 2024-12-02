@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ReportsScreen extends StatelessWidget {
-  const ReportsScreen({Key? key}) : super(key: key);
+  const ReportsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

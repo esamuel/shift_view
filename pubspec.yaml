@@ -54,6 +54,16 @@ flutter:
     - assets/
     - assets/fonts/
     - assets/ShiftManagerApp.png
+    - assets/videos/
+    - assets/images/
+    - assets/videos/welcome.mp4
+    - assets/videos/settings.mp4
+    - assets/videos/shifts.mp4
+    - assets/videos/reports.mp4
+    - assets/images/welcome_thumb.jpg
+    - assets/images/settings_thumb.jpg
+    - assets/images/shifts_thumb.jpg
+    - assets/images/reports_thumb.jpg
 
 
   fonts:

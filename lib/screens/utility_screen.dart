@@ -6,7 +6,7 @@ import '../models/pdf_config.dart';
 import 'pdf_config_screen.dart';
 
 class UtilityScreen extends StatefulWidget {
-  const UtilityScreen({Key? key}) : super(key: key);
+  const UtilityScreen({super.key});
 
   @override
   _UtilityScreenState createState() => _UtilityScreenState();

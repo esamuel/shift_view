@@ -4,8 +4,7 @@ class DirectionalNumber extends StatelessWidget {
   final String number;
   final TextStyle? style;
 
-  const DirectionalNumber(this.number, {Key? key, this.style})
-      : super(key: key);
+  const DirectionalNumber(this.number, {super.key, this.style});
 
   @override
   Widget build(BuildContext context) {
