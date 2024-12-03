@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyCSyT4PnCtjyi5mwT8Hqf---8UwNg29R6w</string>
+	<key>GCM_SENDER_ID</key>
+	<string>93852337150</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.samueleskenasy.shiftView</string>
+	<key>PROJECT_ID</key>
+	<string>shift-view-c1d93</string>
+	<key>STORAGE_BUCKET</key>
+	<string>shift-view-c1d93.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:93852337150:ios:fd93f7bd62d228657976af</string>
+</dict>
+</plist>
