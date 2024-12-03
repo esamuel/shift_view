@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyCSyT4PnCtjyi5mwT8Hqf---8UwNg29R6w</string>
+	<string>AIzaSyCfMRgylK0e58sKuoyuVsiwk1NNP-0Nnik</string>
 	<key>GCM_SENDER_ID</key>
-	<string>93852337150</string>
+	<string>530556523067</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.samueleskenasy.shiftView</string>
+	<string>com.samueleskenasy.shiftview</string>
 	<key>PROJECT_ID</key>
-	<string>shift-view-c1d93</string>
+	<string>shift-view-app</string>
 	<key>STORAGE_BUCKET</key>
-	<string>shift-view-c1d93.firebasestorage.app</string>
+	<string>shift-view-app.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:93852337150:ios:fd93f7bd62d228657976af</string>
+	<string>1:530556523067:ios:ff80a285bffcdc0e53c21e</string>
 </dict>
 </plist>

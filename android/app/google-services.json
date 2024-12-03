@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "530556523067",
+    "project_id": "shift-view-app",
+    "storage_bucket": "shift-view-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530556523067:android:b21940c9406e551453c21e",
+        "android_client_info": {
+          "package_name": "com.samueleskenasy.shiftview"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBatHMIbjspRW3-va_jEWKRHae5EoWfFH4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,6 +3,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'app_state.dart';
 import 'main_screen.dart';
 import 'screens/new_onboarding_screen.dart';
@@ -11,12 +13,16 @@ import 'config/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
   final prefs = await SharedPreferences.getInstance();
-  await prefs.remove('hasCompletedOnboarding');
   final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
   
   runApp(
-    ChangeNotifierProvider(
+    ChangeNotifierProvider<AppState>(
       create: (context) => AppState(),
       child: MyApp(hasCompletedOnboarding: hasCompletedOnboarding),
     ),
