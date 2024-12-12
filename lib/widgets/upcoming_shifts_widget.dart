@@ -11,7 +11,7 @@ class UpcomingShiftsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     List<Shift> upcomingShifts = appState.shifts;
 

@@ -8,7 +8,7 @@ class InfoScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     final appState = Provider.of<AppState>(context);
     final currencySymbol = appState.getCurrencySymbol();
 

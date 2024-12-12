@@ -212,5 +212,21 @@
   "thu": "THU",
   "fri": "FRI",
   "sat": "SAT",
-  "sun": "SUN"
+  "sun": "SUN",
+  "note": "Note",
+  "addNote": "Add Note",
+  "addNoteHint": "Enter any additional information",
+  "toggleSpecialDay": "Toggle Special Day Status",
+  "@note": {
+    "description": "Label for note field"
+  },
+  "@addNote": {
+    "description": "Label for adding a note"
+  },
+  "@addNoteHint": {
+    "description": "Hint text for note input field"
+  },
+  "@toggleSpecialDay": {
+    "description": "Tooltip for special day toggle button"
+  }
 }

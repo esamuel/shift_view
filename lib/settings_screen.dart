@@ -39,7 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -71,12 +71,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 16),
           SwitchListTile(
-            title: Text(localizations.startWorkWeekOnSunday),
+            title: Text(appState.startOnSunday ? 'Start work on Sunday' : 'Start work on Monday'),
             value: appState.startOnSunday,
             onChanged: (value) {
               setState(() {
                 appState.startOnSunday = value;
               });
+            },
+          ),
+          const SizedBox(height: 16),
+          SwitchListTile(
+            title: const Text('Dark Mode'),
+            value: appState.isDarkMode,
+            onChanged: (value) {
+              appState.toggleDarkMode();
             },
           ),
           const SizedBox(height: 16),

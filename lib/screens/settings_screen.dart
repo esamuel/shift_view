@@ -8,7 +8,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.settingsTitle),
+        title: Text(AppLocalizations.of(context).settingsTitle),
       ),
       body: const Center(
         child: Text('Settings Screen'),

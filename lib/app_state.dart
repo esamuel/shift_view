@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'models/shift.dart';
+import 'models/overtime_rule.dart';
 
 class AppState extends ChangeNotifier {
   List<Shift> shifts = [];
@@ -14,6 +16,7 @@ class AppState extends ChangeNotifier {
   String _countryCode = 'US';
   double _baseHoursWeekday = 8.0;
   double _baseHoursSpecialDay = 8.0;
+  bool _isDarkMode = false;
 
   String _userName = '';
 
@@ -26,6 +29,7 @@ class AppState extends ChangeNotifier {
   double get baseHoursWeekday => _baseHoursWeekday;
   double get baseHoursSpecialDay => _baseHoursSpecialDay;
   String get userName => _userName;
+  bool get isDarkMode => _isDarkMode;
 
   // Setters
   set hourlyWage(double value) {
@@ -75,6 +79,12 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleDarkMode() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+    saveSettings();
+  }
+
   AppState() {
     loadSettings();
     loadShifts();
@@ -91,6 +101,7 @@ class AppState extends ChangeNotifier {
     _countryCode = prefs.getString('countryCode') ?? 'US';
     _baseHoursWeekday = prefs.getDouble('baseHoursWeekday') ?? 8.0;
     _baseHoursSpecialDay = prefs.getDouble('baseHoursSpecialDay') ?? 8.0;
+    _isDarkMode = prefs.getBool('isDarkMode') ?? false;
     notifyListeners();
   }
 
@@ -103,6 +114,7 @@ class AppState extends ChangeNotifier {
     await prefs.setString('countryCode', _countryCode);
     await prefs.setDouble('baseHoursWeekday', _baseHoursWeekday);
     await prefs.setDouble('baseHoursSpecialDay', _baseHoursSpecialDay);
+    await prefs.setBool('isDarkMode', _isDarkMode);
   }
 
   Future<void> loadShifts() async {
@@ -110,16 +122,14 @@ class AppState extends ChangeNotifier {
     final shiftsJson = prefs.getString('shifts');
     if (shiftsJson != null) {
       final shiftsData = json.decode(shiftsJson) as List;
-      shifts =
-          shiftsData.map((shiftData) => Shift.fromJson(shiftData)).toList();
+      shifts = shiftsData.map((shiftData) => Shift.fromJson(shiftData)).toList();
       notifyListeners();
     }
   }
 
   Future<void> saveShifts() async {
     final prefs = await SharedPreferences.getInstance();
-    final shiftsJson =
-        json.encode(shifts.map((shift) => shift.toJson()).toList());
+    final shiftsJson = json.encode(shifts.map((shift) => shift.toJson()).toList());
     await prefs.setString('shifts', shiftsJson);
   }
 
@@ -129,8 +139,7 @@ class AppState extends ChangeNotifier {
     if (rulesJson != null) {
       final rulesData = json.decode(rulesJson) as List;
       overtimeRules = rulesData
-          .map((ruleData) =>
-              OvertimeRule.fromJson(ruleData as Map<String, dynamic>))
+          .map((ruleData) => OvertimeRule.fromJson(ruleData as Map<String, dynamic>))
           .toList();
       notifyListeners();
     }
@@ -138,8 +147,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> saveOvertimeRules() async {
     final prefs = await SharedPreferences.getInstance();
-    final rulesJson =
-        json.encode(overtimeRules.map((rule) => rule.toJson()).toList());
+    final rulesJson = json.encode(overtimeRules.map((rule) => rule.toJson()).toList());
     await prefs.setString('overtimeRules', rulesJson);
   }
 
@@ -153,16 +161,6 @@ class AppState extends ChangeNotifier {
           .toList();
       notifyListeners();
     }
-  }
-
-  Future<void> updateBaseHours(
-      {required double weekday, required double specialDay}) async {
-    baseHoursWeekday = weekday;
-    baseHoursSpecialDay = specialDay;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('baseHoursWeekday', weekday);
-    await prefs.setDouble('baseHoursSpecialDay', specialDay);
-    notifyListeners();
   }
 
   Future<void> saveFestiveDays() async {
@@ -229,7 +227,7 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  void updateSettings({
+  Future<void> updateSettings({
     double? hourlyWage,
     double? taxDeduction,
     bool? startOnSunday,
@@ -237,7 +235,7 @@ class AppState extends ChangeNotifier {
     String? countryCode,
     double? baseHoursWeekday,
     double? baseHoursSpecialDay,
-  }) {
+  }) async {
     if (hourlyWage != null) _hourlyWage = hourlyWage;
     if (taxDeduction != null) _taxDeduction = taxDeduction.clamp(0.0, 100.0);
     if (startOnSunday != null) _startOnSunday = startOnSunday;
@@ -247,9 +245,18 @@ class AppState extends ChangeNotifier {
     if (baseHoursSpecialDay != null) _baseHoursSpecialDay = baseHoursSpecialDay;
 
     notifyListeners();
-    saveSettings();
+    await saveSettings();
   }
-  // Add methods for overtime rules and festive days management here
+
+  Future<void> updateBaseHours({
+    required double weekday,
+    required double specialDay,
+  }) async {
+    _baseHoursWeekday = weekday;
+    _baseHoursSpecialDay = specialDay;
+    notifyListeners();
+    await saveSettings();
+  }
 
   String getCurrencySymbol() {
     switch (_countryCode) {
@@ -270,7 +277,6 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  // Add a getter for upcoming shifts
   List<Shift> get upcomingShifts {
     final now = DateTime.now();
     return shifts.where((shift) => shift.date.isAfter(now)).toList()
@@ -282,95 +288,5 @@ class AppState extends ChangeNotifier {
       shift.date.isAfter(start.subtract(const Duration(days: 1))) && 
       shift.date.isBefore(end.add(const Duration(days: 1)))
     ).toList();
-  }
-}
-
-class Shift {
-  final String id;
-  final DateTime date;
-  final TimeOfDay startTime;
-  final TimeOfDay endTime;
-  final double totalHours;
-  final double grossWage;
-  final double netWage;
-  final Map<String, double> wagePercentages;
-
-  Shift({
-    required this.id,
-    required this.date,
-    required this.startTime,
-    required this.endTime,
-    required this.totalHours,
-    required this.grossWage,
-    required this.netWage,
-    required this.wagePercentages,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'date': date.toIso8601String(),
-      'startTime': '${startTime.hour}:${startTime.minute}',
-      'endTime': '${endTime.hour}:${endTime.minute}',
-      'totalHours': totalHours,
-      'grossWage': grossWage,
-      'netWage': netWage,
-      'wagePercentages': wagePercentages,
-    };
-  }
-
-  factory Shift.fromJson(Map<String, dynamic> json) {
-    final startTimeParts = json['startTime'].split(':');
-    final endTimeParts = json['endTime'].split(':');
-    return Shift(
-      id: json['id'],
-      date: DateTime.parse(json['date']),
-      startTime: TimeOfDay(
-          hour: int.parse(startTimeParts[0]),
-          minute: int.parse(startTimeParts[1])),
-      endTime: TimeOfDay(
-          hour: int.parse(endTimeParts[0]), minute: int.parse(endTimeParts[1])),
-      totalHours: json['totalHours'],
-      grossWage: json['grossWage'],
-      netWage: json['netWage'],
-      wagePercentages: Map<String, double>.from(json['wagePercentages']),
-    );
-  }
-}
-
-class OvertimeRule {
-  final String id;
-  final double hoursThreshold;
-  final double rate;
-  final bool isForSpecialDays;
-
-  OvertimeRule({
-    required this.id,
-    required this.hoursThreshold,
-    required this.rate,
-    required this.isForSpecialDays,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'hoursThreshold': hoursThreshold,
-      'rate': rate,
-      'isForSpecialDays': isForSpecialDays,
-    };
-  }
-
-  factory OvertimeRule.fromJson(Map<String, dynamic> json) {
-    return OvertimeRule(
-      id: json['id'],
-      hoursThreshold: json['hoursThreshold'],
-      rate: json['rate'],
-      isForSpecialDays: json['isForSpecialDays'],
-    );
-  }
-
-  @override
-  String toString() {
-    return 'OvertimeRule(id: $id, hoursThreshold: $hoursThreshold, rate: $rate, isForSpecialDays: $isForSpecialDays)';
   }
 }

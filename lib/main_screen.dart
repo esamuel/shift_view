@@ -13,7 +13,7 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
@@ -112,7 +112,7 @@ class MainScreen extends StatelessWidget {
   }
 
   void _showAddToHomeScreenDialog(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -161,7 +161,11 @@ class MainScreen extends StatelessWidget {
                     itemCount: upcomingShifts.length,
                     itemBuilder: (BuildContext context, int index) {
                       final shift = upcomingShifts[index];
-                      final duration = Duration(hours: shift.endTime.hour - shift.startTime.hour, minutes: shift.endTime.minute - shift.startTime.minute);
+                      final duration = shift.startTime != null && shift.endTime != null
+                          ? Duration(
+                              hours: shift.endTime!.hour - shift.startTime!.hour,
+                              minutes: shift.endTime!.minute - shift.startTime!.minute)
+                          : const Duration();
                       final hours = duration.inHours;
                       final minutes = duration.inMinutes % 60;
 
@@ -172,8 +176,12 @@ class MainScreen extends StatelessWidget {
                           shift.date.month.toString().padLeft(2, '0'),
                         )),
                         subtitle: Text(localizations.shiftTimeFormat(
-                          shift.startTime.format(context),
-                          shift.endTime.format(context),
+                          shift.startTime != null 
+                              ? TimeOfDay(hour: shift.startTime!.hour, minute: shift.startTime!.minute).format(context)
+                              : '--:--',
+                          shift.endTime != null 
+                              ? TimeOfDay(hour: shift.endTime!.hour, minute: shift.endTime!.minute).format(context)
+                              : '--:--',
                           hours.toString(),
                           minutes.toString(),
                         )),
@@ -195,7 +203,7 @@ class MainScreen extends StatelessWidget {
   }
 
   String _getDayName(BuildContext context, int weekday) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     switch (weekday) {
       case 1: return localizations.mon;
       case 2: return localizations.tue;

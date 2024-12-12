@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
+import 'models/overtime_rule.dart';
 
 class OvertimeRulesScreen extends StatelessWidget {
   const OvertimeRulesScreen({Key? key}) : super(key: key);
@@ -9,7 +10,7 @@ class OvertimeRulesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -83,7 +84,7 @@ class OvertimeRulesScreen extends StatelessWidget {
 
   void _showOvertimeRuleDialog(BuildContext context, AppState appState,
       {OvertimeRule? existingRule, int? index}) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     double hoursThreshold = existingRule?.hoursThreshold ?? 8;
     double rate = existingRule?.rate ?? 1.5;
     bool isForSpecialDays = existingRule?.isForSpecialDays ?? false;
@@ -156,7 +157,7 @@ class OvertimeRulesScreen extends StatelessWidget {
 
   void _editBaseHours(BuildContext context, AppState appState,
       {required bool isWeekday}) {
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     final currentValue =
         isWeekday ? appState.baseHoursWeekday : appState.baseHoursSpecialDay;
 

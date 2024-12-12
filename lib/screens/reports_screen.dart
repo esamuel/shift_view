@@ -8,7 +8,7 @@ class ReportsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.reportsTitle),
+        title: Text(AppLocalizations.of(context).reportsTitle),
       ),
       body: const Center(
         child: Text('Reports Screen'),

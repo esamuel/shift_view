@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import 'app_state.dart';
 import 'export_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:math' as math;
 import 'rtl_fix.dart';
+import 'models/shift.dart';
+import 'models/overtime_rule.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
@@ -28,7 +31,7 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
 
     return DefaultTabController(
       length: 2,
@@ -401,7 +404,9 @@ class _ReportScreenState extends State<ReportScreen> {
         festiveDay.day == date.day);
   }
 
-  String _formatTime(TimeOfDay time) {
+  String _formatTime(DateTime? dateTime) {
+    if (dateTime == null) return '--:--';
+    final time = TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
     final hour = time.hour.toString().padLeft(2, '0');
     final minute = time.minute.toString().padLeft(2, '0');
     return '$hour:$minute';

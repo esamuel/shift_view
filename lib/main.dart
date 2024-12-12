@@ -26,7 +26,14 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.blue,
             visualDensity: VisualDensity.adaptivePlatformDensity,
+            brightness: Brightness.light,
           ),
+          darkTheme: ThemeData(
+            primarySwatch: Colors.blue,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+            brightness: Brightness.dark,
+          ),
+          themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           locale: appState.locale,
           localizationsDelegates: const [
             AppLocalizations.delegate,
