@@ -3,7 +3,6 @@ import 'package:pdf/pdf.dart';
 import '../models/pdf_config.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
-import 'dart:io';
 
 class PDFConfigScreen extends StatefulWidget {
   const PDFConfigScreen({super.key});

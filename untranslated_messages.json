@@ -136,7 +136,14 @@
     "settingCurrency",
     "numberFormatting",
     "decimalPlaces",
-    "currencySymbols"
+    "currencySymbols",
+    "email",
+    "password",
+    "signIn",
+    "emailRequired",
+    "invalidEmail",
+    "passwordRequired",
+    "passwordTooShort"
   ],
 
   "es": [
@@ -392,7 +399,14 @@
     "overtimeRulesDescription",
     "specialDaysDescription",
     "dataExportDescription",
-    "calculationsDescription"
+    "calculationsDescription",
+    "email",
+    "password",
+    "signIn",
+    "emailRequired",
+    "invalidEmail",
+    "passwordRequired",
+    "passwordTooShort"
   ],
 
   "fr": [
@@ -661,7 +675,24 @@
     "overtimeRulesDescription",
     "specialDaysDescription",
     "dataExportDescription",
-    "calculationsDescription"
+    "calculationsDescription",
+    "email",
+    "password",
+    "signIn",
+    "emailRequired",
+    "invalidEmail",
+    "passwordRequired",
+    "passwordTooShort"
+  ],
+
+  "he": [
+    "email",
+    "password",
+    "signIn",
+    "emailRequired",
+    "invalidEmail",
+    "passwordRequired",
+    "passwordTooShort"
   ],
 
   "ru": [
@@ -930,6 +961,13 @@
     "overtimeRulesDescription",
     "specialDaysDescription",
     "dataExportDescription",
-    "calculationsDescription"
+    "calculationsDescription",
+    "email",
+    "password",
+    "signIn",
+    "emailRequired",
+    "invalidEmail",
+    "passwordRequired",
+    "passwordTooShort"
   ]
 }

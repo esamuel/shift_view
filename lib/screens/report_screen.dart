@@ -69,7 +69,7 @@ class ReportScreen extends StatelessWidget {
       // Get custom config from PDF config screen
       final customConfig = await Navigator.push<PDFConfig>(
         context,
-        MaterialPageRoute(builder: (context) => PDFConfigScreen()),
+        MaterialPageRoute(builder: (context) => const PDFConfigScreen()),
       );
 
       // Use custom config if provided, otherwise use default

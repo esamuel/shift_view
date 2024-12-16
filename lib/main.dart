@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'app_state.dart';
 import 'main_screen.dart';
-import 'screens/new_onboarding_screen.dart';
+import 'screens/auth/login_screen.dart';
 import 'config/app_theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,24 +18,16 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  final prefs = await SharedPreferences.getInstance();
-  final hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
-  
   runApp(
     ChangeNotifierProvider<AppState>(
       create: (context) => AppState(),
-      child: MyApp(hasCompletedOnboarding: hasCompletedOnboarding),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final bool hasCompletedOnboarding;
-  
-  const MyApp({
-    super.key,
-    required this.hasCompletedOnboarding,
-  });
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,17 +45,17 @@ class MyApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [
-            Locale('en', ''), // English
-            Locale('he', ''), // Hebrew
-            Locale('es', ''), // Spanish
-            Locale('de', ''), // German
-            Locale('ru', ''), // Russian
-            Locale('fr', ''), // French
-          ],
-          home: hasCompletedOnboarding 
-              ? const MainScreen()
-              : const NewOnboardingScreen(),
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              
+              return snapshot.hasData ? const MainScreen() : const LoginScreen();
+            },
+          ),
           debugShowCheckedModeBanner: false,
         );
       },

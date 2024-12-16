@@ -29,7 +29,7 @@ class _UtilityScreenState extends State<UtilityScreen> {
       final appState = Provider.of<AppState>(context, listen: false);
       final config = await Navigator.push<PDFConfig>(
         context,
-        MaterialPageRoute(builder: (context) => PDFConfigScreen()),
+        MaterialPageRoute(builder: (context) => const PDFConfigScreen()),
       );
 
       if (config != null) {
