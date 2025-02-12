@@ -58,7 +58,8 @@ class OvertimeRulesScreen extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => appState.deleteOvertimeRule(index),
+                    onPressed: () =>
+                        _confirmDeleteRule(context, appState, index),
                   ),
                 ],
               ),
@@ -80,6 +81,32 @@ class OvertimeRulesScreen extends StatelessWidget {
   void _editOvertimeRule(BuildContext context, AppState appState, int index) {
     _showOvertimeRuleDialog(context, appState,
         existingRule: appState.overtimeRules[index], index: index);
+  }
+
+  Future<void> _confirmDeleteRule(
+      BuildContext context, AppState appState, int index) async {
+    final localizations = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(localizations.confirmDelete),
+        content: Text('Are you sure you want to delete this overtime rule?'),
+        actions: [
+          TextButton(
+            child: Text(localizations.cancel),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          TextButton(
+            child: Text(localizations.delete),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      appState.deleteOvertimeRule(index);
+    }
   }
 
   void _showOvertimeRuleDialog(BuildContext context, AppState appState,
@@ -107,15 +134,24 @@ class OvertimeRulesScreen extends StatelessWidget {
                         labelText: localizations.hoursThreshold),
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (value) => hoursThreshold =
-                        double.tryParse(value) ?? hoursThreshold,
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value);
+                      if (parsed != null) {
+                        hoursThreshold = parsed;
+                      }
+                    },
                   ),
                   TextFormField(
                     initialValue: rate.toString(),
                     decoration: InputDecoration(labelText: localizations.rate),
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    onChanged: (value) => rate = double.tryParse(value) ?? rate,
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value);
+                      if (parsed != null) {
+                        rate = parsed;
+                      }
+                    },
                   ),
                   SwitchListTile(
                     title: Text(localizations.isForSpecialDays),
@@ -133,18 +169,42 @@ class OvertimeRulesScreen extends StatelessWidget {
                 TextButton(
                   child: Text(localizations.save),
                   onPressed: () {
+                    print(
+                        'Saving overtime rule - Hours: $hoursThreshold, Rate: $rate, Special: $isForSpecialDays');
                     final rule = OvertimeRule(
                       id: existingRule?.id ?? DateTime.now().toIso8601String(),
                       hoursThreshold: hoursThreshold,
                       rate: rate,
                       isForSpecialDays: isForSpecialDays,
                     );
-                    if (existingRule == null) {
-                      appState.addOvertimeRule(rule);
-                    } else {
-                      appState.updateOvertimeRule(index!, rule);
+                    print('Created rule object: $rule');
+                    try {
+                      if (existingRule == null) {
+                        print('Adding new rule');
+                        appState.addOvertimeRule(rule);
+                      } else {
+                        print('Updating existing rule at index $index');
+                        appState.updateOvertimeRule(index!, rule);
+                      }
+                      print('Rule saved successfully');
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(existingRule == null
+                              ? 'Overtime rule added successfully'
+                              : 'Overtime rule updated successfully'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } catch (e) {
+                      print('Error saving rule: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error saving overtime rule: $e'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
                     }
-                    Navigator.of(context).pop();
                   },
                 ),
               ],
@@ -163,7 +223,7 @@ class OvertimeRulesScreen extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         double newValue = currentValue;
         return AlertDialog(
           title: Text(isWeekday
@@ -171,6 +231,10 @@ class OvertimeRulesScreen extends StatelessWidget {
               : localizations.baseHoursSpecialDay),
           content: TextFormField(
             initialValue: currentValue.toString(),
+            decoration: InputDecoration(
+              labelText: localizations.hours,
+              suffixText: localizations.hours,
+            ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             onChanged: (value) =>
                 newValue = double.tryParse(value) ?? currentValue,
@@ -183,11 +247,11 @@ class OvertimeRulesScreen extends StatelessWidget {
             TextButton(
               child: Text(localizations.save),
               onPressed: () {
-                if (isWeekday) {
-                  appState.baseHoursWeekday = newValue;
-                } else {
-                  appState.baseHoursSpecialDay = newValue;
-                }
+                appState.updateBaseHours(
+                  weekday: isWeekday ? newValue : appState.baseHoursWeekday,
+                  specialDay:
+                      isWeekday ? appState.baseHoursSpecialDay : newValue,
+                );
                 Navigator.of(context).pop();
               },
             ),

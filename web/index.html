@@ -21,6 +21,10 @@
   <meta name="description" content="Your app description here">
   <meta name="keywords" content="shift management, time tracking, payroll">
   <meta name="author" content="Your Name">
+  
+  <!-- Preload fonts -->
+  <link rel="preload" href="https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5WZLCzYlKw.ttf" as="font" type="font/ttf" crossorigin>
+  
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -57,7 +61,7 @@
       border-top: 16px solid #3498db;
       width: 120px;
       height: 120px;
-      -webkit-animation: spin 2s linear infinite; /* Safari */
+      -webkit-animation: spin 2s linear infinite;
       animation: spin 2s linear infinite;
     }
     @-webkit-keyframes spin {
@@ -68,13 +72,57 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    
+    /* Fallback font */
+    @font-face {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 400;
+      src: local('Roboto'), local('Roboto-Regular'), url(https://fonts.gstatic.com/s/roboto/v20/KFOmCnqEu92Fr1Me5WZLCzYlKw.ttf) format('truetype');
+    }
   </style>
+  
+  <!-- Prevent CanvasKit loading -->
+  <script>
+    window.flutterWebRenderer = "html";
+  </script>
 </head>
 <body>
   <div class="loading">
     <div class="loader"></div>
   </div>
-  <script src="flutter_bootstrap.js" async></script>
+  
+  <!-- Custom error handling -->
+  <script>
+    window.addEventListener('error', function(e) {
+      console.error('Resource loading error:', e);
+    });
+  </script>
+  
+  <script>
+    // Initialize Flutter Web with error handling
+    window.addEventListener('load', function(ev) {
+      _flutter.loader.load({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: async function(engineInitializer) {
+          try {
+            const appRunner = await engineInitializer.initializeEngine({
+              renderer: "html",
+              useColorEmoji: true
+            });
+            await appRunner.runApp();
+          } catch (e) {
+            console.error('Flutter initialization error:', e);
+            document.body.innerHTML = 'Error loading application. Please try refreshing the page.';
+          }
+        }
+      });
+    });
+  </script>
+  
+  <script src="flutter_bootstrap.js" defer></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {

@@ -4,8 +4,21 @@ import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
 import 'main_screen.dart';
+import 'login_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'services/firebase_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    await FirebaseService.initialize();
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Error initializing Firebase: $e');
+  }
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => AppState(),
@@ -42,14 +55,39 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: const [
-            Locale('en', ''), // English
-            Locale('he', ''), // Hebrew
-            Locale('es', ''), // Spanish
-            Locale('de', ''), // German
-            Locale('ru', ''), // Russian
-            Locale('fr', ''), // French
+            Locale('en', ''),
+            Locale('he', ''),
+            Locale('es', ''),
+            Locale('de', ''),
+            Locale('ru', ''),
+            Locale('fr', ''),
           ],
-          home: const MainScreen(),
+          home: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return Scaffold(
+                  body: Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  ),
+                );
+              }
+
+              if (snapshot.data == null) {
+                return const LoginScreen();
+              }
+
+              return const MainScreen();
+            },
+          ),
           debugShowCheckedModeBanner: false,
         );
       },

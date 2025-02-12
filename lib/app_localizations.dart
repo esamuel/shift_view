@@ -27,7 +27,7 @@ class AppLocalizations {
       'addToHomeScreeniOS':
           'For iOS: Tap the share button in Safari, then select "Add to Home Screen".',
       'addToHomeScreenAndroid':
-          'For Android: Tap the menu button in Chrome, then select "Add to Home screen".',
+          'For Android: Tap the menu button in Chrome, then select "Add to home screen".',
       'ok': 'OK',
       'addNewShift': 'Add New Shift',
       'selectDate': 'Select Date',
@@ -43,6 +43,8 @@ class AppLocalizations {
       'country': 'Country',
       'manageOvertimeRules': 'Manage Overtime Rules',
       'saveSettings': 'Save Settings',
+      'noShiftsThisMonth': 'No shifts found for the current month',
+      'noShiftsYet': 'No shifts added yet',
       'countryUS': 'United States (USD)',
       'countryGB': 'United Kingdom (GBP)',
       'countryEU': 'European Union (EUR)',
@@ -109,6 +111,10 @@ class AppLocalizations {
       _localizedValues[locale.languageCode]!['hourlyWage']!;
   String get taxDeduction =>
       _localizedValues[locale.languageCode]!['taxDeduction']!;
+  String get noShiftsThisMonth =>
+      _localizedValues[locale.languageCode]!['noShiftsThisMonth']!;
+  String get noShiftsYet =>
+      _localizedValues[locale.languageCode]!['noShiftsYet']!;
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

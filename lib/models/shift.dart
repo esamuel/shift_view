@@ -1,75 +1,101 @@
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Shift {
   final String id;
   final DateTime date;
   final DateTime? startTime;
   final DateTime? endTime;
-  final String? note;
   final double totalHours;
   final double grossWage;
   final double netWage;
+  final String note;
   final bool isSpecialDay;
-  final Map<String, double>? wagePercentages;
 
   Shift({
-    required this.id,
+    String? id,
     required this.date,
     this.startTime,
     this.endTime,
-    this.note,
-    this.totalHours = 0.0,
-    this.grossWage = 0.0,
-    this.netWage = 0.0,
+    required this.totalHours,
+    required this.grossWage,
+    required this.netWage,
+    this.note = '',
     this.isSpecialDay = false,
-    this.wagePercentages,
-  });
+  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
-  String? get dayOfWeek => startTime != null ? DateFormat('E').format(startTime!) : null;
-  Duration? get duration => startTime != null && endTime != null ? endTime!.difference(startTime!) : null;
-
-  TimeOfDay? get startTimeOfDay => startTime != null 
-      ? TimeOfDay(hour: startTime!.hour, minute: startTime!.minute) 
+  String? get dayOfWeek =>
+      startTime != null ? DateFormat('E').format(startTime!) : null;
+  Duration? get duration => startTime != null && endTime != null
+      ? endTime!.difference(startTime!)
       : null;
 
-  TimeOfDay? get endTimeOfDay => endTime != null 
-      ? TimeOfDay(hour: endTime!.hour, minute: endTime!.minute) 
+  TimeOfDay? get startTimeOfDay => startTime != null
+      ? TimeOfDay(hour: startTime!.hour, minute: startTime!.minute)
       : null;
 
-  factory Shift.fromJson(Map<String, dynamic> json) {
-    return Shift(
-      id: json['id'],
-      date: DateTime.parse(json['date']),
-      startTime: json['start_time'] != null ? DateTime.parse(json['start_time']) : null,
-      endTime: json['end_time'] != null ? DateTime.parse(json['end_time']) : null,
-      note: json['note'],
-      totalHours: json['total_hours']?.toDouble() ?? 0.0,
-      grossWage: json['gross_wage']?.toDouble() ?? 0.0,
-      netWage: json['net_wage']?.toDouble() ?? 0.0,
-      isSpecialDay: json['is_special_day'] ?? false,
-      wagePercentages: json['wage_percentages'] != null 
-          ? Map<String, double>.from(json['wage_percentages'])
-          : null,
-    );
-  }
+  TimeOfDay? get endTimeOfDay => endTime != null
+      ? TimeOfDay(hour: endTime!.hour, minute: endTime!.minute)
+      : null;
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'date': date.toIso8601String(),
-      'start_time': startTime?.toIso8601String(),
-      'end_time': endTime?.toIso8601String(),
+      'startTime': startTime?.toIso8601String(),
+      'endTime': endTime?.toIso8601String(),
+      'totalHours': totalHours,
+      'grossWage': grossWage,
+      'netWage': netWage,
       'note': note,
-      'total_hours': totalHours,
-      'gross_wage': grossWage,
-      'net_wage': netWage,
-      'is_special_day': isSpecialDay,
-      'wage_percentages': wagePercentages,
+      'isSpecialDay': isSpecialDay,
     };
   }
 
-  static DateTime? combineDateWithTimeOfDay(DateTime date, TimeOfDay? timeOfDay) {
+  factory Shift.fromJson(Map<String, dynamic> json) {
+    return Shift(
+      id: json['id'] as String?,
+      date: DateTime.parse(json['date'] as String),
+      startTime: json['startTime'] != null
+          ? DateTime.parse(json['startTime'] as String)
+          : null,
+      endTime: json['endTime'] != null
+          ? DateTime.parse(json['endTime'] as String)
+          : null,
+      totalHours: (json['totalHours'] as num).toDouble(),
+      grossWage: (json['grossWage'] as num).toDouble(),
+      netWage: (json['netWage'] as num).toDouble(),
+      note: json['note'] as String? ?? '',
+      isSpecialDay: json['isSpecialDay'] as bool? ?? false,
+    );
+  }
+
+  Shift copyWith({
+    String? id,
+    DateTime? date,
+    DateTime? startTime,
+    DateTime? endTime,
+    double? totalHours,
+    double? grossWage,
+    double? netWage,
+    String? note,
+    bool? isSpecialDay,
+  }) {
+    return Shift(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      totalHours: totalHours ?? this.totalHours,
+      grossWage: grossWage ?? this.grossWage,
+      netWage: netWage ?? this.netWage,
+      note: note ?? this.note,
+      isSpecialDay: isSpecialDay ?? this.isSpecialDay,
+    );
+  }
+
+  static DateTime? combineDateWithTimeOfDay(
+      DateTime date, TimeOfDay? timeOfDay) {
     if (timeOfDay == null) return null;
     return DateTime(
       date.year,

@@ -21,7 +21,18 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   TimeOfDay _endTime = const TimeOfDay(hour: 17, minute: 0);
   bool _showCurrentMonthOnly = true;
   String? _shiftNote;
-  bool _isSpecialDay = false;
+  final bool _isSpecialDay = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize shifts when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = Provider.of<AppState>(context, listen: false);
+      appState.ensureShiftsStreamInitialized();
+      appState.refreshShifts(); // Force immediate refresh
+    });
+  }
 
   double _calculateTotalHours(
       DateTime date, TimeOfDay startTime, TimeOfDay endTime) {
@@ -43,12 +54,8 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   }
 
   double _calculateGrossWage(
-    AppState appState,
-    DateTime date,
-    TimeOfDay startTime,
-    TimeOfDay endTime,
-    {bool isSpecialDay = false}
-  ) {
+      AppState appState, DateTime date, TimeOfDay startTime, TimeOfDay endTime,
+      {bool isSpecialDay = false}) {
     final totalHours = _calculateTotalHours(date, startTime, endTime);
     double grossWage = 0.0;
 
@@ -57,11 +64,14 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
     if (appState.startOnSunday) {
       isWeekend = date.weekday == DateTime.saturday;
     } else {
-      isWeekend = date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
+      isWeekend =
+          date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
     }
 
     // Base calculation
-    double baseHours = isSpecialDay || isWeekend ? appState.baseHoursSpecialDay : appState.baseHoursWeekday;
+    double baseHours = isSpecialDay || isWeekend
+        ? appState.baseHoursSpecialDay
+        : appState.baseHoursWeekday;
     grossWage = totalHours * appState.hourlyWage;
 
     // Apply overtime rules
@@ -79,12 +89,8 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   }
 
   Map<String, double> _calculateWagePercentages(
-    AppState appState,
-    DateTime date,
-    TimeOfDay startTime,
-    TimeOfDay endTime,
-    {bool isSpecialDay = false}
-  ) {
+      AppState appState, DateTime date, TimeOfDay startTime, TimeOfDay endTime,
+      {bool isSpecialDay = false}) {
     Map<String, double> percentages = {'base': 1.0};
 
     // Apply special day rate if it's a special day
@@ -111,8 +117,6 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
     final grossWage =
         _calculateGrossWage(appState, _selectedDate, _startTime, _endTime);
     final netWage = grossWage * (1 - appState.taxDeduction / 100);
-    final wagePercentages = _calculateWagePercentages(
-        appState, _selectedDate, _startTime, _endTime);
 
     final startDateTime = DateTime(
       _selectedDate.year,
@@ -135,12 +139,11 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       date: _selectedDate,
       startTime: startDateTime,
       endTime: endDateTime,
-      note: _shiftNote,
+      note: _shiftNote ?? '',
       totalHours: totalHours,
       grossWage: grossWage,
       netWage: netWage,
       isSpecialDay: false,
-      wagePercentages: wagePercentages,
     );
   }
 
@@ -174,8 +177,9 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   Future<void> _editShift(
       BuildContext context, AppState appState, Shift shift) async {
     DateTime editDate = shift.date;
-    TimeOfDay editStartTime = shift.startTime != null 
-        ? TimeOfDay(hour: shift.startTime!.hour, minute: shift.startTime!.minute)
+    TimeOfDay editStartTime = shift.startTime != null
+        ? TimeOfDay(
+            hour: shift.startTime!.hour, minute: shift.startTime!.minute)
         : const TimeOfDay(hour: 8, minute: 0);
     TimeOfDay editEndTime = shift.endTime != null
         ? TimeOfDay(hour: shift.endTime!.hour, minute: shift.endTime!.minute)
@@ -264,8 +268,6 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       final grossWage =
           _calculateGrossWage(appState, editDate, editStartTime, editEndTime);
       final netWage = grossWage * (1 - appState.taxDeduction / 100);
-      final wagePercentages = _calculateWagePercentages(
-          appState, editDate, editStartTime, editEndTime);
 
       final startDateTime = DateTime(
         editDate.year,
@@ -291,8 +293,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
         totalHours: totalHours,
         grossWage: grossWage,
         netWage: netWage,
-        wagePercentages: wagePercentages,
-        note: editNote,
+        note: editNote ?? '',
         isSpecialDay: shift.isSpecialDay,
       );
 
@@ -305,26 +306,24 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
 
   void _toggleSpecialDay(Shift shift) {
     final appState = Provider.of<AppState>(context, listen: false);
-    final startTimeOfDay = shift.startTime != null 
-        ? TimeOfDay(hour: shift.startTime!.hour, minute: shift.startTime!.minute)
+    final startTimeOfDay = shift.startTime != null
+        ? TimeOfDay(
+            hour: shift.startTime!.hour, minute: shift.startTime!.minute)
         : const TimeOfDay(hour: 8, minute: 0);
     final endTimeOfDay = shift.endTime != null
         ? TimeOfDay(hour: shift.endTime!.hour, minute: shift.endTime!.minute)
         : const TimeOfDay(hour: 17, minute: 0);
 
     final newIsSpecialDay = !shift.isSpecialDay;
-    
+
     // Calculate wages with the new special day status
     final grossWage = _calculateGrossWage(
-      appState, 
-      shift.date, 
-      startTimeOfDay, 
-      endTimeOfDay,
-      isSpecialDay: newIsSpecialDay
-    );
-    
+        appState, shift.date, startTimeOfDay, endTimeOfDay,
+        isSpecialDay: newIsSpecialDay);
+
     final netWage = grossWage * (1 - appState.taxDeduction / 100);
-    final totalHours = _calculateTotalHours(shift.date, startTimeOfDay, endTimeOfDay);
+    final totalHours =
+        _calculateTotalHours(shift.date, startTimeOfDay, endTimeOfDay);
 
     final updatedShift = Shift(
       id: shift.id,
@@ -343,9 +342,9 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       appState.updateShift(index, updatedShift);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(newIsSpecialDay 
-            ? 'Changed to special day with overtime rules'
-            : 'Changed to regular day with overtime rules'),
+          content: Text(newIsSpecialDay
+              ? 'Changed to special day with overtime rules'
+              : 'Changed to regular day with overtime rules'),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -409,7 +408,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   @override
   Widget build(BuildContext context) {
     final appState = Provider.of<AppState>(context);
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -521,91 +520,143 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   }
 
   Widget _buildShiftsList(AppState appState, AppLocalizations localizations) {
-    List<Shift> shiftsToShow = _showCurrentMonthOnly
-        ? _getCurrentMonthShifts(appState.shifts)
-        : List<Shift>.from(appState.shifts);
-    shiftsToShow.sort((Shift b, Shift a) => a.date.compareTo(b.date));
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: shiftsToShow.length,
-      itemBuilder: (context, index) {
-        final shift = shiftsToShow[index];
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+    return StreamBuilder<List<Shift>>(
+      stream: appState.shiftsStream,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  _getLocalizedDayMonth(context, shift.date),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Text('${localizations.startTime}: '),
-                    Text(_formatTime(TimeOfDay(
-                      hour: shift.startTime?.hour ?? 8,
-                      minute: shift.startTime?.minute ?? 0,
-                    ))),
-                    Text(' - ${localizations.endTime}: '),
-                    Text(_formatTime(TimeOfDay(
-                      hour: shift.endTime?.hour ?? 17,
-                      minute: shift.endTime?.minute ?? 0,
-                    ))),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text('${localizations.totalHours}: '),
-                    Text(shift.totalHours.toStringAsFixed(2)),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text('${localizations.grossWage}: '),
-                    Text(
-                        '${appState.getCurrencySymbol()}${shift.grossWage.toStringAsFixed(2)}'),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text('${localizations.netWage}: '),
-                    Text(
-                        '${appState.getCurrencySymbol()}${shift.netWage.toStringAsFixed(2)}'),
-                  ],
-                ),
-                if (shift.note?.isNotEmpty == true)
-                  Text('${localizations.note}: ${shift.note}'),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.star,
-                        color: shift.isSpecialDay ? Colors.amber : Colors.grey,
-                        size: 24,
-                      ),
-                      onPressed: () => _toggleSpecialDay(shift),
-                      tooltip: shift.isSpecialDay ? 'Special day' : 'Regular day',
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () => _editShift(context, appState, shift),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () =>
-                          _confirmDeleteShift(context, appState, shift),
-                    ),
-                  ],
+                Text('Error: ${snapshot.error}'),
+                ElevatedButton(
+                  onPressed: () => appState.refreshShifts(),
+                  child: const Text('Retry'),
                 ),
               ],
             ),
-          ),
+          );
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            appState.shifts.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        // Use either stream data or current state data
+        List<Shift> shifts = snapshot.data ?? appState.shifts;
+
+        // Filter shifts based on the switch state
+        if (_showCurrentMonthOnly) {
+          final now = DateTime.now();
+          shifts = shifts
+              .where((shift) =>
+                  shift.date.year == now.year && shift.date.month == now.month)
+              .toList();
+        }
+
+        // Sort shifts by date (newest first)
+        shifts.sort((a, b) => b.date.compareTo(a.date));
+
+        if (shifts.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                _showCurrentMonthOnly
+                    ? '${localizations.currentMonth} - ${localizations.existingShifts} (0)'
+                    : localizations.existingShifts,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+          );
+        }
+
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: shifts.length,
+          itemBuilder: (context, index) {
+            final shift = shifts[index];
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getLocalizedDayMonth(context, shift.date),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text('${localizations.startTime}: '),
+                        Text(_formatTime(TimeOfDay(
+                          hour: shift.startTime?.hour ?? 8,
+                          minute: shift.startTime?.minute ?? 0,
+                        ))),
+                        Text(' - ${localizations.endTime}: '),
+                        Text(_formatTime(TimeOfDay(
+                          hour: shift.endTime?.hour ?? 17,
+                          minute: shift.endTime?.minute ?? 0,
+                        ))),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text('${localizations.totalHours}: '),
+                        Text(shift.totalHours.toStringAsFixed(2)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text('${localizations.grossWage}: '),
+                        Text(
+                            '${appState.getCurrencySymbol()}${shift.grossWage.toStringAsFixed(2)}'),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text('${localizations.netWage}: '),
+                        Text(
+                            '${appState.getCurrencySymbol()}${shift.netWage.toStringAsFixed(2)}'),
+                      ],
+                    ),
+                    if (shift.note.isNotEmpty)
+                      Text('${localizations.note}: ${shift.note}'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.star,
+                            color:
+                                shift.isSpecialDay ? Colors.amber : Colors.grey,
+                            size: 24,
+                          ),
+                          onPressed: () => _toggleSpecialDay(shift),
+                          tooltip: shift.isSpecialDay
+                              ? 'Special day'
+                              : 'Regular day',
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () => _editShift(context, appState, shift),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () =>
+                              _confirmDeleteShift(context, appState, shift),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

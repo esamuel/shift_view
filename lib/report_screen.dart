@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:intl/intl.dart';
 import 'app_state.dart';
 import 'export_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:math' as math;
 import 'rtl_fix.dart';
 import 'models/shift.dart';
-import 'models/overtime_rule.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);

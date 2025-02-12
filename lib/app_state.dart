@@ -3,11 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'models/shift.dart';
 import 'models/overtime_rule.dart';
+import 'services/firebase_service.dart';
 
 class AppState extends ChangeNotifier {
   List<Shift> shifts = [];
   List<OvertimeRule> overtimeRules = [];
   List<DateTime> festiveDays = [];
+  Stream<List<Shift>>? _shiftsStream;
+  Stream<List<OvertimeRule>>? _overtimeRulesStream;
 
   double _hourlyWage = 0;
   double _taxDeduction = 0;
@@ -30,48 +33,208 @@ class AppState extends ChangeNotifier {
   double get baseHoursSpecialDay => _baseHoursSpecialDay;
   String get userName => _userName;
   bool get isDarkMode => _isDarkMode;
+  Stream<List<Shift>>? get shiftsStream => _shiftsStream;
+  Stream<List<OvertimeRule>>? get overtimeRulesStream => _overtimeRulesStream;
 
-  // Setters
+  AppState() {
+    print('AppState: Constructor called');
+    FirebaseService.auth.authStateChanges().listen((user) {
+      if (user != null) {
+        print('AppState: User authenticated, initializing state');
+        _initializeState();
+      } else {
+        print('AppState: User signed out, resetting state');
+        _resetState();
+      }
+    });
+  }
+
+  void _resetState() {
+    print('AppState: Resetting state');
+    shifts = [];
+    overtimeRules = [];
+    festiveDays = [];
+    _shiftsStream = null;
+    _overtimeRulesStream = null;
+    _hourlyWage = 0;
+    _taxDeduction = 0;
+    _startOnSunday = true;
+    _locale = const Locale('en', '');
+    _countryCode = 'IL';
+    _baseHoursWeekday = 8.0;
+    _baseHoursSpecialDay = 8.0;
+    _isDarkMode = false;
+    _userName = '';
+    notifyListeners();
+  }
+
+  Future<void> _initializeState() async {
+    print('AppState: Starting initialization');
+    try {
+      await _loadSettingsFromFirestore();
+      _initializeShiftsStream();
+      _initializeOvertimeRulesStream();
+
+      // Verify overtime rules
+      await FirebaseService.verifyOvertimeRules();
+
+      await loadFestiveDays();
+      print('AppState: Initialization complete');
+    } catch (e) {
+      print('AppState: Error during initialization: $e');
+    }
+  }
+
+  void _initializeShiftsStream() {
+    print('AppState: Initializing shifts stream');
+    if (_shiftsStream != null) {
+      print('AppState: Shifts stream already initialized');
+      return;
+    }
+
+    try {
+      print('AppState: Creating new shifts stream');
+      _shiftsStream = FirebaseService.getShifts();
+
+      // Force immediate data fetch
+      FirebaseService.getShifts().first.then((initialShifts) {
+        print('AppState: Got initial shifts: ${initialShifts.length}');
+        shifts = initialShifts;
+        notifyListeners();
+      }).catchError((error) {
+        print('AppState: Error getting initial shifts: $error');
+      });
+
+      // Set up continuous stream
+      _shiftsStream?.listen(
+        (updatedShifts) {
+          print(
+              'AppState: Stream update - received ${updatedShifts.length} shifts');
+          shifts = updatedShifts;
+          notifyListeners();
+        },
+        onError: (error) {
+          print('AppState: Error in shifts stream: $error');
+          _shiftsStream = null;
+        },
+        cancelOnError: false,
+      );
+    } catch (e) {
+      print('AppState: Error initializing shifts stream: $e');
+      _shiftsStream = null;
+    }
+  }
+
+  void _initializeOvertimeRulesStream() {
+    print('AppState: Initializing overtime rules stream');
+    _overtimeRulesStream = FirebaseService.getOvertimeRules();
+    _overtimeRulesStream?.listen(
+      (updatedRules) {
+        print(
+            'AppState: Received ${updatedRules.length} overtime rules from stream');
+        print('AppState: Rules data: $updatedRules');
+        overtimeRules = updatedRules;
+        notifyListeners();
+      },
+      onError: (error) {
+        print('AppState: Error in overtime rules stream: $error');
+      },
+    );
+  }
+
+  Future<void> _loadSettingsFromFirestore() async {
+    print('AppState: Loading settings from Firestore');
+    try {
+      final settings = await FirebaseService.getUserSettings();
+      if (settings != null) {
+        print('AppState: Settings found in Firestore');
+        _hourlyWage = settings['hourlyWage'] ?? 40.0;
+        _taxDeduction = settings['taxDeduction'] ?? 10.0;
+        _startOnSunday = settings['startOnSunday'] ?? true;
+        _locale = Locale(settings['languageCode'] ?? 'en', '');
+        _countryCode = settings['countryCode'] ?? 'IL';
+        _baseHoursWeekday = settings['baseHoursWeekday'] ?? 8.0;
+        _baseHoursSpecialDay = settings['baseHoursSpecialDay'] ?? 8.0;
+        _isDarkMode = settings['isDarkMode'] ?? false;
+        notifyListeners();
+      } else {
+        print('AppState: No settings found in Firestore, using defaults');
+        // Initialize with defaults
+        _hourlyWage = 40.0;
+        _taxDeduction = 10.0;
+        _startOnSunday = true;
+        _locale = const Locale('en', '');
+        _countryCode = 'IL';
+        _baseHoursWeekday = 8.0;
+        _baseHoursSpecialDay = 8.0;
+        _isDarkMode = false;
+        notifyListeners();
+
+        // Save defaults to Firestore
+        await _saveSettingsToFirestore();
+      }
+    } catch (e) {
+      print('AppState: Error loading settings: $e');
+      // Load from local storage as fallback
+      await loadSettings();
+    }
+  }
+
+  Future<void> _saveSettingsToFirestore() async {
+    final settings = {
+      'hourlyWage': _hourlyWage,
+      'taxDeduction': _taxDeduction,
+      'startOnSunday': _startOnSunday,
+      'languageCode': _locale.languageCode,
+      'countryCode': _countryCode,
+      'baseHoursWeekday': _baseHoursWeekday,
+      'baseHoursSpecialDay': _baseHoursSpecialDay,
+      'isDarkMode': _isDarkMode,
+    };
+    await FirebaseService.saveUserSettings(settings);
+  }
+
+  // Setters with Firestore integration
   set hourlyWage(double value) {
     _hourlyWage = value;
     notifyListeners();
-    saveSettings();
+    _saveSettingsToFirestore();
   }
 
   set taxDeduction(double value) {
     _taxDeduction = value.clamp(0.0, 100.0);
     notifyListeners();
-    saveSettings();
+    _saveSettingsToFirestore();
   }
 
   set startOnSunday(bool value) {
     _startOnSunday = value;
     notifyListeners();
-    saveSettings();
+    _saveSettingsToFirestore();
   }
 
   void setLocale(Locale newLocale) {
     _locale = newLocale;
     notifyListeners();
-    saveSettings();
+    _saveSettingsToFirestore();
   }
 
   void setCountry(String newCountryCode) {
     _countryCode = newCountryCode;
     notifyListeners();
-    saveSettings();
+    _saveSettingsToFirestore();
   }
 
   set baseHoursWeekday(double value) {
     _baseHoursWeekday = value;
     notifyListeners();
-    saveSettings();
+    _saveSettingsToFirestore();
   }
 
   set baseHoursSpecialDay(double value) {
     _baseHoursSpecialDay = value;
     notifyListeners();
-    saveSettings();
+    _saveSettingsToFirestore();
   }
 
   void setUserName(String name) {
@@ -82,16 +245,10 @@ class AppState extends ChangeNotifier {
   void toggleDarkMode() {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
-    saveSettings();
+    _saveSettingsToFirestore();
   }
 
-  AppState() {
-    loadSettings();
-    loadShifts();
-    loadOvertimeRules();
-    loadFestiveDays();
-  }
-
+  // Local storage methods (as fallback)
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _hourlyWage = prefs.getDouble('hourlyWage') ?? 0;
@@ -105,50 +262,20 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('hourlyWage', _hourlyWage);
-    await prefs.setDouble('taxDeduction', _taxDeduction);
-    await prefs.setBool('startOnSunday', _startOnSunday);
-    await prefs.setString('languageCode', _locale.languageCode);
-    await prefs.setString('countryCode', _countryCode);
-    await prefs.setDouble('baseHoursWeekday', _baseHoursWeekday);
-    await prefs.setDouble('baseHoursSpecialDay', _baseHoursSpecialDay);
-    await prefs.setBool('isDarkMode', _isDarkMode);
+  // Shift management methods
+  Future<void> addShift(Shift shift) async {
+    await FirebaseService.saveShift(shift);
   }
 
-  Future<void> loadShifts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final shiftsJson = prefs.getString('shifts');
-    if (shiftsJson != null) {
-      final shiftsData = json.decode(shiftsJson) as List;
-      shifts = shiftsData.map((shiftData) => Shift.fromJson(shiftData)).toList();
-      notifyListeners();
+  Future<void> updateShift(int index, Shift updatedShift) async {
+    await FirebaseService.updateShift(updatedShift.id, updatedShift);
+  }
+
+  Future<void> deleteShift(int index) async {
+    if (index >= 0 && index < shifts.length) {
+      final shiftId = shifts[index].id;
+      await FirebaseService.deleteShift(shiftId);
     }
-  }
-
-  Future<void> saveShifts() async {
-    final prefs = await SharedPreferences.getInstance();
-    final shiftsJson = json.encode(shifts.map((shift) => shift.toJson()).toList());
-    await prefs.setString('shifts', shiftsJson);
-  }
-
-  Future<void> loadOvertimeRules() async {
-    final prefs = await SharedPreferences.getInstance();
-    final rulesJson = prefs.getString('overtimeRules');
-    if (rulesJson != null) {
-      final rulesData = json.decode(rulesJson) as List;
-      overtimeRules = rulesData
-          .map((ruleData) => OvertimeRule.fromJson(ruleData as Map<String, dynamic>))
-          .toList();
-      notifyListeners();
-    }
-  }
-
-  Future<void> saveOvertimeRules() async {
-    final prefs = await SharedPreferences.getInstance();
-    final rulesJson = json.encode(overtimeRules.map((rule) => rule.toJson()).toList());
-    await prefs.setString('overtimeRules', rulesJson);
   }
 
   Future<void> loadFestiveDays() async {
@@ -170,25 +297,58 @@ class AppState extends ChangeNotifier {
     await prefs.setString('festiveDays', festiveDaysJson);
   }
 
-  void addOvertimeRule(OvertimeRule rule) {
-    overtimeRules.add(rule);
-    saveOvertimeRules();
-    notifyListeners();
-  }
+  void addOvertimeRule(OvertimeRule rule) async {
+    print('AppState: Adding overtime rule: $rule');
+    try {
+      // Create a new list and add the rule
+      final newRules = List<OvertimeRule>.from(overtimeRules);
+      newRules.add(rule);
 
-  void updateOvertimeRule(int index, OvertimeRule updatedRule) {
-    if (index >= 0 && index < overtimeRules.length) {
-      overtimeRules[index] = updatedRule;
-      saveOvertimeRules();
-      notifyListeners();
+      // Save all rules
+      await FirebaseService.saveOvertimeRules(newRules);
+      print('AppState: Overtime rule added successfully');
+      // The stream will update the UI automatically
+    } catch (e) {
+      print('AppState: Error adding overtime rule: $e');
+      rethrow;
     }
   }
 
-  void deleteOvertimeRule(int index) {
+  void updateOvertimeRule(int index, OvertimeRule updatedRule) async {
+    print('AppState: Updating overtime rule at index $index: $updatedRule');
     if (index >= 0 && index < overtimeRules.length) {
-      overtimeRules.removeAt(index);
-      saveOvertimeRules();
-      notifyListeners();
+      try {
+        // Create a new list and update the rule
+        final newRules = List<OvertimeRule>.from(overtimeRules);
+        newRules[index] = updatedRule;
+
+        // Save all rules
+        await FirebaseService.saveOvertimeRules(newRules);
+        print('AppState: Overtime rule updated successfully');
+        // The stream will update the UI automatically
+      } catch (e) {
+        print('AppState: Error updating overtime rule: $e');
+        rethrow;
+      }
+    }
+  }
+
+  void deleteOvertimeRule(int index) async {
+    print('AppState: Deleting overtime rule at index $index');
+    if (index >= 0 && index < overtimeRules.length) {
+      try {
+        // Create a new list and remove the rule
+        final newRules = List<OvertimeRule>.from(overtimeRules);
+        newRules.removeAt(index);
+
+        // Save all rules
+        await FirebaseService.saveOvertimeRules(newRules);
+        print('AppState: Overtime rule deleted successfully');
+        // The stream will update the UI automatically
+      } catch (e) {
+        print('AppState: Error deleting overtime rule: $e');
+        rethrow;
+      }
     }
   }
 
@@ -203,28 +363,6 @@ class AppState extends ChangeNotifier {
         d.year == date.year && d.month == date.month && d.day == date.day);
     saveFestiveDays();
     notifyListeners();
-  }
-
-  void addShift(Shift shift) {
-    shifts.add(shift);
-    saveShifts();
-    notifyListeners();
-  }
-
-  void updateShift(int index, Shift updatedShift) {
-    if (index >= 0 && index < shifts.length) {
-      shifts[index] = updatedShift;
-      saveShifts();
-      notifyListeners();
-    }
-  }
-
-  void deleteShift(int index) {
-    if (index >= 0 && index < shifts.length) {
-      shifts.removeAt(index);
-      saveShifts();
-      notifyListeners();
-    }
   }
 
   Future<void> updateSettings({
@@ -245,7 +383,7 @@ class AppState extends ChangeNotifier {
     if (baseHoursSpecialDay != null) _baseHoursSpecialDay = baseHoursSpecialDay;
 
     notifyListeners();
-    await saveSettings();
+    await _saveSettingsToFirestore();
   }
 
   Future<void> updateBaseHours({
@@ -255,7 +393,7 @@ class AppState extends ChangeNotifier {
     _baseHoursWeekday = weekday;
     _baseHoursSpecialDay = specialDay;
     notifyListeners();
-    await saveSettings();
+    await _saveSettingsToFirestore();
   }
 
   String getCurrencySymbol() {
@@ -284,9 +422,31 @@ class AppState extends ChangeNotifier {
   }
 
   List<Shift> getShiftsBetweenDates(DateTime start, DateTime end) {
-    return shifts.where((shift) => 
-      shift.date.isAfter(start.subtract(const Duration(days: 1))) && 
-      shift.date.isBefore(end.add(const Duration(days: 1)))
-    ).toList();
+    return shifts
+        .where((shift) =>
+            shift.date.isAfter(start.subtract(const Duration(days: 1))) &&
+            shift.date.isBefore(end.add(const Duration(days: 1))))
+        .toList();
+  }
+
+  // Add a method to ensure shifts stream is initialized
+  void ensureShiftsStreamInitialized() {
+    if (_shiftsStream == null && FirebaseService.currentUserEmail != null) {
+      print('AppState: Ensuring shifts stream is initialized');
+      _initializeShiftsStream();
+    }
+  }
+
+  // Add method to force refresh shifts
+  Future<void> refreshShifts() async {
+    print('AppState: Forcing shifts refresh');
+    try {
+      final freshShifts = await FirebaseService.getShifts().first;
+      print('AppState: Refresh got ${freshShifts.length} shifts');
+      shifts = freshShifts;
+      notifyListeners();
+    } catch (e) {
+      print('AppState: Error refreshing shifts: $e');
+    }
   }
 }
