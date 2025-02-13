@@ -66,50 +66,62 @@ class FirebaseService {
         });
       }
 
-      // Initialize overtime rules if they don't exist
-      final rulesCollection = userDoc.collection('overtime_rules');
-      final rulesSnapshot = await rulesCollection.get();
+      // Remove the default rule initialization
+      // print('Updating overtime rules for user');
+      // final rulesCollection = userDoc.collection('overtime_rules');
 
-      if (rulesSnapshot.docs.isEmpty) {
-        print('Initializing default overtime rules');
+      // Delete existing rules
+      // final existingRules = await rulesCollection.get();
+      // final batch = _firestore.batch();
+      // for (var doc in existingRules.docs) {
+      //   batch.delete(doc.reference);
+      // }
+      // await batch.commit();
 
-        // Default rules
-        final defaultRules = [
-          {
-            'hoursThreshold': 8.0,
-            'rate': 1.25,
-            'isForSpecialDays': false,
-            'appliesOnWeekends': false,
-            'appliesOnFestiveDays': false,
-            'createdAt': FieldValue.serverTimestamp(),
-          },
-          {
-            'hoursThreshold': 10.0,
-            'rate': 1.5,
-            'isForSpecialDays': false,
-            'appliesOnWeekends': false,
-            'appliesOnFestiveDays': false,
-            'createdAt': FieldValue.serverTimestamp(),
-          },
-          {
-            'hoursThreshold': 8.0,
-            'rate': 1.75,
-            'isForSpecialDays': true,
-            'appliesOnWeekends': true,
-            'appliesOnFestiveDays': false,
-            'createdAt': FieldValue.serverTimestamp(),
-          }
-        ];
+      // Add new rules
+      // final newRules = [
+      //   {
+      //     'hoursThreshold': 8.0,
+      //     'rate': 1.5,
+      //     'isForSpecialDays': true,
+      //     'appliesOnWeekends': true,
+      //     'appliesOnFestiveDays': false,
+      //     'createdAt': FieldValue.serverTimestamp(),
+      //   },
+      //   {
+      //     'hoursThreshold': 10.0,
+      //     'rate': 1.75,
+      //     'isForSpecialDays': true,
+      //     'appliesOnWeekends': true,
+      //     'appliesOnFestiveDays': false,
+      //     'createdAt': FieldValue.serverTimestamp(),
+      //   },
+      //   {
+      //     'hoursThreshold': 8.0,
+      //     'rate': 1.25,
+      //     'isForSpecialDays': false,
+      //     'appliesOnWeekends': false,
+      //     'appliesOnFestiveDays': false,
+      //     'createdAt': FieldValue.serverTimestamp(),
+      //   },
+      //   {
+      //     'hoursThreshold': 10.0,
+      //     'rate': 1.5,
+      //     'isForSpecialDays': false,
+      //     'appliesOnWeekends': false,
+      //     'appliesOnFestiveDays': false,
+      //     'createdAt': FieldValue.serverTimestamp(),
+      //   }
+      // ];
 
-        // Use batch write for atomic operation
-        final batch = _firestore.batch();
-        for (var rule in defaultRules) {
-          final doc = rulesCollection.doc();
-          batch.set(doc, rule);
-        }
-        await batch.commit();
-        print('Default overtime rules initialized');
-      }
+      // Use batch write for atomic operation
+      // final newBatch = _firestore.batch();
+      // for (var rule in newRules) {
+      //   final doc = rulesCollection.doc();
+      //   newBatch.set(doc, rule);
+      // }
+      // await newBatch.commit();
+      // print('Overtime rules updated successfully');
     } catch (e) {
       print('Error initializing user structure: $e');
       rethrow;
@@ -368,6 +380,28 @@ class FirebaseService {
       }
     } catch (e) {
       print('verifyOvertimeRules: Error checking rules: $e');
+    }
+  }
+
+  static Future<void> printOvertimeRules() async {
+    if (currentUserEmail == null) {
+      print('No user email available');
+      return;
+    }
+
+    try {
+      final rulesRef = _firestore
+          .collection('users')
+          .doc(currentUserEmail)
+          .collection('overtime_rules');
+
+      final rules = await rulesRef.get();
+      print('Overtime rules for user ${currentUserEmail}:');
+      for (var doc in rules.docs) {
+        print('Rule: ${doc.data()}');
+      }
+    } catch (e) {
+      print('Error fetching overtime rules: $e');
     }
   }
 }

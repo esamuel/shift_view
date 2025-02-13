@@ -4,18 +4,18 @@ import 'firebase_service.dart';
 
 class OvertimeService {
   static final OvertimeService _instance = OvertimeService._internal();
-  
+
   factory OvertimeService() {
     return _instance;
   }
-  
+
   OvertimeService._internal();
 
   Stream<List<OvertimeRule>> getOvertimeRules() {
     final userId = FirebaseService.auth.currentUser?.uid;
     if (userId == null) return Stream.value([]);
 
-    return FirebaseService.firestore
+    return FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('overtime_rules')
@@ -29,7 +29,7 @@ class OvertimeService {
     final userId = FirebaseService.auth.currentUser?.uid;
     if (userId == null) return;
 
-    await FirebaseService.firestore
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('overtime_rules')
@@ -40,7 +40,7 @@ class OvertimeService {
     final userId = FirebaseService.auth.currentUser?.uid;
     if (userId == null) return;
 
-    await FirebaseService.firestore
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('overtime_rules')
@@ -52,7 +52,7 @@ class OvertimeService {
     final userId = FirebaseService.auth.currentUser?.uid;
     if (userId == null) return;
 
-    await FirebaseService.firestore
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('overtime_rules')
@@ -62,24 +62,35 @@ class OvertimeService {
 
   List<OvertimeRule> getDefaultRules() {
     return [
+      // Special day rules
+      OvertimeRule(
+        id: FirebaseFirestore.instance.collection('overtime_rules').doc().id,
+        hoursThreshold: 8.0,
+        rate: 1.75,
+        isForSpecialDays: true,
+        appliesOnWeekends: true,
+      ),
+      OvertimeRule(
+        id: FirebaseFirestore.instance.collection('overtime_rules').doc().id,
+        hoursThreshold: 10.0,
+        rate: 2.0,
+        isForSpecialDays: true,
+        appliesOnWeekends: true,
+      ),
+      // Regular workday rules
       OvertimeRule(
         id: FirebaseFirestore.instance.collection('overtime_rules').doc().id,
         hoursThreshold: 8.0,
         rate: 1.25,
         isForSpecialDays: false,
+        appliesOnWeekends: false,
       ),
       OvertimeRule(
         id: FirebaseFirestore.instance.collection('overtime_rules').doc().id,
         hoursThreshold: 10.0,
         rate: 1.5,
         isForSpecialDays: false,
-      ),
-      OvertimeRule(
-        id: FirebaseFirestore.instance.collection('overtime_rules').doc().id,
-        hoursThreshold: 0.0,
-        rate: 1.5,
-        isForSpecialDays: true,
-        appliesOnWeekends: true,
+        appliesOnWeekends: false,
       ),
     ];
   }
@@ -88,14 +99,14 @@ class OvertimeService {
     final userId = FirebaseService.auth.currentUser?.uid;
     if (userId == null) return;
 
-    final rulesCollection = FirebaseService.firestore
+    final rulesCollection = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('overtime_rules');
 
     final existingRules = await rulesCollection.get();
     if (existingRules.docs.isEmpty) {
-      final batch = FirebaseService.firestore.batch();
+      final batch = FirebaseFirestore.instance.batch();
       for (final rule in getDefaultRules()) {
         final doc = rulesCollection.doc();
         batch.set(doc, rule.toJson());
@@ -103,4 +114,4 @@ class OvertimeService {
       await batch.commit();
     }
   }
-} 
+}

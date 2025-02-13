@@ -23,7 +23,7 @@
   "grossWage": "Bruttolohn",
   "netWage": "Nettolohn",
   "edit": "Bearbeiten",
-  "delete": "L��schen",
+  "delete": "Löschen",
   "confirmDelete": "Löschen bestätigen",
   "deleteShiftConfirmation": "Sind Sie sicher, dass Sie diese Schicht löschen möchten?",
   "cancel": "Abbrechen",
@@ -204,9 +204,37 @@
   "changesSaved": "Änderungen gespeichert",
   "errorInvalidShiftId": "Fehler: Ungültige Schicht-ID",
   "notImplemented": "Nicht implementiert",
-  "featureNotImplemented": "Die Funktion ist noch nicht implementiert:",
-  "welcomeMessage": "Willkommen bei Schicht-Ansicht",
+  "featureNotImplemented": "Diese Funktion ist noch nicht implementiert",
+  "welcomeMessage": "Willkommen bei der Schichtverwaltung",
   "viewShifts": "Schichten anzeigen",
   "guide": "Anleitung",
-  "close": "Schließen"
+  "close": "Schließen",
+  "note": "Notiz",
+  "addNote": "Notiz hinzufügen",
+  "addNoteHint": "Fügen Sie hier Ihre Notizen hinzu",
+  "toggleSpecialDay": "Spezialtag umschalten",
+  "noShiftsThisMonth": "Keine Schichten in diesem Monat",
+  "noShiftsYet": "Noch keine Schichten vorhanden",
+  "shiftNotes": "Schichtnotizen",
+  "upcomingShifts": "Kommende Schichten",
+  "upcomingShiftsTitle": "Kommende Schichten",
+  "upcomingShiftsClose": "Schließen",
+  "noUpcomingShifts": "Keine kommenden Schichten",
+  "shiftDateFormat": "{weekday} {day}/{month}",
+  "shiftTimeFormat": "Start: {start}, Ende: {end}, Gesamt: {hours} Std {minutes} Min",
+  "@shiftDateFormat": {
+    "placeholders": {
+      "weekday": {},
+      "day": {},
+      "month": {}
+    }
+  },
+  "@shiftTimeFormat": {
+    "placeholders": {
+      "start": {},
+      "end": {},
+      "hours": {},
+      "minutes": {}
+    }
+  }
 }

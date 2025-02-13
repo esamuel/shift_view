@@ -27,9 +27,19 @@ class Shift {
 
   String? get dayOfWeek =>
       startTime != null ? DateFormat('E').format(startTime!) : null;
-  Duration? get duration => startTime != null && endTime != null
-      ? endTime!.difference(startTime!)
-      : null;
+
+  Duration? get duration {
+    if (startTime == null || endTime == null) return null;
+
+    // Handle overnight shifts
+    DateTime adjustedEndTime = endTime!;
+    if (endTime!.isBefore(startTime!)) {
+      // If end time is before start time, add 1 day to end time
+      adjustedEndTime = endTime!.add(const Duration(days: 1));
+    }
+
+    return adjustedEndTime.difference(startTime!);
+  }
 
   TimeOfDay? get startTimeOfDay => startTime != null
       ? TimeOfDay(hour: startTime!.hour, minute: startTime!.minute)

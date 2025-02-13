@@ -202,7 +202,7 @@
   "upcomingShiftsTitle": "Próximos turnos",
   "upcomingShiftsClose": "Cerrar",
   "noUpcomingShifts": "No hay próximos turnos",
-  "shiftDateFormat": "{weekday}, {day}-{month}",
+  "shiftDateFormat": "{weekday} {day}/{month}",
   "shiftTimeFormat": "Inicio: {start}, Fin: {end}, Total: {hours} h {minutes} min",
   "@shiftDateFormat": {
     "placeholders": {
@@ -228,8 +228,36 @@
   "sun": "DOM",
   "tapShareButton": "Toca el botón de compartir",
   "notImplemented": "No implementado",
-  "featureNotImplemented": "Característica no implementada",
-  "welcomeMessage": "Mensaje de bienvenida",
+  "featureNotImplemented": "Esta función aún no está implementada",
+  "welcomeMessage": "Bienvenido a la Gestión de Turnos",
   "viewShifts": "Ver turnos",
-  "guide": "Guía"
+  "guide": "Guía",
+  "note": "Nota",
+  "addNote": "Agregar nota",
+  "addNoteHint": "Agregue sus notas aquí",
+  "toggleSpecialDay": "Alternar día especial",
+  "noShiftsThisMonth": "No hay turnos este mes",
+  "noShiftsYet": "Aún no hay turnos",
+  "shiftNotes": "Notas del turno",
+  "upcomingShifts": "Próximos turnos",
+  "upcomingShiftsTitle": "Próximos turnos",
+  "upcomingShiftsClose": "Cerrar",
+  "noUpcomingShifts": "No hay próximos turnos",
+  "shiftDateFormat": "{weekday} {day}/{month}",
+  "shiftTimeFormat": "Inicio: {start}, Fin: {end}, Total: {hours} h {minutes} min",
+  "@shiftDateFormat": {
+    "placeholders": {
+      "weekday": {},
+      "day": {},
+      "month": {}
+    }
+  },
+  "@shiftTimeFormat": {
+    "placeholders": {
+      "start": {},
+      "end": {},
+      "hours": {},
+      "minutes": {}
+    }
+  }
 }

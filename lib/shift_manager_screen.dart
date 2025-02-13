@@ -43,13 +43,20 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       startTime.hour,
       startTime.minute,
     );
-    final end = DateTime(
+
+    DateTime end = DateTime(
       date.year,
       date.month,
       date.day,
       endTime.hour,
       endTime.minute,
     );
+
+    // Handle overnight shifts
+    if (end.isBefore(start)) {
+      end = end.add(const Duration(days: 1));
+    }
+
     return end.difference(start).inMinutes / 60.0;
   }
 
@@ -57,35 +64,83 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       AppState appState, DateTime date, TimeOfDay startTime, TimeOfDay endTime,
       {bool isSpecialDay = false}) {
     final totalHours = _calculateTotalHours(date, startTime, endTime);
-    double grossWage = 0.0;
 
-    // Determine if it's a weekend based on app settings
-    bool isWeekend = false;
-    if (appState.startOnSunday) {
-      isWeekend = date.weekday == DateTime.saturday;
+    print('\n=== WAGE CALCULATION DEBUG ===');
+    print('Date: $date');
+    print('Is Special Day: $isSpecialDay');
+    print('Total Hours: $totalHours');
+    print('Base Hourly Wage: ${appState.hourlyWage}');
+
+    double wage = 0.0;
+
+    if (isSpecialDay) {
+      // Special day calculation (weekends/holidays)
+      if (totalHours <= 8.0) {
+        // First 8 hours at 1.5x
+        wage = totalHours * appState.hourlyWage * 1.5;
+        print('All hours at 1.5x: $wage');
+      } else if (totalHours <= 10.0) {
+        // First 8 hours at 1.5x
+        wage = 8.0 * appState.hourlyWage * 1.5;
+        print('First 8 hours at 1.5x: $wage');
+
+        // Remaining hours at 1.75x
+        double overtimeHours = totalHours - 8.0;
+        double overtimePay = overtimeHours * appState.hourlyWage * 1.75;
+        wage += overtimePay;
+        print('Additional ${overtimeHours}h at 1.75x: $overtimePay');
+      } else {
+        // First 8 hours at 1.5x
+        wage = 8.0 * appState.hourlyWage * 1.5;
+        print('First 8 hours at 1.5x: $wage');
+
+        // Next 2 hours at 1.75x
+        wage += 2.0 * appState.hourlyWage * 1.75;
+        print('Next 2 hours at 1.75x: ${2.0 * appState.hourlyWage * 1.75}');
+
+        // Remaining hours at 2.0x
+        double extraHours = totalHours - 10.0;
+        double extraPay = extraHours * appState.hourlyWage * 2.0;
+        wage += extraPay;
+        print('Additional ${extraHours}h at 2.0x: $extraPay');
+      }
     } else {
-      isWeekend =
-          date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
-    }
+      // Regular day calculation
+      if (totalHours <= 8.0) {
+        // First 8 hours at regular rate
+        wage = totalHours * appState.hourlyWage;
+        print('All hours at 1.0x: $wage');
+      } else if (totalHours <= 10.0) {
+        // First 8 hours at regular rate
+        wage = 8.0 * appState.hourlyWage;
+        print('First 8 hours at 1.0x: $wage');
 
-    // Base calculation
-    double baseHours = isSpecialDay || isWeekend
-        ? appState.baseHoursSpecialDay
-        : appState.baseHoursWeekday;
-    grossWage = totalHours * appState.hourlyWage;
+        // Remaining hours at 1.25x
+        double overtimeHours = totalHours - 8.0;
+        double overtimePay = overtimeHours * appState.hourlyWage * 1.25;
+        wage += overtimePay;
+        print('Additional ${overtimeHours}h at 1.25x: $overtimePay');
+      } else {
+        // First 8 hours at regular rate
+        wage = 8.0 * appState.hourlyWage;
+        print('First 8 hours at 1.0x: $wage');
 
-    // Apply overtime rules
-    for (var rule in appState.overtimeRules) {
-      if ((rule.isForSpecialDays && (isSpecialDay || isWeekend)) ||
-          (!rule.isForSpecialDays && !isSpecialDay && !isWeekend)) {
-        if (totalHours > rule.hoursThreshold) {
-          double overtimeHours = totalHours - rule.hoursThreshold;
-          grossWage += (overtimeHours * appState.hourlyWage * (rule.rate - 1));
-        }
+        // Next 2 hours at 1.25x
+        wage += 2.0 * appState.hourlyWage * 1.25;
+        print('Next 2 hours at 1.25x: ${2.0 * appState.hourlyWage * 1.25}');
+
+        // Remaining hours at 1.5x
+        double extraHours = totalHours - 10.0;
+        double extraPay = extraHours * appState.hourlyWage * 1.5;
+        wage += extraPay;
+        print('Additional ${extraHours}h at 1.5x: $extraPay');
       }
     }
 
-    return grossWage;
+    print('Total Wage: $wage');
+    print('===========================\n');
+
+    return wage;
   }
 
   Map<String, double> _calculateWagePercentages(
@@ -114,8 +169,23 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
   Shift _createShift(AppState appState) {
     final totalHours =
         _calculateTotalHours(_selectedDate, _startTime, _endTime);
-    final grossWage =
-        _calculateGrossWage(appState, _selectedDate, _startTime, _endTime);
+
+    // Determine if it's a weekend based on app settings
+    bool isWeekend = false;
+    if (appState.startOnSunday) {
+      // For Israel (work week starts on Sunday)
+      isWeekend = _selectedDate.weekday == DateTime.saturday;
+    } else {
+      // For other countries (work week starts on Monday)
+      isWeekend = _selectedDate.weekday == DateTime.saturday ||
+          _selectedDate.weekday == DateTime.sunday;
+    }
+
+    // Calculate gross wage with special day rates if it's a weekend
+    final grossWage = _calculateGrossWage(
+        appState, _selectedDate, _startTime, _endTime,
+        isSpecialDay: isWeekend);
+
     final netWage = grossWage * (1 - appState.taxDeduction / 100);
 
     final startDateTime = DateTime(
@@ -143,7 +213,7 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       totalHours: totalHours,
       grossWage: grossWage,
       netWage: netWage,
-      isSpecialDay: false,
+      isSpecialDay: isWeekend, // Set isSpecialDay based on weekend status
     );
   }
 

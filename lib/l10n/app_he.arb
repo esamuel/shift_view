@@ -254,9 +254,27 @@
   "fri": "שישי",
   "sat": "שבת",
   "sun": "ראשון",
-  "notImplemented": "לא מיושם",
-  "featureNotImplemented": "תכונה לא מיושמת",
-  "welcomeMessage": "הודעת ברוכים הבאים",
+  "note": "הערה",
+  "addNote": "הוסף הערה",
+  "addNoteHint": "הזן מידע נוסף כלשהו",
+  "toggleSpecialDay": "החלף סטטוס יום מיוחד",
+  "noShiftsThisMonth": "אין משמרות בחודש הנוכחי",
+  "noShiftsYet": "עדיין אין משמרות",
+  "welcomeMessage": "ברוכים הבאים לניהול משמרות",
   "viewShifts": "צפה במשמרות",
-  "guide": "מדריך"
+  "guide": "מדריך",
+  "notImplemented": "לא מיושם",
+  "featureNotImplemented": "התכונה עדיין לא מיושמת:",
+  "@note": {
+    "description": "תווית לשדה הערה"
+  },
+  "@addNote": {
+    "description": "תווית להוספת הערה"
+  },
+  "@addNoteHint": {
+    "description": "טקסט רמז לשדה קלט הערה"
+  },
+  "@toggleSpecialDay": {
+    "description": "טקסט עזרה לכפתור החלפת יום מיוחד"
+  }
 }
