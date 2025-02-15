@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -40,11 +42,25 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.blue,
             visualDensity: VisualDensity.adaptivePlatformDensity,
             brightness: Brightness.light,
+            iconTheme: const IconThemeData(
+              color: Colors.blue,
+              size: 24.0,
+            ),
+            // Ensure proper font loading
+            textTheme: Typography.material2021().black,
+            primaryTextTheme: Typography.material2021().black,
           ),
           darkTheme: ThemeData(
             primarySwatch: Colors.blue,
             visualDensity: VisualDensity.adaptivePlatformDensity,
             brightness: Brightness.dark,
+            iconTheme: const IconThemeData(
+              color: Colors.blue,
+              size: 24.0,
+            ),
+            // Ensure proper font loading
+            textTheme: Typography.material2021().white,
+            primaryTextTheme: Typography.material2021().white,
           ),
           themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           locale: appState.locale,

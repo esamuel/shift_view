@@ -4,6 +4,17 @@ import '../models/overtime_rule.dart';
 import '../services/shift_service.dart';
 
 class OvertimeRulesScreen extends StatefulWidget {
+  // Use Material Icons for all icons in this screen
+  static const IconData ruleIcon = Icons.rule;
+  static const IconData editIcon = Icons.edit;
+  static const IconData deleteIcon = Icons.delete;
+  static const IconData addIcon = Icons.add_circle;
+  static const IconData timerIcon = Icons.timer;
+  static const IconData percentIcon = Icons.percent;
+  static const IconData specialDayIcon = Icons.event_available;
+  static const IconData weekendIcon = Icons.weekend;
+  static const IconData cancelIcon = Icons.cancel;
+  static const IconData saveIcon = Icons.save;
   const OvertimeRulesScreen({Key? key}) : super(key: key);
 
   @override
@@ -104,50 +115,79 @@ class _OvertimeRulesScreenState extends State<OvertimeRulesScreen> {
                     itemBuilder: (context, index) {
                       final rule = rules[index];
                       return Card(
-                        child: ListTile(
+                        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        child: ExpansionTile(
+                          leading: Icon(
+                            rule.isForSpecialDays ? Icons.event_available : Icons.calendar_today,
+                            color: Theme.of(context).primaryColor,
+                          ),
                           title: Text(
-                            'Rate: ${(rule.rate * 100).toStringAsFixed(0)}% after ${rule.hoursThreshold}h',
+                            'After ${rule.hoursThreshold}h @ ${(rule.rate * 100).toStringAsFixed(0)}%',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
-                          subtitle: Text(
-                            rule.isForSpecialDays
-                                ? 'Special Days${rule.appliesOnWeekends ? ' & Weekends' : ''}'
-                                : 'Regular Days',
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          subtitle: Row(
                             children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _editRule(rule),
+                              Icon(
+                                rule.isForSpecialDays ? Icons.star : Icons.work,
+                                size: 16,
+                                color: Theme.of(context).hintColor,
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () async {
-                                  final confirm = await showDialog<bool>(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: const Text('Delete Rule'),
-                                      content: const Text('Are you sure you want to delete this rule?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context, false),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context, true),
-                                          child: const Text('Delete'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                  if (confirm == true) {
-                                    await service.deleteOvertimeRule(rule.id);
-                                  }
-                                },
+                              const SizedBox(width: 4),
+                              Text(
+                                rule.isForSpecialDays
+                                    ? 'Special Days${rule.appliesOnWeekends ? ' & Weekends' : ''}'
+                                    : 'Regular Days',
                               ),
                             ],
                           ),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton.icon(
+                                    icon: const Icon(Icons.edit),
+                                    label: const Text('Edit'),
+                                    onPressed: () => _editRule(rule),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  TextButton.icon(
+                                    icon: const Icon(Icons.delete),
+                                    label: const Text('Delete'),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Theme.of(context).colorScheme.error,
+                                    ),
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Delete Rule'),
+                                          content: const Text('Are you sure you want to delete this rule?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, true),
+                                              style: TextButton.styleFrom(
+                                                foregroundColor: Theme.of(context).colorScheme.error,
+                                              ),
+                                              child: const Text('Delete'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirm == true) {
+                                        await service.deleteOvertimeRule(rule.id);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     },

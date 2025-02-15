@@ -1,7 +1,8 @@
+import 'package:flutter/foundation.dart';
+import 'dart:js_util' as js_util;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/shift.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../models/overtime_rule.dart';
@@ -134,7 +135,8 @@ class FirebaseService {
         GoogleAuthProvider googleProvider = GoogleAuthProvider();
         googleProvider.addScope('profile');
         googleProvider.addScope('email');
-        return await auth.signInWithPopup(googleProvider);
+        final promise = auth.signInWithPopup(googleProvider);
+        return js_util.promiseToFuture(promise);
       } else {
         final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
         if (googleUser == null) return null;
@@ -402,6 +404,19 @@ class FirebaseService {
       }
     } catch (e) {
       print('Error fetching overtime rules: $e');
+    }
+  }
+
+  static Future<User?> getCurrentUser() async {
+    if (kIsWeb) {
+      return auth.currentUser;
+    } else {
+      // Add the else condition here
+      // For example:
+      // return await auth.currentUser;
+      // or
+      // return null;
+      // This will depend on your specific use case
     }
   }
 }

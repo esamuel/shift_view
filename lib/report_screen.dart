@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'app_state.dart';
-import 'export_service.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:math' as math;
 import 'rtl_fix.dart';
 import 'models/shift.dart';
+import 'screens/search_results_screen.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
@@ -17,14 +15,6 @@ class ReportScreen extends StatefulWidget {
 
 class _ReportScreenState extends State<ReportScreen> {
   DateTime _selectedDate = DateTime.now();
-  late ExportService _exportService;
-
-  @override
-  void initState() {
-    super.initState();
-    final appState = Provider.of<AppState>(context, listen: false);
-    _exportService = ExportService(appState);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +65,18 @@ class _ReportScreenState extends State<ReportScreen> {
         _buildTotalRow(weekShifts, appState, localizations,
             _calculateWorkingDays(weekShifts)),
         _buildPercentageTotals(weekShifts, appState, localizations),
-        _buildExportButtons(localizations, weekShifts),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SearchResultsScreen(),
+              ),
+            );
+          },
+          child: const Text('Advanced Search'),
+        ),
       ],
     );
   }
@@ -104,7 +105,6 @@ class _ReportScreenState extends State<ReportScreen> {
         ),
         _buildTotalRow(monthShifts, appState, localizations, totalWorkingDays),
         _buildPercentageTotals(monthShifts, appState, localizations),
-        _buildExportButtons(localizations, monthShifts),
       ],
     );
   }
@@ -115,33 +115,53 @@ class _ReportScreenState extends State<ReportScreen> {
       children: [
         IconButton(
           icon: const Icon(Icons.chevron_left),
+          tooltip: 'Previous',
           onPressed: () {
             setState(() {
-              _selectedDate = _selectedDate.subtract(const Duration(days: 7));
+              if (DefaultTabController.of(context)?.index == 0) {
+                // Weekly view
+                _selectedDate = _selectedDate.subtract(const Duration(days: 7));
+              } else {
+                // Monthly view
+                _selectedDate = DateTime(_selectedDate.year, _selectedDate.month - 1);
+              }
             });
           },
         ),
-        TextButton(
-          child: Text(_getLocalizedMonthYear(localizations, _selectedDate)),
-          onPressed: () async {
-            final picked = await showDatePicker(
-              context: context,
-              initialDate: _selectedDate,
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2101),
-            );
-            if (picked != null) {
-              setState(() {
-                _selectedDate = picked;
-              });
-            }
-          },
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: TextButton(
+            child: Text(
+              _getLocalizedMonthYear(localizations, _selectedDate),
+              style: const TextStyle(fontSize: 16),
+            ),
+            onPressed: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _selectedDate,
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2101),
+              );
+              if (picked != null) {
+                setState(() {
+                  _selectedDate = picked;
+                });
+              }
+            },
+          ),
         ),
         IconButton(
           icon: const Icon(Icons.chevron_right),
+          tooltip: 'Next',
           onPressed: () {
             setState(() {
-              _selectedDate = _selectedDate.add(const Duration(days: 7));
+              if (DefaultTabController.of(context)?.index == 0) {
+                // Weekly view
+                _selectedDate = _selectedDate.add(const Duration(days: 7));
+              } else {
+                // Monthly view
+                _selectedDate = DateTime(_selectedDate.year, _selectedDate.month + 1);
+              }
             });
           },
         ),
@@ -249,40 +269,7 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  Widget _buildExportButtons(
-      AppLocalizations localizations, List<Shift> shifts) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              child: Text(localizations.exportAsCsv),
-              onPressed: () => _exportReport(shifts, 'csv'),
-            ),
-            ElevatedButton(
-              child: Text(localizations.exportAsPdf),
-              onPressed: () => _exportReport(shifts, 'pdf'),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              child: Text(localizations.backup),
-              onPressed: () => _createBackup(localizations),
-            ),
-            ElevatedButton(
-              child: Text(localizations.restore),
-              onPressed: () => _restoreBackup(localizations),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+
 
   Map<String, double> _calculatePercentageTotals(
       List<Shift> shifts, AppState appState) {
@@ -304,7 +291,7 @@ class _ReportScreenState extends State<ReportScreen> {
       double baseRate = isSpecialDay ? 1.5 : 1.0;
 
       // Apply base rate
-      double hoursAtBaseRate = math.min(remainingHours, baseHours);
+      double hoursAtBaseRate = remainingHours < baseHours ? remainingHours : baseHours;
       String baseKey = '${(baseRate * 100).toInt()}%';
       totals[baseKey] = (totals[baseKey] ?? 0) + hoursAtBaseRate;
       remainingHours -= hoursAtBaseRate;
@@ -318,7 +305,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
         if (shift.totalHours > rule.hoursThreshold) {
           double hoursAtThisRate =
-              math.min(remainingHours, nextThreshold - rule.hoursThreshold);
+              remainingHours < (nextThreshold - rule.hoursThreshold) ? remainingHours : (nextThreshold - rule.hoursThreshold);
 
           if (hoursAtThisRate > 0) {
             String key = '${(rule.rate * 100).toInt()}%';
@@ -334,57 +321,7 @@ class _ReportScreenState extends State<ReportScreen> {
     return totals;
   }
 
-  void _exportReport(List<Shift> shifts, String format) async {
-    try {
-      String filePath;
 
-      if (format == 'csv') {
-        filePath = await _exportService.generateCSV(shifts);
-      } else {
-        filePath = await _exportService.generatePDF(shifts);
-      }
-
-      await _exportService.shareFile(filePath, 'Shift Report');
-    } catch (e) {
-      print("Error exporting report: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Export failed: $e")),
-      );
-    }
-  }
-
-  void _createBackup(AppLocalizations localizations) async {
-    try {
-      final backupPath = await _exportService.createBackup();
-      await _exportService.shareFile(backupPath, 'Shift View Backup');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.backupCreated)),
-      );
-    } catch (e) {
-      print("Error creating backup: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${localizations.backupFailed}: $e")),
-      );
-    }
-  }
-
-  void _restoreBackup(AppLocalizations localizations) async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles();
-      if (result != null) {
-        String filePath = result.files.single.path!;
-        await _exportService.restoreBackup(filePath);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localizations.backupRestored)),
-        );
-      }
-    } catch (e) {
-      print("Error restoring backup: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localizations.restoreFailed)),
-      );
-    }
-  }
 
   bool _isWeekend(AppState appState, DateTime date) {
     if (appState.startOnSunday) {
