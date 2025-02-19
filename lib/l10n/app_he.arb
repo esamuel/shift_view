@@ -256,11 +256,11 @@
   "sun": "ראשון",
   "note": "הערה",
   "addNote": "הוסף הערה",
-  "addNoteHint": "הזן מידע נוסף כלשהו",
-  "toggleSpecialDay": "החלף סטטוס יום מיוחד",
+  "addNoteHint": "הזן מידע נוסף",
+  "toggleSpecialDay": "שנה סטטוס יום מיוחד",
   "noShiftsThisMonth": "אין משמרות בחודש הנוכחי",
   "noShiftsYet": "עדיין אין משמרות",
-  "welcomeMessage": "ברוכים הבאים לניהול משמרות",
+  "welcomeMessage": "ברוכים הבאים ל-Shift View",
   "viewShifts": "צפה במשמרות",
   "guide": "מדריך",
   "notImplemented": "לא מיושם",
@@ -276,5 +276,19 @@
   },
   "@toggleSpecialDay": {
     "description": "טקסט עזרה לכפתור החלפת יום מיוחד"
-  }
+  },
+  "monday_short": "ב'",
+  "tuesday_short": "ג'",
+  "wednesday_short": "ד'",
+  "thursday_short": "ה'",
+  "friday_short": "ו'",
+  "saturday_short": "ש'",
+  "sunday_short": "א'",
+  "monday_full": "יום שני",
+  "tuesday_full": "יום שלישי",
+  "wednesday_full": "יום רביעי",
+  "thursday_full": "יום חמישי",
+  "friday_full": "יום שישי",
+  "saturday_full": "יום שבת",
+  "sunday_full": "יום ראשון"
 }

@@ -249,5 +249,38 @@
   "featureNotImplemented": "Fonctionnalité non implémentée",
   "welcomeMessage": "Message de bienvenue",
   "viewShifts": "Voir les quarts",
-  "guide": "Guide"
+  "guide": "Guide",
+  "note": "Note",
+  "addNote": "Ajouter une note",
+  "addNoteHint": "Entrez des informations supplémentaires",
+  "toggleSpecialDay": "Basculer le statut de jour spécial",
+  "noShiftsThisMonth": "Aucun quart ce mois-ci",
+  "noShiftsYet": "Aucun quart pour le moment",
+  "@note": {
+    "description": "Libellé pour le champ de note"
+  },
+  "@addNote": {
+    "description": "Libellé pour l'ajout d'une note"
+  },
+  "@addNoteHint": {
+    "description": "Texte d'aide pour le champ de saisie de note"
+  },
+  "@toggleSpecialDay": {
+    "description": "Info-bulle pour le bouton de basculement de jour spécial"
+  },
+  "monday_short": "LUN",
+  "tuesday_short": "MAR",
+  "wednesday_short": "MER",
+  "thursday_short": "JEU",
+  "friday_short": "VEN",
+  "saturday_short": "SAM",
+  "sunday_short": "DIM",
+  
+  "monday_full": "Lundi",
+  "tuesday_full": "Mardi",
+  "wednesday_full": "Mercredi",
+  "thursday_full": "Jeudi",
+  "friday_full": "Vendredi",
+  "saturday_full": "Samedi",
+  "sunday_full": "Dimanche"
 }

@@ -236,5 +236,20 @@
       "hours": {},
       "minutes": {}
     }
-  }
+  },
+  "monday_short": "MO",
+  "tuesday_short": "DI",
+  "wednesday_short": "MI",
+  "thursday_short": "DO",
+  "friday_short": "FR",
+  "saturday_short": "SA",
+  "sunday_short": "SO",
+  
+  "monday_full": "Montag",
+  "tuesday_full": "Dienstag",
+  "wednesday_full": "Mittwoch",
+  "thursday_full": "Donnerstag",
+  "friday_full": "Freitag",
+  "saturday_full": "Samstag",
+  "sunday_full": "Sonntag"
 }

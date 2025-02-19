@@ -18,7 +18,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Your app description here">
+  <meta name="description" content="A shift management app">
   <meta name="keywords" content="shift management, time tracking, payroll">
   <meta name="author" content="Your Name">
   
@@ -28,7 +28,7 @@
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Shift View">
+  <meta name="apple-mobile-web-app-title" content="shift_view_app">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
@@ -86,47 +86,91 @@
   <script>
     window.flutterWebRenderer = "html";
   </script>
+
+  <!-- Add these scripts before your Flutter app script -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // The value below is injected by flutter build, do not touch.
+    var serviceWorkerVersion = null;
+  </script>
+
+  <!-- Firebase Configuration -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDadgwtZgZfAy2BkjPrgHpzvYbPQFUOb8o",
+      authDomain: "new-shift-view.firebaseapp.com",
+      projectId: "new-shift-view",
+      storageBucket: "new-shift-view.firebasestorage.app",
+      messagingSenderId: "110845479034",
+      appId: "1:110845479034:web:52729f4ea8caf4d33513c3"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- This script adds the Flutter initialization JS code -->
+  <script src="flutter.js" defer></script>
 </head>
 <body>
-  <div class="loading">
-    <div class="loader"></div>
+  <div id="loading">
+    <style>
+      body {
+        background-color: #0175C2;
+      }
+      #loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+      }
+      #loading .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+    <div class="spinner"></div>
   </div>
   
-  <!-- Custom error handling -->
   <script>
-    window.addEventListener('error', function(e) {
-      console.error('Resource loading error:', e);
-    });
-  </script>
-  
-  <script>
-    // Initialize Flutter Web with error handling
     window.addEventListener('load', function(ev) {
-      _flutter.loader.load({
+      // Download main.dart.js
+      _flutter.loader.loadEntrypoint({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
         },
-        onEntrypointLoaded: async function(engineInitializer) {
-          try {
-            const appRunner = await engineInitializer.initializeEngine({
-              renderer: "html",
-              useColorEmoji: true
-            });
-            await appRunner.runApp();
-          } catch (e) {
-            console.error('Flutter initialization error:', e);
-            document.body.innerHTML = 'Error loading application. Please try refreshing the page.';
-          }
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            appRunner.runApp();
+          });
         }
       });
     });
-  </script>
-  
-  <script src="flutter_bootstrap.js" defer></script>
-  <script>
+
+    // Error handling
+    window.addEventListener('error', function(e) {
+      console.error('Resource loading error:', e);
+    });
+
+    // Service worker registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('service_worker.js');
+        navigator.serviceWorker.register('flutter_service_worker.js');
       });
     }
   </script>

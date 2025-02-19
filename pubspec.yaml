@@ -51,7 +51,6 @@ flutter:
   assets:
     - assets/
     - assets/fonts/
-    - assets/icon/
     - assets/ShiftManagerApp.png
 
   # Fonts configuration

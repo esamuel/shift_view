@@ -1,35 +1,27 @@
 import 'package:flutter/foundation.dart';
-import 'dart:js_util' as js_util;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/shift.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../models/overtime_rule.dart';
+import '../firebase_options.dart';
 
 class FirebaseService {
-  static final FirebaseAuth auth = FirebaseAuth.instance;
+  static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  static final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: ['email', 'profile'],
-  );
+  static final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  // Add this getter
+  static FirebaseAuth get auth => _auth;
 
   // Get current user's email
-  static String? get currentUserEmail => auth.currentUser?.email;
+  static String? get currentUserEmail => _auth.currentUser?.email;
 
   static Future<void> initialize() async {
     await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyDadgwtZgZfAy2BkjPrgHpzvYbPQFUOb8o",
-        authDomain: "new-shift-view.firebaseapp.com",
-        projectId: "new-shift-view",
-        storageBucket: "new-shift-view.appspot.com",
-        messagingSenderId: "110845479034",
-        appId: "1:110845479034:web:52729f4ea8caf4d33513c3",
-      ),
+      options: DefaultFirebaseOptions.currentPlatform,
     );
-
-    // Initialize user structure if needed
     await initializeUserStructure();
   }
 
@@ -37,7 +29,7 @@ class FirebaseService {
     if (currentUserEmail == null) return;
 
     try {
-      print('Initializing structure for user: ${currentUserEmail}');
+      print('Initializing structure for user: $currentUserEmail');
 
       // Get user document reference
       final userDoc = _firestore.collection('users').doc(currentUserEmail);
@@ -129,30 +121,34 @@ class FirebaseService {
     }
   }
 
-  static Future<UserCredential?> signInWithGoogle() async {
-    try {
-      if (kIsWeb) {
-        GoogleAuthProvider googleProvider = GoogleAuthProvider();
-        googleProvider.addScope('profile');
-        googleProvider.addScope('email');
-        final promise = auth.signInWithPopup(googleProvider);
-        return js_util.promiseToFuture(promise);
-      } else {
-        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-        if (googleUser == null) return null;
+  static Future<UserCredential> signInWithGoogle() async {
+    if (kIsWeb) {
+      // For web
+      GoogleAuthProvider googleProvider = GoogleAuthProvider();
+      googleProvider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+      return await _auth.signInWithPopup(googleProvider);
+    } else {
+      // For mobile
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
-        final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
-        final credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth.accessToken,
-          idToken: googleAuth.idToken,
-        );
-
-        return await auth.signInWithCredential(credential);
+      if (googleAuth?.accessToken == null || googleAuth?.idToken == null) {
+        throw 'Google Sign In Failed';
       }
-    } catch (e) {
-      print('Error signing in with Google: $e');
-      rethrow;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      return await _auth.signInWithCredential(credential);
+    }
+  }
+
+  static Future<void> signOut() async {
+    await _auth.signOut();
+    if (!kIsWeb) {
+      await _googleSignIn.signOut();
     }
   }
 
@@ -163,7 +159,7 @@ class FirebaseService {
       return;
     }
 
-    print('saveUserSettings: Saving settings for user ${currentUserEmail}');
+    print('saveUserSettings: Saving settings for user $currentUserEmail');
     try {
       await _firestore
           .collection('users')
@@ -184,7 +180,7 @@ class FirebaseService {
       return null;
     }
 
-    print('getUserSettings: Fetching settings for user ${currentUserEmail}');
+    print('getUserSettings: Fetching settings for user $currentUserEmail');
     try {
       final doc = await _firestore
           .collection('users')
@@ -213,7 +209,7 @@ class FirebaseService {
       return Stream.value([]);
     }
 
-    print('getShifts: Fetching shifts for user ${currentUserEmail}');
+    print('getShifts: Fetching shifts for user $currentUserEmail');
     return _firestore
         .collection('users')
         .doc(currentUserEmail)
@@ -236,7 +232,7 @@ class FirebaseService {
       return;
     }
 
-    print('saveShift: Saving shift for user ${currentUserEmail}');
+    print('saveShift: Saving shift for user $currentUserEmail');
     try {
       final docRef = await _firestore
           .collection('users')
@@ -279,7 +275,7 @@ class FirebaseService {
     }
 
     print(
-        'saveOvertimeRules: Saving ${rules.length} rules for user ${currentUserEmail}');
+        'saveOvertimeRules: Saving ${rules.length} rules for user $currentUserEmail');
     try {
       // Get the user document reference
       final userDoc = _firestore.collection('users').doc(currentUserEmail);
@@ -398,7 +394,7 @@ class FirebaseService {
           .collection('overtime_rules');
 
       final rules = await rulesRef.get();
-      print('Overtime rules for user ${currentUserEmail}:');
+      print('Overtime rules for user $currentUserEmail:');
       for (var doc in rules.docs) {
         print('Rule: ${doc.data()}');
       }
@@ -409,7 +405,7 @@ class FirebaseService {
 
   static Future<User?> getCurrentUser() async {
     if (kIsWeb) {
-      return auth.currentUser;
+      return _auth.currentUser;
     } else {
       // Add the else condition here
       // For example:
@@ -418,5 +414,6 @@ class FirebaseService {
       // return null;
       // This will depend on your specific use case
     }
+    return null;
   }
 }

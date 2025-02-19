@@ -33,13 +33,12 @@ class DefaultFirebaseOptions {
 
   // Replace these with your Firebase configuration values
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: "AIzaSyA7oLzBL-AR1N2Y1b7cqhUmFuJMnCqIZkc",
-    authDomain: "shift-view-app.firebaseapp.com",
-    projectId: "shift-view-app",
-    storageBucket: "shift-view-app.firebasestorage.app",
-    messagingSenderId: "530556523067",
-  appId: "1:530556523067:web:5aad7c47cca98b3f53c21e"
-  );
+      apiKey: "AIzaSyDadgwtZgZfAy2BkjPrgHpzvYbPQFUOb8o",
+      authDomain: "new-shift-view.firebaseapp.com",
+      projectId: "new-shift-view",
+      storageBucket: "new-shift-view.firebasestorage.app",
+      messagingSenderId: "110845479034",
+      appId: "1:110845479034:web:52729f4ea8caf4d33513c3");
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'YOUR-ANDROID-API-KEY',
@@ -68,4 +67,4 @@ class DefaultFirebaseOptions {
     iosClientId: 'YOUR-MACOS-CLIENT-ID',
     iosBundleId: 'YOUR-MACOS-BUNDLE-ID',
   );
-} 
+}

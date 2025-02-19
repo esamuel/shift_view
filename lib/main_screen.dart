@@ -282,22 +282,31 @@ class MainScreen extends StatelessWidget {
   String _getDayName(BuildContext context, int weekday) {
     final localizations = AppLocalizations.of(context);
     switch (weekday) {
-      case 1:
-        return localizations.mon;
-      case 2:
-        return localizations.tue;
-      case 3:
-        return localizations.wed;
-      case 4:
-        return localizations.thu;
-      case 5:
-        return localizations.fri;
-      case 6:
-        return localizations.sat;
-      case 7:
-        return localizations.sun;
+      case DateTime.monday:
+        return localizations.monday_full;
+      case DateTime.tuesday:
+        return localizations.tuesday_full;
+      case DateTime.wednesday:
+        return localizations.wednesday_full;
+      case DateTime.thursday:
+        return localizations.thursday_full;
+      case DateTime.friday:
+        return localizations.friday_full;
+      case DateTime.saturday:
+        return localizations.saturday_full;
+      case DateTime.sunday:
+        return localizations.sunday_full;
       default:
         return '';
+    }
+  }
+
+  Future<void> _handleSignOut(BuildContext context) async {
+    try {
+      await FirebaseService.auth.signOut();
+      // ... rest of the code ...
+    } catch (e) {
+      // ... error handling ...
     }
   }
 }

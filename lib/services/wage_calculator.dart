@@ -51,111 +51,106 @@ class WageCalculator {
     }
 
     final duration = endTime.difference(shift.startTime!);
-    final hours = duration.inMinutes / 60.0;
-    const double baseHours = 8.0;
+    double hours = duration.inMinutes / 60.0;
+
+    // Round hours to 2 decimal places to avoid floating point errors
+    hours = double.parse(hours.toStringAsFixed(2));
+
     double wage = 0.0;
 
-    // Check if shift crosses midnight
-    bool crossesMidnight = shift.endTime!.day != shift.startTime!.day;
+    // Check if this is a special day
+    bool isSpecialDay = shift.isSpecialDay || _isWeekend(shift.date);
 
-    // Determine if this is a special day (weekend or marked special)
-    bool isWeekend = _isWeekend(shift.date);
-    bool isSpecial = shift.isSpecialDay || isWeekend;
-
-    print('\n=== DETAILED WAGE CALCULATION FOR ${shift.date} ===');
+    print('\n=== DETAILED WAGE CALCULATION ===');
     print('Start time: ${shift.startTime}');
     print('End time: ${shift.endTime}');
-    print('Adjusted end time: $endTime');
-    print('Crosses midnight: $crossesMidnight');
-    print('Hours worked: $hours');
+    print('Total hours: $hours');
     print('Base hourly wage: ₪$baseHourlyWage');
-    print('Is weekend: $isWeekend');
-    print('Is marked special: ${shift.isSpecialDay}');
-    print('Final isSpecial: $isSpecial');
-    print('Start day: ${shift.date.weekday}');
-    if (crossesMidnight) {
-      print('End day: ${shift.endTime!.weekday}');
-    }
+    print('Is special day: $isSpecialDay');
 
-    if (isSpecial) {
-      // Special day calculation (weekends/holidays)
+    if (isSpecialDay) {
+      // Weekend/Special Day calculation
       print('\nSPECIAL DAY CALCULATION:');
 
-      // First 8 hours at 1.5x
-      double baseHours = hours <= 8.0 ? hours : 8.0;
-      double baseHoursPay = baseHours * baseHourlyWage * 1.5;
-      wage += baseHoursPay;
-      print('1. First 8 hours at 1.5x:');
-      print('   Hours: $baseHours');
-      print('   Rate: 1.5x');
-      print('   Amount: ₪$baseHoursPay');
+      // Calculate wages for each hour range
+      if (hours > 0) {
+        // First 8 hours at 1.5x
+        double baseHours = hours > 8.0 ? 8.0 : hours;
+        double baseWage = baseHours * baseHourlyWage * 1.5;
+        wage += baseWage;
+        print('1. First 8 hours at 1.5x:');
+        print('   Hours: $baseHours');
+        print('   Amount: ₪${baseWage.toStringAsFixed(2)}');
 
-      if (hours > 8.0) {
         // Hours 8-10 at 1.75x
-        double overtimeHours = hours <= 10.0 ? hours - 8.0 : 2.0;
-        double overtimePay = overtimeHours * baseHourlyWage * 1.75;
-        wage += overtimePay;
-        print('\n2. Hours 8-10 at 1.75x:');
-        print('   Hours: $overtimeHours');
-        print('   Rate: 1.75x');
-        print('   Amount: ₪$overtimePay');
+        if (hours > 8.0) {
+          double overtimeHours = hours > 10.0 ? 2.0 : (hours - 8.0);
+          double overtimeWage = overtimeHours * baseHourlyWage * 1.75;
+          wage += overtimeWage;
+          print('2. Hours 8-10 at 1.75x:');
+          print('   Hours: $overtimeHours');
+          print('   Amount: ₪${overtimeWage.toStringAsFixed(2)}');
 
-        // Hours beyond 10 at 2.0x
-        if (hours > 10.0) {
-          double extraHours = hours - 10.0;
-          double extraPay = extraHours * baseHourlyWage * 2.0;
-          wage += extraPay;
-          print('\n3. Hours beyond 10 at 2.0x:');
-          print('   Hours: $extraHours');
-          print('   Rate: 2.0x');
-          print('   Amount: ₪$extraPay');
+          // Hours beyond 10 at 2.0x
+          if (hours > 10.0) {
+            double extraHours = hours - 10.0;
+            double extraWage = extraHours * baseHourlyWage * 2.0;
+            wage += extraWage;
+            print('3. Hours beyond 10 at 2.0x:');
+            print('   Hours: $extraHours');
+            print('   Amount: ₪${extraWage.toStringAsFixed(2)}');
+          }
         }
       }
     } else {
-      // Regular day calculation
+      // Regular Workday calculation
       print('\nREGULAR DAY CALCULATION:');
 
-      // First 8 hours at regular rate
-      double baseHours = hours <= 8.0 ? hours : 8.0;
-      double baseHoursPay = baseHours * baseHourlyWage;
-      wage += baseHoursPay;
-      print('1. First 8 hours at 1.0x:');
-      print('   Hours: $baseHours');
-      print('   Rate: 1.0x');
-      print('   Amount: ₪$baseHoursPay');
+      if (hours > 0) {
+        // First 8 hours at regular rate (1x)
+        double baseHours = hours > 8.0 ? 8.0 : hours;
+        double baseWage = baseHours * baseHourlyWage;
+        wage += baseWage;
+        print('1. First 8 hours at 1.0x:');
+        print('   Hours: $baseHours');
+        print('   Amount: ₪${baseWage.toStringAsFixed(2)}');
 
-      if (hours > 8.0) {
         // Hours 8-10 at 1.25x
-        double overtimeHours = hours <= 10.0 ? hours - 8.0 : 2.0;
-        double overtimePay = overtimeHours * baseHourlyWage * 1.25;
-        wage += overtimePay;
-        print('\n2. Hours 8-10 at 1.25x:');
-        print('   Hours: $overtimeHours');
-        print('   Rate: 1.25x');
-        print('   Amount: ₪$overtimePay');
+        if (hours > 8.0) {
+          double overtimeHours = hours > 10.0 ? 2.0 : (hours - 8.0);
+          double overtimeWage = overtimeHours * baseHourlyWage * 1.25;
+          wage += overtimeWage;
+          print('2. Hours 8-10 at 1.25x:');
+          print('   Hours: $overtimeHours');
+          print('   Amount: ₪${overtimeWage.toStringAsFixed(2)}');
 
-        // Hours beyond 10 at 1.5x
-        if (hours > 10.0) {
-          double extraHours = hours - 10.0;
-          double extraPay = extraHours * baseHourlyWage * 1.5;
-          wage += extraPay;
-          print('\n3. Hours beyond 10 at 1.5x:');
-          print('   Hours: $extraHours');
-          print('   Rate: 1.5x');
-          print('   Amount: ₪$extraPay');
+          // Hours beyond 10 at 1.5x
+          if (hours > 10.0) {
+            double extraHours = hours - 10.0;
+            double extraWage = extraHours * baseHourlyWage * 1.5;
+            wage += extraWage;
+            print('3. Hours beyond 10 at 1.5x:');
+            print('   Hours: $extraHours');
+            print('   Amount: ₪${extraWage.toStringAsFixed(2)}');
+          }
         }
       }
     }
 
+    // Round to 2 decimal places
+    wage = double.parse(wage.toStringAsFixed(2));
+
     print('\nFINAL CALCULATION:');
-    print('Total Gross Wage: ₪$wage');
+    print('Total Hours: $hours');
+    print('Total Gross Wage: ₪${wage.toStringAsFixed(2)}');
     print('===============================\n');
     return wage;
   }
 
   double calculateNetWage(double grossWage) {
     final taxDeduction = grossWage * (taxDeductionPercentage / 100);
-    return grossWage - taxDeduction;
+    // Round to 2 decimal places
+    return double.parse((grossWage - taxDeduction).toStringAsFixed(2));
   }
 
   Map<String, double> calculateWeeklyWages(List<Shift> shifts) {
@@ -225,23 +220,15 @@ class WageCalculator {
   }
 
   bool _isWeekend(DateTime date) {
-    print('\nChecking weekend for date: ${date}');
-    print('Day of week: ${date.weekday}');
-    print('Start work week on Sunday: $startWorkWeekOnSunday');
-
     if (startWorkWeekOnSunday) {
       // For Israel (work week starts on Sunday)
       // Only Saturday (7) is weekend
-      bool isWeekend = date.weekday == DateTime.saturday;
-      print('Is weekend (Saturday only): $isWeekend');
-      return isWeekend;
+      return date.weekday == DateTime.saturday;
     } else {
       // For other countries (work week starts on Monday)
       // Both Saturday (7) and Sunday (1) are weekend
-      bool isWeekend =
-          date.weekday == DateTime.saturday || date.weekday == DateTime.sunday;
-      print('Is weekend (Saturday or Sunday): $isWeekend');
-      return isWeekend;
+      return date.weekday == DateTime.saturday ||
+          date.weekday == DateTime.sunday;
     }
   }
 

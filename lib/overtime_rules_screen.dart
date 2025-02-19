@@ -90,7 +90,7 @@ class OvertimeRulesScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(localizations.confirmDelete),
-        content: Text('Are you sure you want to delete this overtime rule?'),
+        content: const Text('Are you sure you want to delete this overtime rule?'),
         actions: [
           TextButton(
             child: Text(localizations.cancel),

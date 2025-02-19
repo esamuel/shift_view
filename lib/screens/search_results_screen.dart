@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -138,7 +137,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 },
                 children: [
                   pw.TableRow(
-                    decoration: pw.BoxDecoration(
+                    decoration: const pw.BoxDecoration(
                       color: PdfColors.grey300,
                     ),
                     children: [

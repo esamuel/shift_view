@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'models/shift.dart';
-import 'models/overtime_rule.dart';
 import 'app_state.dart';
 
 class ShiftManagerScreen extends StatefulWidget {
@@ -64,81 +63,34 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
       AppState appState, DateTime date, TimeOfDay startTime, TimeOfDay endTime,
       {bool isSpecialDay = false}) {
     final totalHours = _calculateTotalHours(date, startTime, endTime);
-
-    print('\n=== WAGE CALCULATION DEBUG ===');
-    print('Date: $date');
-    print('Is Special Day: $isSpecialDay');
-    print('Total Hours: $totalHours');
-    print('Base Hourly Wage: ${appState.hourlyWage}');
-
     double wage = 0.0;
 
+    // Properly applying rates for special days and regular days
     if (isSpecialDay) {
-      // Special day calculation (weekends/holidays)
+      // Weekend/Special Day calculation
       if (totalHours <= 8.0) {
-        // First 8 hours at 1.5x
         wage = totalHours * appState.hourlyWage * 1.5;
-        print('All hours at 1.5x: $wage');
       } else if (totalHours <= 10.0) {
-        // First 8 hours at 1.5x
         wage = 8.0 * appState.hourlyWage * 1.5;
-        print('First 8 hours at 1.5x: $wage');
-
-        // Remaining hours at 1.75x
-        double overtimeHours = totalHours - 8.0;
-        double overtimePay = overtimeHours * appState.hourlyWage * 1.75;
-        wage += overtimePay;
-        print('Additional ${overtimeHours}h at 1.75x: $overtimePay');
+        wage += (totalHours - 8.0) * appState.hourlyWage * 1.75;
       } else {
-        // First 8 hours at 1.5x
         wage = 8.0 * appState.hourlyWage * 1.5;
-        print('First 8 hours at 1.5x: $wage');
-
-        // Next 2 hours at 1.75x
         wage += 2.0 * appState.hourlyWage * 1.75;
-        print('Next 2 hours at 1.75x: ${2.0 * appState.hourlyWage * 1.75}');
-
-        // Remaining hours at 2.0x
-        double extraHours = totalHours - 10.0;
-        double extraPay = extraHours * appState.hourlyWage * 2.0;
-        wage += extraPay;
-        print('Additional ${extraHours}h at 2.0x: $extraPay');
+        wage += (totalHours - 10.0) * appState.hourlyWage * 2.0;
       }
     } else {
-      // Regular day calculation
+      // Regular Workday calculation
       if (totalHours <= 8.0) {
-        // First 8 hours at regular rate
         wage = totalHours * appState.hourlyWage;
-        print('All hours at 1.0x: $wage');
       } else if (totalHours <= 10.0) {
-        // First 8 hours at regular rate
         wage = 8.0 * appState.hourlyWage;
-        print('First 8 hours at 1.0x: $wage');
-
-        // Remaining hours at 1.25x
-        double overtimeHours = totalHours - 8.0;
-        double overtimePay = overtimeHours * appState.hourlyWage * 1.25;
-        wage += overtimePay;
-        print('Additional ${overtimeHours}h at 1.25x: $overtimePay');
+        wage += (totalHours - 8.0) * appState.hourlyWage * 1.25;
       } else {
-        // First 8 hours at regular rate
         wage = 8.0 * appState.hourlyWage;
-        print('First 8 hours at 1.0x: $wage');
-
-        // Next 2 hours at 1.25x
         wage += 2.0 * appState.hourlyWage * 1.25;
-        print('Next 2 hours at 1.25x: ${2.0 * appState.hourlyWage * 1.25}');
-
-        // Remaining hours at 1.5x
-        double extraHours = totalHours - 10.0;
-        double extraPay = extraHours * appState.hourlyWage * 1.5;
-        wage += extraPay;
-        print('Additional ${extraHours}h at 1.5x: $extraPay');
+        wage += (totalHours - 10.0) * appState.hourlyWage * 1.5;
       }
     }
-
-    print('Total Wage: $wage');
-    print('===========================\n');
 
     return wage;
   }
@@ -469,7 +421,35 @@ class _ShiftManagerScreenState extends State<ShiftManagerScreen> {
 
   String _getLocalizedDayMonth(BuildContext context, DateTime date) {
     final localizations = AppLocalizations.of(context);
-    final weekday = DateFormat('EEEE').format(date);
+
+    // Get the localized day name using our new translations
+    String weekday;
+    switch (date.weekday) {
+      case DateTime.monday:
+        weekday = localizations.monday_full;
+        break;
+      case DateTime.tuesday:
+        weekday = localizations.tuesday_full;
+        break;
+      case DateTime.wednesday:
+        weekday = localizations.wednesday_full;
+        break;
+      case DateTime.thursday:
+        weekday = localizations.thursday_full;
+        break;
+      case DateTime.friday:
+        weekday = localizations.friday_full;
+        break;
+      case DateTime.saturday:
+        weekday = localizations.saturday_full;
+        break;
+      case DateTime.sunday:
+        weekday = localizations.sunday_full;
+        break;
+      default:
+        weekday = '';
+    }
+
     final day = date.day.toString();
     final month = date.month.toString();
     return localizations.shiftDateFormat(weekday, day, month);

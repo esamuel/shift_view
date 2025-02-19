@@ -169,7 +169,7 @@
   "shiftUpdatedSuccessfully": "Shift updated successfully.",
   "shiftDeletedSuccessfully": "Shift deleted successfully.",
   "addToHomeScreeniOS": "For iOS: Tap the share button in Safari, then select 'Add to Home Screen'.",
-  "addToHomeScreenAndroid": "For Android: Tap the menu button in Chrome, then select 'Add to Home screen'.",
+  "addToHomeScreenAndroid": "For Android: Tap the menu button in Chrome, then select 'Add to home screen'.",
   "ok": "OK",
   "upcomingShifts": "Upcoming Shifts",
   "upcomingShiftsTitle": "Upcoming Shifts",
@@ -228,5 +228,20 @@
   },
   "@toggleSpecialDay": {
     "description": "Tooltip for special day toggle button"
-  }
+  },
+  "monday_short": "MON",
+  "tuesday_short": "TUE",
+  "wednesday_short": "WED",
+  "thursday_short": "THU",
+  "friday_short": "FRI",
+  "saturday_short": "SAT",
+  "sunday_short": "SUN",
+  
+  "monday_full": "Monday",
+  "tuesday_full": "Tuesday",
+  "wednesday_full": "Wednesday",
+  "thursday_full": "Thursday",
+  "friday_full": "Friday",
+  "saturday_full": "Saturday",
+  "sunday_full": "Sunday"
 }

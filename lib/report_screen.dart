@@ -118,12 +118,13 @@ class _ReportScreenState extends State<ReportScreen> {
           tooltip: 'Previous',
           onPressed: () {
             setState(() {
-              if (DefaultTabController.of(context)?.index == 0) {
+              if (DefaultTabController.of(context).index == 0) {
                 // Weekly view
                 _selectedDate = _selectedDate.subtract(const Duration(days: 7));
               } else {
                 // Monthly view
-                _selectedDate = DateTime(_selectedDate.year, _selectedDate.month - 1);
+                _selectedDate =
+                    DateTime(_selectedDate.year, _selectedDate.month - 1);
               }
             });
           },
@@ -155,12 +156,13 @@ class _ReportScreenState extends State<ReportScreen> {
           tooltip: 'Next',
           onPressed: () {
             setState(() {
-              if (DefaultTabController.of(context)?.index == 0) {
+              if (DefaultTabController.of(context).index == 0) {
                 // Weekly view
                 _selectedDate = _selectedDate.add(const Duration(days: 7));
               } else {
                 // Monthly view
-                _selectedDate = DateTime(_selectedDate.year, _selectedDate.month + 1);
+                _selectedDate =
+                    DateTime(_selectedDate.year, _selectedDate.month + 1);
               }
             });
           },
@@ -269,8 +271,6 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-
-
   Map<String, double> _calculatePercentageTotals(
       List<Shift> shifts, AppState appState) {
     Map<String, double> totals = {};
@@ -291,7 +291,8 @@ class _ReportScreenState extends State<ReportScreen> {
       double baseRate = isSpecialDay ? 1.5 : 1.0;
 
       // Apply base rate
-      double hoursAtBaseRate = remainingHours < baseHours ? remainingHours : baseHours;
+      double hoursAtBaseRate =
+          remainingHours < baseHours ? remainingHours : baseHours;
       String baseKey = '${(baseRate * 100).toInt()}%';
       totals[baseKey] = (totals[baseKey] ?? 0) + hoursAtBaseRate;
       remainingHours -= hoursAtBaseRate;
@@ -305,7 +306,9 @@ class _ReportScreenState extends State<ReportScreen> {
 
         if (shift.totalHours > rule.hoursThreshold) {
           double hoursAtThisRate =
-              remainingHours < (nextThreshold - rule.hoursThreshold) ? remainingHours : (nextThreshold - rule.hoursThreshold);
+              remainingHours < (nextThreshold - rule.hoursThreshold)
+                  ? remainingHours
+                  : (nextThreshold - rule.hoursThreshold);
 
           if (hoursAtThisRate > 0) {
             String key = '${(rule.rate * 100).toInt()}%';
@@ -320,8 +323,6 @@ class _ReportScreenState extends State<ReportScreen> {
 
     return totals;
   }
-
-
 
   bool _isWeekend(AppState appState, DateTime date) {
     if (appState.startOnSunday) {
@@ -377,19 +378,19 @@ class _ReportScreenState extends State<ReportScreen> {
   String _getLocalizedDay(AppLocalizations localizations, int weekday) {
     switch (weekday) {
       case DateTime.monday:
-        return localizations.monday;
+        return localizations.monday_full;
       case DateTime.tuesday:
-        return localizations.tuesday;
+        return localizations.tuesday_full;
       case DateTime.wednesday:
-        return localizations.wednesday;
+        return localizations.wednesday_full;
       case DateTime.thursday:
-        return localizations.thursday;
+        return localizations.thursday_full;
       case DateTime.friday:
-        return localizations.friday;
+        return localizations.friday_full;
       case DateTime.saturday:
-        return localizations.saturday;
+        return localizations.saturday_full;
       case DateTime.sunday:
-        return localizations.sunday;
+        return localizations.sunday_full;
       default:
         return '';
     }
