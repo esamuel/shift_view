@@ -26,6 +26,20 @@ class _ReportScreenState extends State<ReportScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(localizations.reportsTitle),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.search),
+              tooltip: 'Advanced Search',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SearchResultsScreen(),
+                  ),
+                );
+              },
+            ),
+          ],
           bottom: TabBar(
             tabs: [
               Tab(text: localizations.weeklyView),
@@ -65,18 +79,6 @@ class _ReportScreenState extends State<ReportScreen> {
         _buildTotalRow(weekShifts, appState, localizations,
             _calculateWorkingDays(weekShifts)),
         _buildPercentageTotals(weekShifts, appState, localizations),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const SearchResultsScreen(),
-              ),
-            );
-          },
-          child: const Text('Advanced Search'),
-        ),
       ],
     );
   }
@@ -110,70 +112,76 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Widget _buildDateSelector(AppLocalizations localizations) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left),
-          tooltip: 'Previous',
-          onPressed: () {
-            setState(() {
-              if (DefaultTabController.of(context).index == 0) {
-                // Weekly view
-                _selectedDate = _selectedDate.subtract(const Duration(days: 7));
-              } else {
-                // Monthly view
-                _selectedDate =
-                    DateTime(_selectedDate.year, _selectedDate.month - 1);
-              }
-            });
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: TextButton(
-            child: Text(
-              _getLocalizedMonthYear(localizations, _selectedDate),
-              style: const TextStyle(fontSize: 16),
-            ),
-            onPressed: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _selectedDate,
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2101),
-              );
-              if (picked != null) {
-                setState(() {
-                  _selectedDate = picked;
-                });
-              }
+    return Builder(builder: (context) {
+      final tabController = DefaultTabController.of(context);
+      final isWeeklyView = tabController.index == 0;
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            tooltip: 'Previous',
+            onPressed: () {
+              setState(() {
+                if (isWeeklyView) {
+                  // Weekly view
+                  _selectedDate =
+                      _selectedDate.subtract(const Duration(days: 7));
+                } else {
+                  // Monthly view
+                  _selectedDate =
+                      DateTime(_selectedDate.year, _selectedDate.month - 1);
+                }
+              });
             },
           ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.chevron_right),
-          tooltip: 'Next',
-          onPressed: () {
-            setState(() {
-              if (DefaultTabController.of(context).index == 0) {
-                // Weekly view
-                _selectedDate = _selectedDate.add(const Duration(days: 7));
-              } else {
-                // Monthly view
-                _selectedDate =
-                    DateTime(_selectedDate.year, _selectedDate.month + 1);
-              }
-            });
-          },
-        ),
-      ],
-    );
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: TextButton(
+              child: Text(
+                _getLocalizedMonthYear(localizations, _selectedDate),
+                style: const TextStyle(fontSize: 16),
+              ),
+              onPressed: () async {
+                final picked = await showDatePicker(
+                  context: context,
+                  initialDate: _selectedDate,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2101),
+                );
+                if (picked != null) {
+                  setState(() {
+                    _selectedDate = picked;
+                  });
+                }
+              },
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            tooltip: 'Next',
+            onPressed: () {
+              setState(() {
+                if (isWeeklyView) {
+                  // Weekly view
+                  _selectedDate = _selectedDate.add(const Duration(days: 7));
+                } else {
+                  // Monthly view
+                  _selectedDate =
+                      DateTime(_selectedDate.year, _selectedDate.month + 1);
+                }
+              });
+            },
+          ),
+        ],
+      );
+    });
   }
 
   Widget _buildShiftsList(
       List<Shift> shifts, AppState appState, AppLocalizations localizations) {
-    shifts.sort((a, b) => a.date.compareTo(b.date));
+    shifts.sort((a, b) => b.date.compareTo(a.date));
     return ListView.builder(
       itemCount: shifts.length,
       itemBuilder: (context, index) {

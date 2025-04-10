@@ -148,6 +148,7 @@
   "addToHomeScreenTitle": "Cómo añadir a la pantalla de inicio",
   "iPhoneInstructions": "Para iPhone:",
   "openInSafari": "Abre esta página en Safari",
+  "tapShareButton": "Toca el botón de compartir",
   "scrollAndTapAddToHomeScreen": "Desplázate hacia abajo y toca \"Añadir a la pantalla de inicio\"",
   "tapAddInTopRight": "Toca \"Añadir\" en la esquina superior derecha",
   "androidInstructions": "Para Android:",
@@ -163,41 +164,13 @@
   "addFestiveDay": "Añadir día festivo",
   "currentMonth": "Mes Actual",
   "allShifts": "Todos los Turnos",
-  "shiftManagerTitle": "Gestor de Turnos",
-  "addNewShift": "Añadir Nuevo Turno",
-  "selectDate": "Seleccionar Fecha",
-  "startTime": "Hora de Inicio",
-  "endTime": "Hora de Fin",
-  "addShift": "Añadir Turno",
-  "existingShifts": "Turnos Existentes",
-  "currentMonth": "Mes Actual",
-  "allShifts": "Todos los Turnos",
-  "totalHours": "Horas Totales",
-  "grossWage": "Salario Bruto",
-  "netWage": "Salario Neto",
   "editShift": "Editar Turno",
   "deleteShift": "Eliminar Turno",
-  "cancel": "Cancelar",
-  "save": "Guardar",
-  "confirmDelete": "Confirmar Eliminación",
-  "deleteShiftConfirmation": "¿Estás seguro de que quieres eliminar este turno?",
-  "delete": "Eliminar",
-  "shiftAlreadySaved": "Este turno ya está guardado.",
-  "shiftAddedSuccessfully": "Turno añadido con éxito.",
   "shiftUpdatedSuccessfully": "Turno actualizado con éxito.",
   "shiftDeletedSuccessfully": "Turno eliminado con éxito.",
-  "addToHomeScreen": "Añadir a la pantalla de inicio",
-  "addToHomeScreenTitle": "Cómo añadir a la pantalla de inicio",
   "addToHomeScreeniOS": "Para iOS: Toca el botón de compartir en Safari, luego selecciona 'Añadir a la pantalla de inicio'.",
   "addToHomeScreenAndroid": "Para Android: Toca el botón de menú en Chrome, luego selecciona 'Añadir a la pantalla de inicio'.",
   "ok": "Aceptar",
-  "addRule": "Agregar regla",
-  "saveRule": "Guardar regla",
-  "changesSaved": "Cambios guardados",
-  "errorInvalidShiftId": "Error: ID de turno inválido",
-  "selectDate": "Seleccionar fecha",
-  "shiftNotes": "Notas",
-  "settingsSaved": "Configuración guardada exitosamente",
   "upcomingShifts": "Próximos turnos",
   "upcomingShiftsTitle": "Próximos turnos",
   "upcomingShiftsClose": "Cerrar",
@@ -206,17 +179,31 @@
   "shiftTimeFormat": "Inicio: {start}, Fin: {end}, Total: {hours} h {minutes} min",
   "@shiftDateFormat": {
     "placeholders": {
-      "weekday": {},
-      "day": {},
-      "month": {}
+      "weekday": {
+        "type": "Object"
+      },
+      "day": {
+        "type": "Object"
+      },
+      "month": {
+        "type": "Object"
+      }
     }
   },
   "@shiftTimeFormat": {
     "placeholders": {
-      "start": {},
-      "end": {},
-      "hours": {},
-      "minutes": {}
+      "start": {
+        "type": "Object"
+      },
+      "end": {
+        "type": "Object"
+      },
+      "hours": {
+        "type": "Object"
+      },
+      "minutes": {
+        "type": "Object"
+      }
     }
   },
   "mon": "LUN",
@@ -226,7 +213,6 @@
   "fri": "VIE",
   "sat": "SÁB",
   "sun": "DOM",
-  "tapShareButton": "Toca el botón de compartir",
   "notImplemented": "No implementado",
   "featureNotImplemented": "Esta función aún no está implementada",
   "welcomeMessage": "Bienvenido a la Gestión de Turnos",
@@ -239,25 +225,23 @@
   "noShiftsThisMonth": "No hay turnos este mes",
   "noShiftsYet": "Aún no hay turnos",
   "shiftNotes": "Notas del turno",
-  "upcomingShifts": "Próximos turnos",
-  "upcomingShiftsTitle": "Próximos turnos",
-  "upcomingShiftsClose": "Cerrar",
-  "noUpcomingShifts": "No hay próximos turnos",
-  "shiftDateFormat": "{weekday} {day}/{month}",
-  "shiftTimeFormat": "Inicio: {start}, Fin: {end}, Total: {hours} h {minutes} min",
-  "@shiftDateFormat": {
-    "placeholders": {
-      "weekday": {},
-      "day": {},
-      "month": {}
-    }
-  },
-  "@shiftTimeFormat": {
-    "placeholders": {
-      "start": {},
-      "end": {},
-      "hours": {},
-      "minutes": {}
-    }
-  }
+  "settingsSaved": "Configuración guardada exitosamente",
+  "addRule": "Agregar regla",
+  "saveRule": "Guardar regla",
+  "changesSaved": "Cambios guardados",
+  "errorInvalidShiftId": "Error: ID de turno inválido",
+  "monday_short": "LUN",
+  "tuesday_short": "MAR",
+  "wednesday_short": "MIÉ",
+  "thursday_short": "JUE",
+  "friday_short": "VIE",
+  "saturday_short": "SÁB",
+  "sunday_short": "DOM",
+  "monday_full": "Lunes",
+  "tuesday_full": "Martes",
+  "wednesday_full": "Miércoles",
+  "thursday_full": "Jueves",
+  "friday_full": "Viernes",
+  "saturday_full": "Sábado",
+  "sunday_full": "Domingo"
 }

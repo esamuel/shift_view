@@ -72,12 +72,15 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
 
     setState(() {
       _searchResults = appState.shifts.where((shift) {
-        final shiftDate = DateTime(shift.date.year, shift.date.month, shift.date.day);
-        final start = DateTime(_startDate!.year, _startDate!.month, _startDate!.day);
+        final shiftDate =
+            DateTime(shift.date.year, shift.date.month, shift.date.day);
+        final start =
+            DateTime(_startDate!.year, _startDate!.month, _startDate!.day);
         final end = DateTime(_endDate!.year, _endDate!.month, _endDate!.day);
-        
-        return (shiftDate.isAtSameMomentAs(start) || shiftDate.isAfter(start)) &&
-               (shiftDate.isAtSameMomentAs(end) || shiftDate.isBefore(end));
+
+        return (shiftDate.isAtSameMomentAs(start) ||
+                shiftDate.isAfter(start)) &&
+            (shiftDate.isAtSameMomentAs(end) || shiftDate.isBefore(end));
       }).toList();
 
       _searchResults.sort((a, b) => b.date.compareTo(a.date));
@@ -95,6 +98,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       return;
     }
 
+    final appState = Provider.of<AppState>(context, listen: false);
+    final currencySymbol = appState.getCurrencySymbol();
+
     try {
       print('Starting PDF generation...');
       final pdf = pw.Document(
@@ -102,7 +108,7 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
           base: pw.Font.helvetica(),
         ),
       );
-      
+
       pdf.addPage(
         pw.Page(
           margin: const pw.EdgeInsets.all(40),
@@ -112,18 +118,14 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               pw.Text(
                 'Shifts Report',
                 style: pw.TextStyle(
-                  font: pw.Font.helvetica(),
-                  fontSize: 24,
-                  fontWeight: pw.FontWeight.bold
-                ),
+                    font: pw.Font.helvetica(),
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold),
               ),
               pw.SizedBox(height: 20),
               pw.Text(
                 'Period: ${DateFormat('MMM dd, yyyy').format(_startDate!)} - ${DateFormat('MMM dd, yyyy').format(_endDate!)}',
-                style: pw.TextStyle(
-                  font: pw.Font.helvetica(),
-                  fontSize: 14
-                ),
+                style: pw.TextStyle(font: pw.Font.helvetica(), fontSize: 14),
               ),
               pw.SizedBox(height: 20),
               pw.Table(
@@ -133,7 +135,9 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                   1: const pw.FlexColumnWidth(1.5),
                   2: const pw.FlexColumnWidth(1.5),
                   3: const pw.FlexColumnWidth(1.5),
-                  4: const pw.FlexColumnWidth(3),
+                  4: const pw.FlexColumnWidth(1.5),
+                  5: const pw.FlexColumnWidth(1.5),
+                  6: const pw.FlexColumnWidth(3),
                 },
                 children: [
                   pw.TableRow(
@@ -141,61 +145,101 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                       color: PdfColors.grey300,
                     ),
                     children: [
-                      pw.Text('Date', style: pw.TextStyle(
-                        font: pw.Font.helvetica(),
-                        fontWeight: pw.FontWeight.bold
-                      )),
-                      pw.Text('Start Time', style: pw.TextStyle(
-                        font: pw.Font.helvetica(),
-                        fontWeight: pw.FontWeight.bold
-                      )),
-                      pw.Text('End Time', style: pw.TextStyle(
-                        font: pw.Font.helvetica(),
-                        fontWeight: pw.FontWeight.bold
-                      )),
-                      pw.Text('Total Hours', style: pw.TextStyle(
-                        font: pw.Font.helvetica(),
-                        fontWeight: pw.FontWeight.bold
-                      )),
-                      pw.Text('Note', style: pw.TextStyle(
-                        font: pw.Font.helvetica(),
-                        fontWeight: pw.FontWeight.bold
-                      )),
-                    ].map((text) => pw.Container(
-                      padding: const pw.EdgeInsets.all(8),
-                      child: text,
-                    )).toList(),
+                      pw.Text('Date',
+                          style: pw.TextStyle(
+                              font: pw.Font.helvetica(),
+                              fontWeight: pw.FontWeight.bold)),
+                      pw.Text('Start Time',
+                          style: pw.TextStyle(
+                              font: pw.Font.helvetica(),
+                              fontWeight: pw.FontWeight.bold)),
+                      pw.Text('End Time',
+                          style: pw.TextStyle(
+                              font: pw.Font.helvetica(),
+                              fontWeight: pw.FontWeight.bold)),
+                      pw.Text('Total Hours',
+                          style: pw.TextStyle(
+                              font: pw.Font.helvetica(),
+                              fontWeight: pw.FontWeight.bold)),
+                      pw.Text('Gross Wage',
+                          style: pw.TextStyle(
+                              font: pw.Font.helvetica(),
+                              fontWeight: pw.FontWeight.bold)),
+                      pw.Text('Net Wage',
+                          style: pw.TextStyle(
+                              font: pw.Font.helvetica(),
+                              fontWeight: pw.FontWeight.bold)),
+                      pw.Text('Note',
+                          style: pw.TextStyle(
+                              font: pw.Font.helvetica(),
+                              fontWeight: pw.FontWeight.bold)),
+                    ]
+                        .map((text) => pw.Container(
+                              padding: const pw.EdgeInsets.all(8),
+                              child: text,
+                            ))
+                        .toList(),
                   ),
                   ..._searchResults.map((shift) => pw.TableRow(
-                    children: [
-                      pw.Text(DateFormat('MMM dd, yyyy').format(shift.date),
-                        style: pw.TextStyle(font: pw.Font.helvetica())),
-                      pw.Text(shift.startTime != null ? DateFormat('HH:mm').format(shift.startTime!) : '--:--',
-                        style: pw.TextStyle(font: pw.Font.helvetica())),
-                      pw.Text(shift.endTime != null ? DateFormat('HH:mm').format(shift.endTime!) : '--:--',
-                        style: pw.TextStyle(font: pw.Font.helvetica())),
-                      pw.Text(shift.totalHours.toStringAsFixed(1),
-                        style: pw.TextStyle(font: pw.Font.helvetica())),
-                      pw.Text(shift.note ?? '',
-                        style: pw.TextStyle(font: pw.Font.helvetica())),
-                    ].map((text) => pw.Container(
-                      padding: const pw.EdgeInsets.all(8),
-                      alignment: pw.Alignment.centerLeft,
-                      child: text,
-                    )).toList(),
-                  )),
+                        children: [
+                          pw.Text(DateFormat('MMM dd, yyyy').format(shift.date),
+                              style: pw.TextStyle(font: pw.Font.helvetica())),
+                          pw.Text(
+                              shift.startTime != null
+                                  ? DateFormat('HH:mm').format(shift.startTime!)
+                                  : '--:--',
+                              style: pw.TextStyle(font: pw.Font.helvetica())),
+                          pw.Text(
+                              shift.endTime != null
+                                  ? DateFormat('HH:mm').format(shift.endTime!)
+                                  : '--:--',
+                              style: pw.TextStyle(font: pw.Font.helvetica())),
+                          pw.Text(shift.totalHours.toStringAsFixed(1),
+                              style: pw.TextStyle(font: pw.Font.helvetica())),
+                          pw.Text(
+                              '$currencySymbol${shift.grossWage.toStringAsFixed(2)}',
+                              style: pw.TextStyle(font: pw.Font.helvetica())),
+                          pw.Text(
+                              '$currencySymbol${shift.netWage.toStringAsFixed(2)}',
+                              style: pw.TextStyle(font: pw.Font.helvetica())),
+                          pw.Text(shift.note ?? '',
+                              style: pw.TextStyle(font: pw.Font.helvetica())),
+                        ]
+                            .map((text) => pw.Container(
+                                  padding: const pw.EdgeInsets.all(8),
+                                  alignment: pw.Alignment.centerLeft,
+                                  child: text,
+                                ))
+                            .toList(),
+                      )),
                 ],
               ),
               pw.SizedBox(height: 20),
               pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.end,
                 children: [
-                  pw.Text(
-                    'Total Hours: ${_searchResults.fold<double>(0.0, (sum, shift) => sum + shift.totalHours).toStringAsFixed(1)}',
-                    style: pw.TextStyle(
-                        font: pw.Font.helvetica(),
-                        fontWeight: pw.FontWeight.bold
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.end,
+                    children: [
+                      pw.Text(
+                        'Total Hours: ${_searchResults.fold<double>(0.0, (sum, shift) => sum + shift.totalHours).toStringAsFixed(1)}',
+                        style: pw.TextStyle(
+                            font: pw.Font.helvetica(),
+                            fontWeight: pw.FontWeight.bold),
                       ),
+                      pw.Text(
+                        'Total Gross Wage: $currencySymbol${_searchResults.fold<double>(0.0, (sum, shift) => sum + shift.grossWage).toStringAsFixed(2)}',
+                        style: pw.TextStyle(
+                            font: pw.Font.helvetica(),
+                            fontWeight: pw.FontWeight.bold),
+                      ),
+                      pw.Text(
+                        'Total Net Wage: $currencySymbol${_searchResults.fold<double>(0.0, (sum, shift) => sum + shift.netWage).toStringAsFixed(2)}',
+                        style: pw.TextStyle(
+                            font: pw.Font.helvetica(),
+                            fontWeight: pw.FontWeight.bold),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -207,24 +251,25 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
       print('Saving PDF...');
       final Uint8List pdfBytes = await pdf.save();
       print('PDF saved, size: ${pdfBytes.length} bytes');
-      
-      final String fileName = 'shifts_${DateFormat('yyyy_MM_dd').format(DateTime.now())}.pdf';
+
+      final String fileName =
+          'shifts_${DateFormat('yyyy_MM_dd').format(DateTime.now())}.pdf';
       print('Preparing to share file: $fileName');
-      
+
       // Create a Blob containing the PDF data
       final blob = html.Blob([pdfBytes], 'application/pdf');
-      
+
       // Create a URL for the Blob
       final url = html.Url.createObjectUrlFromBlob(blob);
-      
+
       // Create an anchor element and trigger download
       final anchor = html.AnchorElement(href: url)
         ..setAttribute('download', fileName)
         ..style.display = 'none';
-      
+
       html.document.body?.children.add(anchor);
       anchor.click();
-      
+
       // Clean up
       html.document.body?.children.remove(anchor);
       html.Url.revokeObjectUrl(url);
@@ -247,9 +292,16 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
   @override
   Widget build(BuildContext context) {
     double totalHours = 0;
+    double totalGrossWage = 0;
+    double totalNetWage = 0;
     for (var shift in _searchResults) {
       totalHours += shift.totalHours;
+      totalGrossWage += shift.grossWage;
+      totalNetWage += shift.netWage;
     }
+
+    final appState = Provider.of<AppState>(context, listen: false);
+    final currencySymbol = appState.getCurrencySymbol();
 
     return Scaffold(
       appBar: AppBar(
@@ -277,10 +329,12 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                             const Text('Start Date'),
                             const SizedBox(height: 8),
                             Text(
-                              _startDate != null 
-                                ? DateFormat('MMM dd, yyyy').format(_startDate!)
-                                : 'Select Start',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              _startDate != null
+                                  ? DateFormat('MMM dd, yyyy')
+                                      .format(_startDate!)
+                                  : 'Select Start',
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -295,10 +349,11 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                             const Text('End Date'),
                             const SizedBox(height: 8),
                             Text(
-                              _endDate != null 
-                                ? DateFormat('MMM dd, yyyy').format(_endDate!)
-                                : 'Select End',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              _endDate != null
+                                  ? DateFormat('MMM dd, yyyy').format(_endDate!)
+                                  : 'Select End',
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -308,7 +363,8 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: (_startDate != null && _endDate != null) ? _search : null,
+                  onPressed:
+                      (_startDate != null && _endDate != null) ? _search : null,
                   child: const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                     child: Text('Search', style: TextStyle(fontSize: 16)),
@@ -317,12 +373,13 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
               ],
             ),
           ),
-          if (_searchResults.isNotEmpty) ...[            
+          if (_searchResults.isNotEmpty) ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 'Results: ${DateFormat('MMM dd').format(_startDate!)} - ${DateFormat('MMM dd').format(_endDate!)}',
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
             Expanded(
@@ -337,15 +394,30 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                         DataColumn(label: Text('Start Time')),
                         DataColumn(label: Text('End Time')),
                         DataColumn(label: Text('Total Hours')),
+                        DataColumn(label: Text('Gross Wage')),
+                        DataColumn(label: Text('Net Wage')),
                         DataColumn(label: Text('Note')),
                       ],
-                      rows: _searchResults.map((shift) => DataRow(cells: [
-                        DataCell(Text(DateFormat('MMM dd, yyyy').format(shift.date))),
-                        DataCell(Text(shift.startTime != null ? DateFormat('HH:mm').format(shift.startTime!) : '--:--')),
-                        DataCell(Text(shift.endTime != null ? DateFormat('HH:mm').format(shift.endTime!) : '--:--')),
-                        DataCell(Text(shift.totalHours.toStringAsFixed(1))),
-                        DataCell(Text(shift.note ?? '')),
-                      ])).toList(),
+                      rows: _searchResults
+                          .map((shift) => DataRow(cells: [
+                                DataCell(Text(DateFormat('MMM dd, yyyy')
+                                    .format(shift.date))),
+                                DataCell(Text(shift.startTime != null
+                                    ? DateFormat('HH:mm')
+                                        .format(shift.startTime!)
+                                    : '--:--')),
+                                DataCell(Text(shift.endTime != null
+                                    ? DateFormat('HH:mm').format(shift.endTime!)
+                                    : '--:--')),
+                                DataCell(
+                                    Text(shift.totalHours.toStringAsFixed(1))),
+                                DataCell(Text(
+                                    '$currencySymbol${shift.grossWage.toStringAsFixed(2)}')),
+                                DataCell(Text(
+                                    '$currencySymbol${shift.netWage.toStringAsFixed(2)}')),
+                                DataCell(Text(shift.note ?? '')),
+                              ]))
+                          .toList(),
                     ),
                   ),
                 ),
@@ -361,9 +433,22 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     icon: const Icon(Icons.print),
                     label: const Text('Export to PDF'),
                   ),
-                  Text(
-                    'Total Hours: ${totalHours.toStringAsFixed(1)}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Total Hours: ${totalHours.toStringAsFixed(1)}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Total Gross Wage: $currencySymbol${totalGrossWage.toStringAsFixed(2)}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Total Net Wage: $currencySymbol${totalNetWage.toStringAsFixed(2)}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                 ],
               ),

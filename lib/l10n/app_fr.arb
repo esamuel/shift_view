@@ -225,17 +225,31 @@
   "shiftTimeFormat": "Début : {start}, Fin : {end}, Total : {hours} h {minutes} min",
   "@shiftDateFormat": {
     "placeholders": {
-      "weekday": {},
-      "day": {},
-      "month": {}
+      "weekday": {
+        "type": "Object"
+      },
+      "day": {
+        "type": "Object"
+      },
+      "month": {
+        "type": "Object"
+      }
     }
   },
   "@shiftTimeFormat": {
     "placeholders": {
-      "start": {},
-      "end": {},
-      "hours": {},
-      "minutes": {}
+      "start": {
+        "type": "Object"
+      },
+      "end": {
+        "type": "Object"
+      },
+      "hours": {
+        "type": "Object"
+      },
+      "minutes": {
+        "type": "Object"
+      }
     }
   },
   "mon": "LUN",

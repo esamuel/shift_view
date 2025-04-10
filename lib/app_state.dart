@@ -418,7 +418,7 @@ class AppState extends ChangeNotifier {
   List<Shift> get upcomingShifts {
     final now = DateTime.now();
     return shifts.where((shift) => shift.date.isAfter(now)).toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
+      ..sort((a, b) => b.date.compareTo(a.date));
   }
 
   List<Shift> getShiftsBetweenDates(DateTime start, DateTime end) {
@@ -426,7 +426,8 @@ class AppState extends ChangeNotifier {
         .where((shift) =>
             shift.date.isAfter(start.subtract(const Duration(days: 1))) &&
             shift.date.isBefore(end.add(const Duration(days: 1))))
-        .toList();
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
   }
 
   // Add a method to ensure shifts stream is initialized

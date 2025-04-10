@@ -234,17 +234,31 @@
   "shiftTimeFormat": "התחלה: {start}, סיום: {end}, סה\"כ: {hours} ש' {minutes} דק'",
   "@shiftDateFormat": {
     "placeholders": {
-      "weekday": {},
-      "day": {},
-      "month": {}
+      "weekday": {
+        "type": "Object"
+      },
+      "day": {
+        "type": "Object"
+      },
+      "month": {
+        "type": "Object"
+      }
     }
   },
   "@shiftTimeFormat": {
     "placeholders": {
-      "start": {},
-      "end": {},
-      "hours": {},
-      "minutes": {}
+      "start": {
+        "type": "Object"
+      },
+      "end": {
+        "type": "Object"
+      },
+      "hours": {
+        "type": "Object"
+      },
+      "minutes": {
+        "type": "Object"
+      }
     }
   },
   "mon": "שני",

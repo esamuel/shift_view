@@ -54,8 +54,8 @@ class UpcomingShiftsWidget extends StatelessWidget {
       return shiftDate.isAfter(today.subtract(const Duration(days: 1))) &&
           shiftDate.isBefore(sixDaysFromNow.add(const Duration(days: 1)));
     }).toList()
-      // Sort by date in ascending order (closest dates first)
-      ..sort((a, b) => a.date.compareTo(b.date));
+      // Sort by date in descending order (next day first)
+      ..sort((a, b) => b.date.compareTo(a.date));
   }
 
   @override

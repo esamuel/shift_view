@@ -19,18 +19,65 @@ class ShiftService extends ChangeNotifier {
 
   List<Shift> getUpcomingShifts(int count) {
     final now = DateTime.now();
-    return _shifts
-        .where((shift) => shift.startTime != null && shift.startTime!.isAfter(now))
-        .take(count)
+    final filtered = _shifts
+        .where(
+            (shift) => shift.startTime != null && shift.startTime!.isAfter(now))
         .toList();
+
+    // Sort in descending order (next day first)
+    filtered.sort((a, b) => b.startTime!.compareTo(a.startTime!));
+
+    // Take only the first 'count' shifts
+    return filtered.take(count).toList();
   }
 
   // Add this method to initialize with some sample shifts
   void addSampleShifts() {
     final now = DateTime.now();
-    addShift(Shift(startTime: now.add(const Duration(days: 1)), endTime: now.add(const Duration(days: 1, hours: 8))));
-    addShift(Shift(startTime: now.add(const Duration(days: 2)), endTime: now.add(const Duration(days: 2, hours: 8))));
-    addShift(Shift(startTime: now.add(const Duration(days: 3)), endTime: now.add(const Duration(days: 3, hours: 8))));
+
+    // Day 1
+    final day1Start = now.add(const Duration(days: 1));
+    final day1End = now.add(const Duration(days: 1, hours: 8));
+    final day1Hours = day1End.difference(day1Start).inMinutes / 60.0;
+
+    // Day 2
+    final day2Start = now.add(const Duration(days: 2));
+    final day2End = now.add(const Duration(days: 2, hours: 8));
+    final day2Hours = day2End.difference(day2Start).inMinutes / 60.0;
+
+    // Day 3
+    final day3Start = now.add(const Duration(days: 3));
+    final day3End = now.add(const Duration(days: 3, hours: 8));
+    final day3Hours = day3End.difference(day3Start).inMinutes / 60.0;
+
+    // Create shifts with all required parameters
+    addShift(Shift(
+      date: day1Start,
+      startTime: day1Start,
+      endTime: day1End,
+      totalHours: day1Hours,
+      grossWage: 0.0,
+      netWage: 0.0,
+    ));
+
+    addShift(Shift(
+      date: day2Start,
+      startTime: day2Start,
+      endTime: day2End,
+      totalHours: day2Hours,
+      grossWage: 0.0,
+      netWage: 0.0,
+    ));
+
+    addShift(Shift(
+      date: day3Start,
+      startTime: day3Start,
+      endTime: day3End,
+      totalHours: day3Hours,
+      grossWage: 0.0,
+      netWage: 0.0,
+    ));
+
     print('Added ${_shifts.length} sample shifts');
   }
 }
